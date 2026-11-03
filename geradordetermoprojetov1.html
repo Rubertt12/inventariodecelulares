@@ -78,7 +78,7 @@ body {
 
 .tabs {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 8px;
   margin-bottom: 15px;
 }
@@ -126,13 +126,21 @@ h2 {
 
 /* ALTERADO: Inputs e Selects usam o estilo padrão da aplicação */
 .field input,
-.field select {
+.field select,
+.field textarea {
   width: 100%;
   padding: 8px 10px;
   border: 1px solid #d9e0e7;
   border-radius: 5px;
   font-size: 14px;
   background: #fff;
+}
+
+.field textarea {
+  min-height: 72px;
+  resize: vertical;
+  font: inherit;
+  line-height: 1.4;
 }
 
 .grid2 {
@@ -231,6 +239,11 @@ button:disabled {
 .header {
   height: 23mm;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
 }
 
 .header img {
@@ -306,12 +319,69 @@ button:disabled {
   left: 0;
   right: 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
 }
 
 .footer img {
   width: 116mm;
   max-height: 14mm;
   object-fit: contain;
+}
+
+.template-copy {
+  max-width: 100%;
+  font-size: 8.5pt;
+  line-height: 1.2;
+}
+
+.template-copy:empty,
+.header img[hidden],
+.footer img[hidden] {
+  display: none;
+}
+
+.template-editor {
+  max-height: calc(100vh - 230px);
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.template-editor details {
+  border-bottom: 1px solid #d9e0e7;
+  padding: 9px 0;
+}
+
+.template-editor summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #34495e;
+}
+
+.logo-editor {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.logo-preview {
+  width: 74px;
+  height: 54px;
+  object-fit: contain;
+  border: 1px solid #d9e0e7;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.template-save-status {
+  min-height: 20px;
+  color: #107c41;
+  font-size: 12px;
+  margin-top: 8px;
 }
 
 .batch-toolbar {
@@ -506,6 +576,7 @@ html.dark-mode .badge { background: #253245; color: #0a84ff; }
       <div class="tabs">
         <button id="tabIndividual" class="tab active" onclick="abrirModo('individual')">Individual</button>
         <button id="tabLote" class="tab" onclick="abrirModo('lote')">Em lote</button>
+        <button id="tabModelo" class="tab" onclick="abrirModo('modelo')">Modelo</button>
       </div>
 
       <section id="modoIndividual">
@@ -605,6 +676,87 @@ html.dark-mode .badge { background: #253245; color: #0a84ff; }
         </div>
       </section>
 
+      <section id="modoModelo" class="hidden">
+        <h2>Personalizar modelo</h2>
+        <p class="help">Edite os textos e logos usados no preview e nos PDFs. As alterações são salvas neste computador.</p>
+
+        <div class="template-editor">
+          <details open>
+            <summary>Cabeçalho e título</summary>
+            <div class="logo-editor">
+              <img id="templateHeaderLogoPreview" class="logo-preview" alt="Prévia do logo do cabeçalho">
+              <div class="field">
+                <label for="templateHeaderLogoFile">Logo do cabeçalho</label>
+                <input type="file" id="templateHeaderLogoFile" accept="image/png,image/jpeg,image/webp">
+                <button type="button" class="secondary" id="btnRemoveHeaderLogo">Remover logo</button>
+              </div>
+            </div>
+            <div class="field"><label for="templateHeaderText">Texto do cabeçalho</label><textarea id="templateHeaderText" rows="2"></textarea></div>
+            <div class="field"><label for="templateTitle">Título do termo</label><input id="templateTitle"></div>
+            <div class="field"><label for="templateTicketLabel">Rótulo do ticket</label><input id="templateTicketLabel"></div>
+            <div class="field"><label for="templateIntro">Texto de abertura</label><textarea id="templateIntro" rows="4"></textarea></div>
+          </details>
+
+          <details>
+            <summary>Dados do colaborador e do aparelho</summary>
+            <div class="field"><label for="templateCollaboratorTitle">Título da seção do colaborador</label><input id="templateCollaboratorTitle"></div>
+            <div class="grid2">
+              <div class="field"><label for="templateLabelName">Rótulo do nome</label><input id="templateLabelName"></div>
+              <div class="field"><label for="templateLabelMatricula">Rótulo da matrícula</label><input id="templateLabelMatricula"></div>
+              <div class="field"><label for="templateLabelLocal">Rótulo da localidade</label><input id="templateLabelLocal"></div>
+              <div class="field"><label for="templateLabelCC">Rótulo do centro de custo</label><input id="templateLabelCC"></div>
+            </div>
+            <div class="field"><label for="templateDeviceTitle">Título da seção do aparelho</label><input id="templateDeviceTitle"></div>
+            <div class="grid2">
+              <div class="field"><label for="templateLabelDeviceType">Rótulo do tipo de aparelho</label><input id="templateLabelDeviceType"></div>
+              <div class="field"><label for="templateDeviceType">Tipo de aparelho</label><input id="templateDeviceType"></div>
+              <div class="field"><label for="templateLabelImei1">Rótulo do IMEI 1</label><input id="templateLabelImei1"></div>
+              <div class="field"><label for="templateLabelImei2">Rótulo do IMEI 2</label><input id="templateLabelImei2"></div>
+              <div class="field"><label for="templateLabelSerial">Rótulo do número de série</label><input id="templateLabelSerial"></div>
+              <div class="field"><label for="templateLabelLine">Rótulo da linha</label><input id="templateLabelLine"></div>
+              <div class="field"><label for="templateLabelChip">Rótulo do chip</label><input id="templateLabelChip"></div>
+              <div class="field"><label for="templateLabelModel">Rótulo da marca/modelo</label><input id="templateLabelModel"></div>
+            </div>
+            <div class="field"><label for="templateAccessoryIntro">Texto dos acessórios</label><textarea id="templateAccessoryIntro" rows="2"></textarea></div>
+            <div class="grid2">
+              <div class="field"><label for="templateAccessoryCharger">Carregador</label><input id="templateAccessoryCharger"></div>
+              <div class="field"><label for="templateAccessoryHeadphones">Fone de ouvido</label><input id="templateAccessoryHeadphones"></div>
+              <div class="field"><label for="templateAccessoryAdapter">Adaptador USB</label><input id="templateAccessoryAdapter"></div>
+            </div>
+          </details>
+
+          <details>
+            <summary>Regras e assinatura</summary>
+            <div class="field"><label for="templateRulesIntro">Introdução das regras</label><textarea id="templateRulesIntro" rows="2"></textarea></div>
+            <div class="field"><label for="templateRules">Regras gerais (uma por linha)</label><textarea id="templateRules" rows="7"></textarea></div>
+            <div class="field"><label for="templateRenewalRule">Regra exibida nos termos A07/A06</label><textarea id="templateRenewalRule" rows="2"></textarea></div>
+            <div class="field"><label for="templatePukText">Texto sobre o cartão PUK</label><input id="templatePukText"></div>
+            <div class="field"><label for="templateDatePrefix">Texto antes da cidade</label><input id="templateDatePrefix"></div>
+            <div class="grid2">
+              <div class="field"><label for="templateDateSeparator">Separador cidade/data</label><input id="templateDateSeparator"></div>
+              <div class="field"><label for="templateDateSuffix">Texto após a data</label><input id="templateDateSuffix"></div>
+            </div>
+            <div class="field"><label for="templateSignature">Texto da assinatura</label><input id="templateSignature"></div>
+          </details>
+
+          <details>
+            <summary>Rodapé e logo</summary>
+            <div class="logo-editor">
+              <img id="templateFooterLogoPreview" class="logo-preview" alt="Prévia do logo do rodapé">
+              <div class="field">
+                <label for="templateFooterLogoFile">Logo do rodapé</label>
+                <input type="file" id="templateFooterLogoFile" accept="image/png,image/jpeg,image/webp">
+                <button type="button" class="secondary" id="btnRemoveFooterLogo">Remover logo</button>
+              </div>
+            </div>
+            <div class="field"><label for="templateFooterText">Texto do rodapé</label><textarea id="templateFooterText" rows="2"></textarea></div>
+          </details>
+
+          <button type="button" class="secondary" id="btnResetTemplate">Restaurar modelo original</button>
+          <div id="templateSaveStatus" class="template-save-status" role="status" aria-live="polite"></div>
+        </div>
+      </section>
+
       <div id="status" class="status"></div>
     </div>
   </div>
@@ -680,6 +832,9 @@ let filtroAtual = [];
 let generatedPdfIds = []; // NOVO: Armazena os IDs que vieram da página principal
 let processedBatchHashes = []; // Armazena os hashes dos lotes já processados
 let currentBatchHash = null;   // Armazena o hash do lote atual
+let templateSettings = null;
+let defaultTemplateSettings = null;
+let templateSaveTimer = null;
  
 const ids = [
   "fTicket","fNome","fMatricula","fCC","fLocalidade",
@@ -695,8 +850,10 @@ function limparFormulario() {
 function abrirModo(modo) {
   document.getElementById("modoIndividual").classList.toggle("hidden", modo !== "individual");
   document.getElementById("modoLote").classList.toggle("hidden", modo !== "lote");
+  document.getElementById("modoModelo").classList.toggle("hidden", modo !== "modelo");
   document.getElementById("tabIndividual").classList.toggle("active", modo === "individual");
   document.getElementById("tabLote").classList.toggle("active", modo === "lote");
+  document.getElementById("tabModelo").classList.toggle("active", modo === "modelo");
 }
 
 function hojePorExtenso() {
@@ -708,6 +865,317 @@ function hojePorExtenso() {
 }
 
 document.getElementById("fData").value = hojePorExtenso();
+
+const TEMPLATE_STORAGE_KEY = "termTemplateSettings";
+const TEMPLATE_TEXT_DEFAULTS = {
+  headerText: "",
+  title: "TERMO DE RESPONSABILIDADE DE CELULAR",
+  ticketLabel: "Ticket",
+  intro: "Pelo presente instrumento, a empresa SPRINGER CARRIER LTDA., com sede no Estado do Rio Grande do Sul, no Município de Canoas, na Rua Berto Círio, nº. 521, inscrita no CNPJ/MF sob o nº. 10.948.651/0001-61, entrega para o colaborador descrito abaixo o aparelho celular corporativo:",
+  collaboratorTitle: "DADOS DO COLABORADOR",
+  labelName: "Nome",
+  labelMatricula: "Matrícula",
+  labelLocal: "Localidade",
+  labelCC: "Centro de Custo",
+  deviceTitle: "DADOS DO APARELHO",
+  labelDeviceType: "Tipo de aparelho",
+  deviceType: "SmartPhone",
+  labelImei1: "IMEI 1",
+  labelImei2: "IMEI 2",
+  labelSerial: "S/N",
+  labelLine: "Linha",
+  labelChip: "CHIP",
+  labelModel: "Marca e Modelo",
+  accessoryIntro: "Acompanham este aparelho os itens assinalados abaixo:",
+  accessoryCharger: "Carregador",
+  accessoryHeadphones: "Fone de ouvido",
+  accessoryAdapter: "Adaptador USB",
+  rulesIntro: "O uso do aparelho possui tais restrições:",
+  rules: [
+    "Não pode ser utilizado para outro fim comercial que não o exercício das atividades laborais do funcionário, nos termos do seu contrato de trabalho;",
+    "Nos casos de dano, perda, furto e demais sinistros durante o período, o equipamento será de total responsabilidade do usuário;",
+    "A T.I. não se responsabilizará por nenhum tipo de informação deixada no aparelho;",
+    "Não deve ser repassado internamente sem o conhecimento da T.I;",
+    "Em caso de desligamento, a linha, o aparelho e seus acessórios devem ser devolvidos a T.I. em perfeitas condições de uso, lembrando que ambos pertencem a Midea Carrier;",
+    "Ao assinar este, o colaborador assume que leu e está ciente da “NORMA DE UTILIZAÇÃO DO SERVIÇO DE TELEFONIA MÓVEL”."
+  ],
+  renewalRule: "Aparelho não está sujeito a política de troca por vencimento;",
+  pukText: " (cartão com a senha PUK entregue ao usuário)",
+  datePrefix: "",
+  dateSeparator: ", ",
+  dateSuffix: ".",
+  signature: "Assinatura do Funcionário:",
+  footerText: ""
+};
+
+const TEMPLATE_EDITOR_FIELDS = [
+  ["templateHeaderText", "headerText"],
+  ["templateTitle", "title"],
+  ["templateTicketLabel", "ticketLabel"],
+  ["templateIntro", "intro"],
+  ["templateCollaboratorTitle", "collaboratorTitle"],
+  ["templateLabelName", "labelName"],
+  ["templateLabelMatricula", "labelMatricula"],
+  ["templateLabelLocal", "labelLocal"],
+  ["templateLabelCC", "labelCC"],
+  ["templateDeviceTitle", "deviceTitle"],
+  ["templateLabelDeviceType", "labelDeviceType"],
+  ["templateDeviceType", "deviceType"],
+  ["templateLabelImei1", "labelImei1"],
+  ["templateLabelImei2", "labelImei2"],
+  ["templateLabelSerial", "labelSerial"],
+  ["templateLabelLine", "labelLine"],
+  ["templateLabelChip", "labelChip"],
+  ["templateLabelModel", "labelModel"],
+  ["templateAccessoryIntro", "accessoryIntro"],
+  ["templateAccessoryCharger", "accessoryCharger"],
+  ["templateAccessoryHeadphones", "accessoryHeadphones"],
+  ["templateAccessoryAdapter", "accessoryAdapter"],
+  ["templateRulesIntro", "rulesIntro"],
+  ["templateRenewalRule", "renewalRule"],
+  ["templatePukText", "pukText"],
+  ["templateDatePrefix", "datePrefix"],
+  ["templateDateSeparator", "dateSeparator"],
+  ["templateDateSuffix", "dateSuffix"],
+  ["templateSignature", "signature"],
+  ["templateFooterText", "footerText"]
+];
+
+function createDefaultTemplateSettings() {
+  return {
+    ...TEMPLATE_TEXT_DEFAULTS,
+    headerLogo: document.querySelector(".header img")?.getAttribute("src") || "",
+    footerLogo: document.querySelector(".footer img")?.getAttribute("src") || ""
+  };
+}
+
+function cloneDefaultTemplateSettings() {
+  return JSON.parse(JSON.stringify(defaultTemplateSettings));
+}
+
+function loadTemplateSettings() {
+  const defaults = cloneDefaultTemplateSettings();
+  try {
+    const saved = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "{}");
+    return {
+      ...defaults,
+      ...saved,
+      rules: Array.isArray(saved.rules) ? saved.rules : defaults.rules
+    };
+  } catch (error) {
+    console.error("Não foi possível carregar o modelo salvo:", error);
+    return defaults;
+  }
+}
+
+function setLogoPreview(image, source) {
+  if (source) {
+    image.src = source;
+    image.hidden = false;
+  } else {
+    image.removeAttribute("src");
+    image.hidden = true;
+  }
+}
+
+function setTemplateLabel(listItem, text) {
+  const label = listItem?.querySelector("strong");
+  if (label) label.textContent = `${text}:`;
+}
+
+function applyTemplateSettings() {
+  const setText = (selector, value) => {
+    const element = document.querySelector(selector);
+    if (element) element.textContent = value;
+  };
+
+  setText(".title", templateSettings.title);
+  const ticket = document.querySelector(".ticket");
+  if (ticket?.firstChild) ticket.firstChild.textContent = `${templateSettings.ticketLabel}: `;
+  setText(".intro", templateSettings.intro);
+
+  const header = document.querySelector(".header");
+  const headerImage = header.querySelector("img");
+  let headerCopy = header.querySelector(".template-header-copy");
+  if (!headerCopy) {
+    headerCopy = document.createElement("div");
+    headerCopy.className = "template-copy template-header-copy";
+    header.insertBefore(headerCopy, headerImage);
+  }
+  headerCopy.textContent = templateSettings.headerText;
+  setLogoPreview(headerImage, templateSettings.headerLogo);
+
+  const footer = document.querySelector(".footer");
+  const footerImage = footer.querySelector("img");
+  let footerCopy = footer.querySelector(".template-footer-copy");
+  if (!footerCopy) {
+    footerCopy = document.createElement("div");
+    footerCopy.className = "template-copy template-footer-copy";
+    footer.insertBefore(footerCopy, footerImage);
+  }
+  footerCopy.textContent = templateSettings.footerText;
+  setLogoPreview(footerImage, templateSettings.footerLogo);
+
+  document.querySelectorAll(".section-title")[0].textContent = `${templateSettings.collaboratorTitle}:`;
+  document.querySelectorAll(".section-title")[1].textContent = `${templateSettings.deviceTitle}:`;
+  const lists = document.querySelectorAll(".data-list");
+  [templateSettings.labelName, templateSettings.labelMatricula, templateSettings.labelLocal, templateSettings.labelCC]
+    .forEach((label, index) => setTemplateLabel(lists[0].children[index], label));
+
+  const deviceLabels = [
+    templateSettings.labelDeviceType,
+    templateSettings.labelImei1,
+    templateSettings.labelImei2,
+    templateSettings.labelSerial,
+    templateSettings.labelLine,
+    templateSettings.labelChip,
+    templateSettings.labelModel
+  ];
+  deviceLabels.forEach((label, index) => setTemplateLabel(lists[1].children[index], label));
+  const deviceTypeItem = lists[1].children[0];
+  const deviceTypeValue = Array.from(deviceTypeItem.childNodes).find(node => node.nodeType === Node.TEXT_NODE);
+  if (deviceTypeValue) deviceTypeValue.nodeValue = ` ${templateSettings.deviceType}`;
+
+  const accessories = document.querySelector(".accessories");
+  const marks = ["vCarregador", "vFone", "vUsb"].map(id => document.getElementById(id));
+  const markValues = marks.map(mark => mark.textContent);
+  accessories.replaceChildren(
+    document.createTextNode("("), marks[0], document.createTextNode(`) ${templateSettings.accessoryCharger}   (`),
+    marks[1], document.createTextNode(`) ${templateSettings.accessoryHeadphones}   (`),
+    marks[2], document.createTextNode(`) ${templateSettings.accessoryAdapter}`)
+  );
+  accessories.previousElementSibling.textContent = templateSettings.accessoryIntro;
+  const rulesList = document.querySelector(".rules");
+  rulesList.previousElementSibling.textContent = templateSettings.rulesIntro;
+  const ruleTexts = templateSettings.rules.filter(rule => String(rule).trim());
+  const renewalIndex = Math.min(5, ruleTexts.length);
+  const ruleItems = ruleTexts.slice(0, renewalIndex).map(text => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    return item;
+  });
+  if (templateSettings.renewalRule.trim()) {
+    const renewalItem = document.createElement("li");
+    renewalItem.id = "regraVencimento";
+    renewalItem.textContent = templateSettings.renewalRule;
+    ruleItems.push(renewalItem);
+  }
+  ruleItems.push(...ruleTexts.slice(renewalIndex).map(text => {
+    const item = document.createElement("li");
+    item.textContent = text;
+    return item;
+  }));
+  rulesList.replaceChildren(...ruleItems);
+
+  const dateLine = document.querySelector(".date-line");
+  const city = document.getElementById("vCidade");
+  const date = document.getElementById("vData");
+  dateLine.replaceChildren(
+    document.createTextNode(templateSettings.datePrefix),
+    city,
+    document.createTextNode(templateSettings.dateSeparator),
+    date,
+    document.createTextNode(templateSettings.dateSuffix)
+  );
+  setText(".signature", templateSettings.signature);
+
+  setLogoPreview(document.getElementById("templateHeaderLogoPreview"), templateSettings.headerLogo);
+  setLogoPreview(document.getElementById("templateFooterLogoPreview"), templateSettings.footerLogo);
+  atualizarTermo();
+}
+
+function persistTemplateSettings() {
+  clearTimeout(templateSaveTimer);
+  try {
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templateSettings));
+    document.getElementById("templateSaveStatus").textContent = "Modelo salvo neste computador.";
+  } catch (error) {
+    console.error("Não foi possível salvar o modelo:", error);
+    document.getElementById("templateSaveStatus").textContent = "Não foi possível salvar. Reduza o tamanho dos logos.";
+  }
+}
+
+function scheduleTemplateSave() {
+  const status = document.getElementById("templateSaveStatus");
+  status.textContent = "Salvando alterações...";
+  clearTimeout(templateSaveTimer);
+  templateSaveTimer = setTimeout(persistTemplateSettings, 250);
+}
+
+function bindTemplateLogo(inputId, settingKey, previewId, removeButtonId) {
+  const input = document.getElementById(inputId);
+  input.addEventListener("change", () => {
+    const file = input.files[0];
+    input.value = "";
+    if (!file) return;
+    if (!/^image\/(png|jpeg|webp)$/.test(file.type) || file.size > 2 * 1024 * 1024) {
+      document.getElementById("templateSaveStatus").textContent = "Use PNG, JPG ou WebP de até 2 MB.";
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      templateSettings[settingKey] = String(reader.result || "");
+      setLogoPreview(document.getElementById(previewId), templateSettings[settingKey]);
+      applyTemplateSettings();
+      persistTemplateSettings();
+    };
+    reader.onerror = () => {
+      document.getElementById("templateSaveStatus").textContent = "Não foi possível ler esse arquivo de imagem.";
+    };
+    reader.readAsDataURL(file);
+  });
+
+  document.getElementById(removeButtonId).addEventListener("click", () => {
+    templateSettings[settingKey] = "";
+    applyTemplateSettings();
+    persistTemplateSettings();
+  });
+}
+
+function setupTemplateEditor() {
+  defaultTemplateSettings = createDefaultTemplateSettings();
+  templateSettings = loadTemplateSettings();
+
+  TEMPLATE_EDITOR_FIELDS.forEach(([elementId, settingKey]) => {
+    const input = document.getElementById(elementId);
+    input.value = templateSettings[settingKey];
+    input.addEventListener("input", () => {
+      templateSettings[settingKey] = input.value;
+      applyTemplateSettings();
+      scheduleTemplateSave();
+    });
+  });
+
+  const rulesInput = document.getElementById("templateRules");
+  rulesInput.value = templateSettings.rules.join("\n");
+  rulesInput.addEventListener("input", () => {
+    templateSettings.rules = rulesInput.value.split(/\r?\n/).map(rule => rule.trim()).filter(Boolean);
+    applyTemplateSettings();
+    scheduleTemplateSave();
+  });
+
+  bindTemplateLogo("templateHeaderLogoFile", "headerLogo", "templateHeaderLogoPreview", "btnRemoveHeaderLogo");
+  bindTemplateLogo("templateFooterLogoFile", "footerLogo", "templateFooterLogoPreview", "btnRemoveFooterLogo");
+  document.getElementById("btnResetTemplate").addEventListener("click", () => {
+    templateSettings = cloneDefaultTemplateSettings();
+    localStorage.removeItem(TEMPLATE_STORAGE_KEY);
+    setupTemplateEditorFields();
+    applyTemplateSettings();
+    document.getElementById("templateSaveStatus").textContent = "Modelo original restaurado.";
+  });
+  applyTemplateSettings();
+}
+
+function setupTemplateEditorFields() {
+  TEMPLATE_EDITOR_FIELDS.forEach(([elementId, settingKey]) => {
+    document.getElementById(elementId).value = templateSettings[settingKey];
+  });
+  document.getElementById("templateRules").value = templateSettings.rules.join("\n");
+}
+
+window.addEventListener("beforeunload", persistTemplateSettings);
+setupTemplateEditor();
 
 function atualizarTermo() {
   try { // Adicionado try-catch para depuração
@@ -723,7 +1191,7 @@ function atualizarTermo() {
   document.getElementById("vLinha").textContent = document.getElementById("fLinha").value;
   document.getElementById("vChip").textContent = document.getElementById("fChip").value;
   document.getElementById("vCartaoPuk").textContent =
-    document.getElementById("cCartaoPuk").checked ? " (cartão com a senha PUK entregue ao usuário)" : "";
+    document.getElementById("cCartaoPuk").checked ? templateSettings.pukText : "";
   document.getElementById("vCidade").textContent = document.getElementById("fCidade").value;
   document.getElementById("vData").textContent = document.getElementById("fData").value;
 
@@ -737,8 +1205,10 @@ function atualizarTermo() {
     document.getElementById("fChip").value.trim() ? "list-item" : "none";
 
   const modeloTermo = document.getElementById("fModeloTermo").value;
-  document.getElementById("regraVencimento").style.display =
-    (modeloTermo === "A07" || modeloTermo === "A06") ? "list-item" : "none";
+  const renewalRule = document.getElementById("regraVencimento");
+  if (renewalRule) {
+    renewalRule.style.display = (modeloTermo === "A07" || modeloTermo === "A06") ? "list-item" : "none";
+  }
 
   document.getElementById("vCarregador").textContent =
     document.getElementById("cCarregador").checked ? "X" : " ";

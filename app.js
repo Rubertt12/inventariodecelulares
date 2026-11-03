@@ -151,7 +151,75 @@ const simpleCopyNome = document.getElementById('simpleCopyNome');
 const btnSimpleCopyConfirm = document.getElementById('btnSimpleCopyConfirm');
 let simpleCopyId = null;
 
-let dirHandle = null;  
+let dirHandle = null;
+const desktopFiles = window.desktopFiles || null;
+
+function joinDataPath(directory, name) {
+    return directory ? `${directory}/${name}` : name;
+}
+
+class DesktopFileHandle {
+    constructor(path) {
+        this.path = path;
+    }
+
+    async getFile() {
+        const result = await desktopFiles.readFile(this.path);
+        const contents = result.contents instanceof Uint8Array
+            ? result.contents
+            : new Uint8Array(result.contents);
+        return {
+            lastModified: result.lastModified,
+            text: async () => new TextDecoder().decode(contents),
+            arrayBuffer: async () => contents.slice().buffer
+        };
+    }
+
+    async createWritable() {
+        return {
+            write: async contents => {
+                let data = contents;
+                if (data instanceof Blob) data = new Uint8Array(await data.arrayBuffer());
+                if (data instanceof ArrayBuffer) data = new Uint8Array(data);
+                await desktopFiles.writeFile(this.path, data);
+            },
+            close: async () => {}
+        };
+    }
+}
+
+class DesktopDirectoryHandle {
+    constructor(path, name) {
+        this.path = path;
+        this.name = name;
+    }
+
+    async queryPermission() { return 'granted'; }
+    async requestPermission() { return 'granted'; }
+
+    async getFileHandle(name, options = {}) {
+        const filePath = joinDataPath(this.path, name);
+        if (options.create) await desktopFiles.ensureFile(filePath);
+        return new DesktopFileHandle(filePath);
+    }
+
+    async getDirectoryHandle(name, options = {}) {
+        const directoryPath = joinDataPath(this.path, name);
+        if (options.create) await desktopFiles.ensureDirectory(directoryPath);
+        return new DesktopDirectoryHandle(directoryPath, name);
+    }
+
+    async removeEntry(name) {
+        await desktopFiles.removeFile(joinDataPath(this.path, name));
+    }
+
+    async move(sourceName, destinationName) {
+        await desktopFiles.moveFile(
+            joinDataPath(this.path, sourceName),
+            joinDataPath(this.path, destinationName)
+        );
+    }
+}
 let streamActive = null;
 let tempPhotoBlob = null; 
 let tempPhotoUrl = null;  
@@ -525,15 +593,26 @@ async function connectToDirectory(handle) {
 
 async function handleConnectClick() {
     try {
-        const handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        let handle;
+        if (desktopFiles) {
+            const directory = await desktopFiles.chooseDirectory();
+            if (!directory) return;
+            handle = new DesktopDirectoryHandle('', directory.name);
+        } else {
+            if (!window.showDirectoryPicker) {
+                throw new Error('Este navegador não oferece seleção de pastas.');
+            }
+            handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        }
+
         if (await connectToDirectory(handle)) {
-            await idb.set('dirHandle', handle);
+            if (!desktopFiles) await idb.set('dirHandle', handle);
             showCustomAlert('Pasta vinculada e salva para futuras sessões!', 'success');
         }
     } catch (err) {
         if (err.name !== 'AbortError') {
             console.error(err);
-            showCustomAlert('Falha ao obter acesso à pasta selecionada.', 'error');
+            showCustomAlert(`Falha ao vincular a pasta: ${err.message}`, 'error');
         }
     }
 };
@@ -2415,7 +2494,13 @@ async function loadInitialState() {
     renderCustomFilterButtons();
     renderAllModelSelectors();
 
-    const savedHandle = await idb.get('dirHandle');
+    let savedHandle;
+    if (desktopFiles) {
+        const savedDirectory = await desktopFiles.getSavedDirectory();
+        if (savedDirectory) savedHandle = new DesktopDirectoryHandle('', savedDirectory.name);
+    } else {
+        savedHandle = await idb.get('dirHandle');
+    }
     if (savedHandle) {
         console.log("Tentando reconectar à pasta salva...");
         if (await connectToDirectory(savedHandle)) {

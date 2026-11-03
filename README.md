@@ -17,7 +17,7 @@ Para gerar o instalador NSIS em uma máquina Windows:
 npm run dist:win
 ```
 
-O instalador será criado em `release/`. No GitHub, abra **Actions > Build Windows Installer > Run workflow**, informe a versão (a primeira pode ser `v1.0.0`) e execute. A workflow cria uma GitHub Release com o instalador `.exe` disponível na aba **Releases**; o artefato da execução também continua disponível em Actions.
+O instalador será criado em `release/`. No GitHub, abra **Actions > Build Windows Installer > Run workflow**, informe a versão da nova release (por exemplo, `v1.1.0`) e execute. A workflow cria uma GitHub Release com o instalador `.exe` disponível na aba **Releases**; o artefato da execução também continua disponível em Actions.
 
 Para gerar apenas o app Windows sem instalador, inclusive a partir de Linux:
 
