@@ -592,6 +592,20 @@ async function connectToDirectory(handle) {
 }
 
 async function handleConnectClick() {
+    const buttons = [btnConnectDir, btnConnectDirSettings].filter(Boolean);
+    const previousLabels = buttons.map(button => button === btnConnectDir
+        ? button.querySelector('.btn-text')?.textContent
+        : button.textContent);
+    buttons.forEach(button => {
+        button.disabled = true;
+        if (button === btnConnectDir) {
+            const label = button.querySelector('.btn-text');
+            if (label) label.textContent = 'Abrindo seletor...';
+        } else {
+            button.textContent = 'Abrindo seletor...';
+        }
+    });
+
     try {
         let handle;
         if (desktopFiles) {
@@ -614,6 +628,16 @@ async function handleConnectClick() {
             console.error(err);
             showCustomAlert(`Falha ao vincular a pasta: ${err.message}`, 'error');
         }
+    } finally {
+        buttons.forEach((button, index) => {
+            button.disabled = false;
+            if (button === btnConnectDir) {
+                const label = button.querySelector('.btn-text');
+                if (label) label.textContent = previousLabels[index] || 'Vincular Pasta';
+            } else {
+                button.textContent = previousLabels[index] || 'Vincular Pasta';
+            }
+        });
     }
 };
 

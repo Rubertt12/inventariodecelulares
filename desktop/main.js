@@ -4,6 +4,7 @@ const path = require('node:path');
 
 let mainWindow;
 let dataDirectory = null;
+let savedDirectoryLoadPromise = Promise.resolve();
 
 function settingsFilePath() {
   return path.join(app.getPath('userData'), 'settings.json');
@@ -13,7 +14,7 @@ async function loadSavedDirectory() {
   try {
     const settings = JSON.parse(await fs.readFile(settingsFilePath(), 'utf8'));
     const candidate = settings.dataDirectory;
-    if (typeof candidate === 'string' && (await fs.stat(candidate)).isDirectory()) {
+    if (typeof candidate === 'string' && path.isAbsolute(candidate)) {
       dataDirectory = path.resolve(candidate);
     }
   } catch (error) {
@@ -54,6 +55,9 @@ function registerDataHandler(channel, handler) {
 
 function registerDataHandlers() {
   registerDataHandler('data:choose-directory', async () => {
+    if (!mainWindow || mainWindow.isDestroyed()) throw new Error('A janela principal não está disponível.');
+    mainWindow.show();
+    mainWindow.focus();
     const result = await dialog.showOpenDialog(mainWindow, {
       properties: ['openDirectory']
     });
@@ -65,9 +69,10 @@ function registerDataHandlers() {
     return { name: path.basename(dataDirectory) };
   });
 
-  registerDataHandler('data:get-saved-directory', () => (
-    dataDirectory ? { name: path.basename(dataDirectory) } : null
-  ));
+  registerDataHandler('data:get-saved-directory', async () => {
+    await savedDirectoryLoadPromise;
+    return dataDirectory ? { name: path.basename(dataDirectory) } : null;
+  });
 
   registerDataHandler('data:ensure-file', async relativePath => {
     const fullPath = resolveDataPath(relativePath);
@@ -129,9 +134,9 @@ function createWindow() {
   mainWindow.loadFile(path.join(__dirname, '..', 'celular.rubertt.html'));
 }
 
-app.whenReady().then(async () => {
-  await loadSavedDirectory();
+app.whenReady().then(() => {
   registerDataHandlers();
+  savedDirectoryLoadPromise = loadSavedDirectory();
   session.defaultSession.setPermissionRequestHandler((webContents, permission, callback, details) => {
     const isCameraRequest = permission === 'media' && details.mediaTypes?.includes('video');
     callback(isCameraRequest && webContents.getURL().startsWith('file://'));
