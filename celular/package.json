@@ -1,0 +1,13 @@
+{
+  "name": "inventario-migration-script",
+  "version": "1.0.0",
+  "description": "Script para migrar dados de arquivos para o PostgreSQL.",
+  "main": "migration_script.js",
+  "scripts": {
+    "start": "node migration_script.js"
+  },
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "pg": "^8.11.3"
+  }
+}

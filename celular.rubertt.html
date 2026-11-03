@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- PWA & Favicon -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0078d4">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230078d4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='7' y='2' width='10' height='20' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='12' y1='18' x2='12.01' y2='18'%3E%3C/line%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="icon.svg">
+
+    <title>Sistema de Inventário de Celulares</title>
+    <link rel="stylesheet" href="style.css">
+    
+     
+</head>
+<body>
+
+<!-- SVG Filter for Gooey/Liquid Effect -->
+<svg style="display:none; position: absolute;">
+  <defs>
+    <filter id="goo">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 25 -9" result="goo" />
+      <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+    </filter>
+  </defs>
+</svg>
+
+<nav class="sidebar">
+
+    <div class="sidebar-brand">
+        <div class="sidebar-logo-wrapper">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+        </div>
+        <div class="sidebar-brand-text">
+            <h2>Gerenciador</h2>
+            <span>de Celulares</span>
+        </div>
+    </div>
+
+    <div class="db-status-card">
+        <div class="status-indicator">
+            <div id="dbDot" class="status-dot"></div>
+            <span id="dbStatusText">Pasta Desconectada</span>
+        </div>
+        <button class="btn btn-sm btn-secondary" id="btnConnectDir">
+            <span class="btn-icon-collapsed">+</span>
+            <span class="btn-text">Vincular Pasta</span>
+        </button>
+    </div>
+
+    <ul class="sidebar-menu">
+        <li class="menu-item active" id="menu-dashboard" onclick="switchView('dashboard')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="menu-item-text">Dashboard</span>
+        </li>
+        <li class="menu-item" id="menu-cadastro" onclick="switchView('cadastro')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg><span class="menu-item-text">Monitor & Cadastro</span>
+        </li>
+        <li class="menu-item" id="menu-estoque" onclick="switchView('estoque')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span class="menu-item-text">Estoque</span>
+        </li>
+        <li class="menu-item" id="menu-estoque-usados" onclick="switchView('estoque-usados')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5c0-1.24 1.01-2.25 2.25-2.25h15.5c1.24 0 2.25 1.01 2.25 2.25v8.25c0 1.24-1.01 2.25-2.25 2.25H4.25c-1.24 0-2.25-1.01-2.25-2.25Z"></path><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg><span class="menu-item-text">Estoque de Usados</span>
+        </li>
+        <li class="menu-item" id="menu-termos" onclick="switchView('termos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span class="menu-item-text">Vincular Termo / Saída</span>
+        </li>
+        <li class="menu-divider">
+            <span class="menu-item-text">FERRAMENTAS</span>
+        </li>
+        
+        <li class="menu-item" id="menu-geradordetermo" onclick="window.location.href='geradordetermoprojetov1.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><rect x="8" y="12" width="8" height="6" rx="1"></rect><path d="M12 12v-2h.01"></path></svg><span class="menu-item-text">Gerador de Termo</span>
+        </li>
+
+        <li class="menu-item" id="menu-zebra" onclick="window.location.href='zebra/zebra.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5a.5.5 0 0 0 .5-.5v-19a.5.5 0 0 0-1 0v19a.5.5 0 0 0 .5.5Z"></path><path d="M12 2v20"></path><path d="M18.5 2a.5.5 0 0 0-.5.5v19a.5.5 0 0 0 1 0v-19a.5.5 0 0 0-.5-.5Z"></path><path d="M18 2v20"></path><path d="M5.5 2a.5.5 0 0 0-.5.5v19a.5.5 0 0 0 1 0v-19a.5.5 0 0 0-.5-.5Z"></path><path d="M5 2v20"></path></svg><span class="menu-item-text">Etiquetas</span>
+        </li>
+    
+
+        <li class="menu-item" id="menu-geradorcaixa" onclick="window.location.href='Gerador_Caixa_Etiqueta.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M2.5 14.4V6.8L12 2l9.5 4.8v7.6L12 22l-9.5-4.8Z"></path><path d="M12 22V12"></path><path d="M2.5 14.4L12 19.2L21.5 14.4"></path><path d="M2.5 6.8L12 11.6L21.5 6.8"></path></svg><span class="menu-item-text">Caixas</span>
+        </li>
+        <li class="menu-divider"></li>
+        <li class="menu-item" id="menu-configuracoes" onclick="switchView('configuracoes')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            <span class="menu-item-text">Configurações</span>
+        </li>
+    </ul>
+
+    <div class="sidebar-toggle-wrapper">
+        <button id="sidebarToggle" class="sidebar-toggle-btn menu-item" style="justify-content: center;">
+            <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+            <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </div>
+</nav>
+
+<main class="main-content">
+
+    <!-- SEÇÃO 0: DASHBOARD -->
+    <div id="view-dashboard" class="view-section active">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">Visão Geral</h1>
+            <p class="dashboard-subtitle">Acompanhe as principais métricas e atividades do seu inventário.</p>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card" onclick="switchView('estoque')">
+                <div class="stat-card-icon" style="background-color: #e5f1ff; color: #0078d4;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
+                <span class="stat-card-value" id="statDisponiveis">0</span>
+                <span class="stat-card-label">Disponíveis em Estoque</span>
+            </div>
+            <div class="stat-card" onclick="switchView('termos')">
+                <div class="stat-card-icon" style="background-color: #dff9f0; color: #107c41;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
+                <span class="stat-card-value" id="statEntregues">0</span>
+                <span class="stat-card-label">Aparelhos Entregues</span>
+            </div>
+            <div class="stat-card" onclick="switchView('estoque-usados')">
+                <div class="stat-card-icon" style="background-color: #fff4d8; color: #a16207;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5c0-1.24 1.01-2.25 2.25-2.25h15.5c1.24 0 2.25 1.01 2.25 2.25v8.25c0 1.24-1.01 2.25-2.25 2.25H4.25c-1.24 0-2.25-1.01-2.25-2.25Z"></path><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg></div>
+                <span class="stat-card-value" id="statUsados">0</span>
+                <span class="stat-card-label">No Estoque de Usados</span>
+            </div>
+            <!-- NOVO: Card de Status "Enviados" --> 
+            <div class="stat-card" onclick="switchView('estoque'); activateFilter(document.querySelector('#locationFilterGroup button[data-filter=\'Enviados\']'))">
+                <div class="stat-card-icon" style="background-color: #f5f3ff; color: #6d28d9;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
+                <span class="stat-card-value" id="statEnviados">0</span>
+                <span class="stat-card-label">Enviados</span>
+            </div>
+            <!-- Card de Ações Rápidas (NOVO VISUAL) -->
+            <div class="stat-card">
+                <div class="stat-card-label" style="margin-top: 0; margin-bottom: 18px;">Ações Rápidas</div>
+                <div class="quick-actions-grid">
+                    <button class="quick-action-btn" onclick="switchView('cadastro')" title="Adicionar Aparelho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14m-7-7h14"></path></svg></button>
+                    <button class="quick-action-btn" onclick="switchView('termos')" title="Vincular Termo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg></button>
+                    <button class="quick-action-btn" onclick="switchView('estoque'); setTimeout(() => document.getElementById('inputSearchStock').focus(), 100);" title="Buscar no Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                    <button class="quick-action-btn" onclick="switchView('configuracoes')" title="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- NOVO: Grid para os cards inferiores do dashboard -->
+        <div class="dashboard-grid-layout">
+            <div class="dashboard-main-column">
+                <!-- Card de Atividade Recente -->
+                <div class="card">
+                    <div class="card-title">Atividade Recente</div>
+                    <ul class="recent-activity-list" id="recentActivityList">
+                        <li class="activity-placeholder">
+                            <p>Nenhuma atividade recente para exibir.</p>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="dashboard-side-column">
+                <!-- Card do Gráfico de Modelos -->
+                <div class="card">
+                    <div class="card-title">Dispositivos por Localidade</div>
+                    <div class="chart-container" id="locationChartContainer">
+                        <!-- Gráfico será inserido aqui via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 1: CADASTRO -->
+    <div id="view-cadastro" class="view-section">
+        <div class="grid-cadastro">
+            <!-- Câmera -->
+            <div class="card card-flex">
+                <div class="card-title">Monitor de Captura (Alta Resolução)</div>
+                <div class="camera-box">
+                    <div class="camera-placeholder" id="placeholderText">
+                        <svg viewBox="0 0 24 24"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2m10 10a2 2 0 1 0-4 0a2 2 0 0 0 4 0m-2 4a4 4 0 1 1 4-4a4 4 0 0 1-4 4Z"/></svg>
+                        <p style="font-weight: 500; margin-top: 8px;">Monitor Ocioso</p>
+                    </div>
+                    <video id="video" autoplay playsinline style="display: none;"></video>
+                    <canvas id="canvas" style="display: none;"></canvas>
+                </div>
+                <div class="camera-controls">
+                    <button class="btn btn-secondary" id="btnActionCam">Ligar Câmera</button>
+                    <button class="btn" id="btnCapture" disabled>Capturar Foto</button>
+                </div>
+            </div>
+
+            <!-- Dados de Entrada -->
+            <div class="card card-flex">
+                <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>Dar Entrada no Telefone</span>
+                    <button class="btn btn-secondary btn-sm" id="btnPasteOcr">Colar OCR</button>
+                </div>
+                
+                <div class="imei-row">
+                    <!-- SELETOR DE MODELO -->
+                    <div class="form-group">
+                        <label>Modelo do Smartphone</label>
+                        <select id="inputModelo" class="input-field" style="font-weight: 600;"></select>
+                    </div>
+                    <!-- LOCALIDADE -->
+                    <div class="form-group">
+                        <label>Localidade Inicial</label>
+                        <select id="inputLocalidade" class="input-field" style="font-weight: 600;"></select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Data e Hora de Entrada</label>
+                    <input type="datetime-local" id="inputDataEntrada" class="input-field">
+                </div>
+                
+                <div class="imei-row">
+                    <div class="form-group">
+                        <label>IMEI 1</label>
+                        <input type="text" id="inputImei1" class="input-field" placeholder="Pendente...">
+                    </div>
+                    <div class="form-group">
+                        <label>IMEI 2</label>
+                        <input type="text" id="inputImei2" class="input-field" placeholder="Pendente...">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Número de Série (SN)</label>
+                    <input type="text" id="inputSN" class="input-field" placeholder="Pendente...">
+                </div>
+                <button class="btn" id="btnAddToStock" style="width: 100%;" disabled>Salvar Entrada no Estoque</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 2: ESTOQUE -->
+    <div id="view-estoque" class="view-section">
+        <div class="card card-flex" style="height: 100%;">
+            <div class="card-title-container" style="display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; width: 100%;">
+                    <div class="card-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>Telefones em Estoque</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button class="btn btn-secondary btn-sm" id="btnExportStockExcel" title="Baixar relatório completo em Excel">
+                            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                            Relatório Excel
+                        </button>
+                        <button class="btn btn-secondary btn-sm" id="btnSyncDates">Sincronizar Datas</button>
+                    </div>
+                </div>
+                
+                <div class="search-container">
+                    <input type="text" id="inputSearchStock" class="input-field" placeholder="Buscar por Modelo, Localidade, IMEI ou SN...">
+
+                    <!-- Filtro de Localidade -->
+                    <div id="locationFilterGroup" class="location-filter-group">
+                        <!-- NOVO: Elemento deslizante para a animação -->
+                        <div id="filterGlider" class="filter-glider"></div>
+                        <button class="btn-filter active" data-filter="Canoas">Carregando...</button>
+                        <button class="btn-filter" data-filter="Outras">Outras</button>
+                        <button class="btn-filter" data-filter="Disponíveis">Disponíveis</button>
+                        <div id="customFiltersContainer" style="display: contents;"></div> <!-- NOVO: Container para filtros personalizados -->
+                        <button class="btn-filter" data-filter="Enviados">Enviados</button>
+                        <button class="btn-filter" data-filter="Todos">Todos</button>
+                    </div>
+
+                    <!-- Novo Toggle Switch -->
+                    <div class="view-switch-container">
+                        <span class="switch-label active" id="labelViewTable">Lista</span>
+                        <label class="fluent-switch">
+                            <input type="checkbox" id="viewToggleCheckbox">
+                            <span class="switch-slider"></span>
+                        </label>
+                        <span class="switch-label" id="labelViewGrid">Grid</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAINEL DE AÇÕES EM LOTE COM SELECT DE LOCALIDADE -->
+            <div id="batchActionsPanel" class="batch-actions-panel">
+                <div>
+                    <span id="batchCountText" style="font-weight: 700; color: var(--accent-color);">0 itens selecionados</span> 
+                    <span>para edição em lote.</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <label style="font-weight: 600; margin: 0;">Modelo:</label>
+                    <select id="batchSelectModelo" class="edit-select" style="max-width: 120px;"></select>
+                    
+                    <label style="font-weight: 600; margin: 0; margin-left: 5px;">Localidade:</label>
+                    <select id="batchSelectLocalidade" class="edit-select"></select>
+
+                    <button class="btn btn-success btn-sm" id="btnApplyBatchEdit">Aplicar Edição</button>
+                    <button class="btn btn-sm btn-secondary" id="btnBatchMarkAsEnviado">Marcar Enviados</button>
+                    <button class="btn btn-secondary btn-sm" id="btnCancelBatchEdit">Cancelar</button>
+                </div>
+            </div>
+            
+            <!-- MODO TABELA -->
+            <div class="table-wrapper" id="stockTableWrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 40px; text-align: center;">
+                                <input type="checkbox" id="selectAllCheckbox" class="batch-checkbox">
+                            </th>
+                            <th style="width: 140px;">Foto</th>
+                            <th>Modelo</th>
+                            <th>Localidade</th>
+                            <th>IMEI 1</th>
+                            <th>IMEI 2</th>
+                            <th>Número de Série (SN)</th>
+                            <th>Status</th>
+                            <th>Data e Hora de Entrada</th>
+                            <th class="action-cell" style="width: 160px;">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stockTableBody"></tbody>
+                </table>
+            </div>
+
+            <!-- MODO GRID -->
+            <div class="grid-wrapper" id="stockGridWrapper" style="display: none;">
+                <div class="stock-grid" id="stockGridContainer"></div>
+            </div>
+
+            <!-- PAGINAÇÃO -->
+            <div class="pagination-container" id="stockPagination">
+                <div class="pagination-info" id="stockPagInfo">Mostrando 0-0 de 0</div>
+                <div class="pagination-buttons" style="display: flex; gap: 6px;">
+                    <button class="btn btn-secondary btn-sm" id="btnStockPrev">Anterior</button>
+                    <button class="btn btn-secondary btn-sm" id="btnStockNext">Próximo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO DE ESTOQUE DE USADOS -->
+    <div id="view-estoque-usados" class="view-section">
+        <div class="card card-flex" style="height: 100%;">
+            <div class="card-title-container" style="margin-bottom: 20px;">
+                <div class="card-title" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5c0-1.24 1.01-2.25 2.25-2.25h15.5c1.24 0 2.25 1.01 2.25 2.25v8.25c0 1.24-1.01 2.25-2.25 2.25H4.25c-1.24 0-2.25-1.01-2.25-2.25Z"></path><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg>
+                    Telefones Usados / Devolvidos
+                </div>
+            </div>
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Modelo / SN</th>
+                            <th>Devolvido por</th>
+                            <th>Data da Devolução</th>
+                            <th class="action-cell" style="width: 120px;">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usedStockTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 3: TERMOS / SAÍDA -->
+    <div id="view-termos" class="view-section">
+        <div class="grid-cadastro">
+            <!-- Formulário de Vinculação -->
+            <div class="card card-flex">
+                <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6M9 15h6"></path></svg>Emitir Termo / Vincular Colaborador</div>
+                
+                <div class="form-group">
+                    <label>Ticket / Chamado</label>
+                    <input type="text" id="inputTermoTicket" class="input-field" placeholder="Ex: C-123456">
+                </div>
+                
+                <div class="imei-row">
+                    <div class="form-group">
+                        <label>Nome do Colaborador</label>
+                        <input type="text" id="inputTermoNome" class="input-field" placeholder="Nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label>Matrícula</label>
+                        <input type="text" id="inputTermoMatricula" class="input-field" placeholder="Ex: 100234">
+                    </div>
+                </div>
+
+                <div class="imei-row">
+                    <div class="form-group">
+                        <label>Local / Filial (Preenchido do estoque)</label>
+                        <input type="text" id="inputTermoLocal" class="input-field" placeholder="Ex: Canoas">
+                    </div>
+                    <div class="form-group">
+                        <label>Centro de Custo (CC)</label>
+                        <input type="text" id="inputTermoCC" class="input-field" placeholder="Ex: 40102">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Nome do Técnico Responsável</label>
+                    <input type="text" id="inputTermoTecnico" class="input-field" placeholder="Nome do técnico responsável">
+                </div>
+               <!-- Substitua o <div class="form-group"> do inputTermoModelo por isto: -->
+<div class="form-group">
+    <label>Modelo do Termo</label>
+    <div class="btn-group" id="modeloTermoGroup" style="display: flex; gap: 10px; margin-top: 5px;">
+        <button type="button" class="btn active" id="btnModelo1" onclick="setModeloTermo('A07')">Modelo 1</button>
+        <button type="button" class="btn" id="btnModelo2" onclick="setModeloTermo('A56')">Modelo 2 (A56/iPhone)</button>
+    </div>
+    <!-- Campo oculto para salvar o valor -->
+    <input type="hidden" id="inputTermoModelo" value="A07">
+</div>
+                
+                <div class="form-actions-group">
+                    <button type="button" class="btn" id="btnSaveTermo" style="width: 100%;" disabled>Vincular e Salvar</button>
+                </div>
+
+            </div>
+
+            <!-- Seleção do Aparelho Atrelado -->
+            <div class="card card-flex">
+                <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Telefone Selecionado para Vínculo</div>
+                
+                <div class="form-group">
+                    <label>Aparelho Disponível (digite para buscar)</label>
+                    <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace;" placeholder="-- Escolha ou digite para buscar --">
+                    <datalist id="devicesDataList">
+                        <!-- Opções preenchidas via JS -->
+                    </datalist>
+                </div>
+
+                <div class="form-group">
+                    <label>Marca e Modelo</label>
+                    <input type="text" id="displayTermoMarcaModelo" class="input-field input-readonly" placeholder="Automático..." readonly>
+                </div>
+
+                <div class="imei-row">
+                    <div class="form-group">
+                        <label>IMEI 1</label>
+                        <input type="text" id="displayTermoImei1" class="input-field input-readonly" placeholder="Automático..." readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>IMEI 2</label>
+                        <input type="text" id="displayTermoImei2" class="input-field input-readonly" placeholder="Automático..." readonly>
+                    </div>
+                </div>
+                
+                <div class="imei-row">
+                    <div class="form-group">
+                        <label>Número de Série (SN)</label>
+                        <input type="text" id="displayTermoSN" class="input-field input-readonly text-monospace" placeholder="Automático..." readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>Número do Chip (Linha)</label>
+                        <input type="text" id="inputTermoChip" class="input-field" placeholder="ICCID (número de série do chip)">
+                    </div>
+                </div>
+
+                <!-- NOVO: Histórico de Uso do Aparelho -->
+                <div id="displayTermoHistory" class="form-group" style="display: none; margin-top: 10px;">
+                    <label style="color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase;">Histórico de Uso Anterior</label>
+                    <div id="termoHistoryList" class="history-list-container">
+                        <!-- O histórico será preenchido via JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Histórico Físico -->
+        <div class="card card-flex" style="margin-top: 24px;">
+            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center;">
+                <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path><line x1="12" y1="11" x2="12" y2="17"></line><line x1="9" y1="14" x2="15" y2="14"></line></svg>Histórico de Termos Vinculados</span>
+                <div class="action-btn-group">
+                    <button class="btn btn-secondary btn-sm" id="btnExportNewTermos">Exportar Apenas Novos</button>
+                    <button class="btn btn-secondary btn-sm" id="btnExportTermosHistory">Exportar Tudo</button>
+                </div>
+            </div>
+            <!-- NOVO: Campo de Busca para o Histórico -->
+            <div class="search-container" style="margin-bottom: 20px;">
+                <input type="text" id="inputSearchTermos" class="input-field" placeholder="Buscar no histórico por Ticket, Colaborador, Modelo, SN, etc...">
+            </div>
+
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Colaborador / Matrícula</th>
+                            <th>Local</th>
+                            <th>Aparelho / Modelo</th>
+                            <th>Entregue por</th>
+                            <th>Identificadores Únicos</th>
+                            <th>Chip</th>
+                            <th>CC / Termo</th>
+                            <th class="action-cell">Ação</th>
+                        </tr>
+                    </thead>
+                    <tbody id="termosTableBody"></tbody>
+                </table>
+            </div>
+            <!-- PAGINAÇÃO PARA TERMOS -->
+            <div class="pagination-container" id="termosPagination" style="margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-color);">
+                <div class="pagination-info" id="termosPagInfo">Mostrando 0-0 de 0</div>
+                <div class="pagination-buttons" style="display: flex; gap: 6px;">
+                    <button class="btn btn-secondary btn-sm" id="btnTermosPrev">Anterior</button>
+                    <button class="btn btn-secondary btn-sm" id="btnTermosNext">Próximo</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SEÇÃO 6: CONFIGURAÇÕES -->
+    <div id="view-configuracoes" class="view-section">
+        <div class="card card-flex">
+            <div class="card-title">Configurações</div>
+
+            <!-- Abas de Navegação das Configurações -->
+            <div class="settings-tabs">
+                <button class="settings-tab-btn active" data-tab="appearance">Aparência</button>
+                <button class="settings-tab-btn" data-tab="general">Geral</button>
+                <button class="settings-tab-btn" data-tab="tabs">Abas</button>
+                <button class="settings-tab-btn" data-tab="models">Modelos</button>
+                <button class="settings-tab-btn" data-tab="localities">Localidades</button>
+                <button class="settings-tab-btn" data-tab="filters">Filtros</button>
+                <button class="settings-tab-btn" data-tab="instructions">Instruções</button>
+                <button class="settings-tab-btn" data-tab="danger">Zona de Perigo</button>
+            </div>
+
+            <!-- Conteúdo da Aba: Aparência -->
+            <div class="settings-tab-content active" id="tab-appearance">
+                <div class="setting-item">
+                    <div>
+                        <strong>Modo Escuro</strong>
+                        <p class="setting-item-description">Alterne entre o tema claro e escuro para conforto visual.</p>
+                    </div>
+                    <label class="fluent-switch">
+                        <input type="checkbox" id="darkModeToggle">
+                        <span class="switch-slider"></span>
+                    </label>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <strong>Layout da Navegação</strong>
+                        <p class="setting-item-description">Escolha entre a barra lateral padrão ou uma dock inferior.</p>
+                    </div>
+                    <select id="layoutModeSetting" class="setting-select">
+                        <option value="vertical">Vertical (Padrão)</option>
+                        <option value="dock">Dock (Inferior)</option>
+                    </select>
+                </div>
+            </div>
+            <!-- Conteúdo da Aba: Geral -->
+            <div class="settings-tab-content" id="tab-general">
+                <div class="setting-item">
+                    <div>
+                        <strong>Itens por página</strong>
+                        <p class="setting-item-description">Ajuste quantos itens são exibidos por vez na tela de estoque.</p>
+                    </div>
+                    <input type="number" id="itemsPerPageSetting" class="setting-input" min="1" max="100">
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <strong>Visualização padrão do Estoque</strong>
+                        <p class="setting-item-description">Defina se o estoque abre em modo Lista ou Grid.</p>
+                    </div>
+                    <select id="defaultViewModeSetting" class="setting-select">
+                        <option value="table">Lista</option>
+                        <option value="grid">Grid</option>
+                    </select>
+                </div>
+                <div class="setting-item">
+                    <div>
+                        <strong>Localidade Principal</strong>
+                        <p class="setting-item-description">Define a cidade do primeiro filtro rápido do estoque.</p>
+                    </div>
+                    <select id="primaryLocationSetting" class="setting-select" style="width: 180px;"></select>
+                </div>
+                <div class="setting-item dock-only-setting">
+                    <div>
+                        <strong>Conexão de Dados</strong>
+                        <p class="setting-item-description">Gerencie a conexão com a pasta que armazena os dados.</p>
+                    </div>
+                    <div class="db-status-card-inline">
+                        <div class="status-indicator">
+                            <div id="dbDotSettings" class="status-dot"></div>
+                            <span id="dbStatusTextSettings">Pasta Desconectada</span>
+                        </div>
+                        <button class="btn btn-sm btn-secondary" id="btnConnectDirSettings">Vincular Pasta</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Conteúdo da Aba: Abas -->
+            <div class="settings-tab-content" id="tab-tabs">
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-top: 0; margin-bottom: 15px;">Ative ou desative as abas que aparecem no menu lateral.</p>
+                <!-- Os switches serão renderizados aqui pelo app.js -->
+            </div>
+
+            <!-- Conteúdo da Aba: Modelos -->
+            <div class="settings-tab-content" id="tab-models">
+                <div class="grid-cadastro">
+                    <div>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Adicione ou remova modelos de telefone. Eles aparecerão dinamicamente nos formulários de cadastro e edição.</p>
+                        <div class="form-group">
+                            <label>Nome do Novo Modelo</label>
+                            <input type="text" id="inputNewModelName" class="input-field" placeholder="Ex: Galaxy S23">
+                        </div>
+                        <div class="form-group">
+                            <label>Base do Termo de Responsabilidade</label>
+                            <select id="selectNewModelBase" class="input-field">
+                                <option value="A07">Modelo 1 (Padrão, com regra de vencimento)</option>
+                                <option value="A56">Modelo 2 (Especial, sem vencimento)</option>
+                            </select>
+                        </div>
+                        <button class="btn" id="btnAddNewModel" style="width: 100%;">Adicionar Modelo</button>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; font-size: 1rem; margin-bottom: 10px;">Modelos Atuais</h4>
+                        <ul id="modelList" class="model-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- Conteúdo da Aba: Localidades -->
+            <div class="settings-tab-content" id="tab-localities">
+                <div class="grid-cadastro">
+                    <div>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Adicione ou remova localidades. Elas aparecerão dinamicamente nos formulários de cadastro e edição.</p>
+                        <div class="form-group">
+                            <label>Nome da Nova Localidade</label>
+                            <input type="text" id="inputNewLocalityName" class="input-field" placeholder="Ex: Filial Belo Horizonte">
+                        </div>
+                        <button class="btn" id="btnAddNewLocality" style="width: 100%;">Adicionar Localidade</button>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; font-size: 1rem; margin-bottom: 10px;">Localidades Atuais</h4>
+                        <ul id="localityList" class="locality-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- NOVO: Conteúdo da Aba de Filtros Personalizados -->
+            <div class="settings-tab-content" id="tab-filters">
+                <div class="grid-cadastro">
+                    <div>
+                        <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px;">Crie filtros personalizados para a tela de estoque. Cada filtro busca por um termo específico em qualquer campo do aparelho (Modelo, SN, IMEI, etc.).</p>
+                        <div class="form-group">
+                            <label>Nome do Filtro (Ex: "Com Defeito")</label>
+                            <input type="text" id="inputNewFilterName" class="input-field" placeholder="Nome que aparecerá no botão">
+                        </div>
+                        <div class="form-group">
+                            <label>Termo de Busca (Ex: "tela quebrada")</label>
+                            <input type="text" id="inputNewFilterTerm" class="input-field" placeholder="Texto que será buscado">
+                        </div>
+                        <button class="btn" id="btnAddNewFilter" style="width: 100%;">Adicionar Filtro</button>
+                    </div>
+                    <div>
+                        <h4 style="font-weight: 600; font-size: 1rem; margin-bottom: 10px;">Filtros Atuais</h4>
+                        <ul id="filterList" class="locality-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <!-- NOVO: Conteúdo da Aba de Instruções -->
+            <div class="settings-tab-content" id="tab-instructions">
+                <div class="instructions-container" style="padding: 24px;">
+                    <div class="instructions-header">
+                        <h3>Como Usar a Plataforma</h3>
+                        <p>Siga estes passos para gerenciar seu inventário de celulares de forma eficiente.</p>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v15H6.5A2.5 2.5 0 0 1 4 14.5v-11A2.5 2.5 0 0 1 6.5 2z"></path></svg>1. Vincular a Pasta de Dados</h4>
+                        <p>Antes de tudo, clique no botão <kbd>Vincular Pasta</kbd> no menu lateral. Escolha uma pasta no seu computador onde todos os dados (banco de dados, fotos, etc.) serão salvos. Esta ação só precisa ser feita uma vez, o sistema lembrará da pasta nas próximas vezes.</p>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>2. Cadastrar um Novo Aparelho</h4>
+                        <ol>
+                            <li>Vá para a aba <strong>"Monitor & Cadastro"</strong>.</li>
+                            <li>Ligue a câmera e clique em <kbd>Capturar Foto</kbd> para registrar a imagem da etiqueta do aparelho.</li>
+                            <li>Com a imagem capturada, use o atalho <kbd><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="currentColor" viewBox="0 0 16 16" style="vertical-align: -2px; margin-right: 4px;"><path d="M0 0h7.5v7.5H0V0zm8.5 0v7.5H16V0H8.5zM0 8.5h7.5V16H0V8.5zm8.5 0V16H16V8.5H8.5z"/></svg></kbd> + <kbd>Shift</kbd> + <kbd>T</kbd> para ativar a ferramenta de captura de texto (OCR) e selecione a área com os dados.</li>
+                            <li>Clique no botão <kbd>Colar OCR</kbd> para que o sistema preencha os campos de IMEI e S/N automaticamente.</li>
+                            <li>Confirme os dados e clique em <kbd>Salvar Entrada no Estoque</kbd> para finalizar.</li>
+                        </ol>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>3. Editar um Item</h4>
+                        <p>Na tela de <strong>Estoque Disponível</strong>, clique no botão de editar (<svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align: -2px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>) na linha do item desejado. Os campos de Modelo, Localidade e Data se tornarão editáveis. Após ajustar, clique em <kbd>Salvar</kbd>.</p>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><path d="M12 18v-6M9 15h6"></path></svg>4. Vincular um Termo de Saída</h4>
+                        <ol>
+                            <li>Vá para a aba <strong>"Vincular Termo / Saída"</strong>.</li>
+                            <li>Preencha os dados do colaborador (Ticket, Nome, Matrícula, etc.).</li>
+                            <li>No campo "Aparelho Disponível", comece a digitar o modelo ou S/N para encontrar o dispositivo no estoque e selecione-o.</li>
+                            <li>Preencha o número do Chip (se houver) e clique em <kbd>Vincular e Salvar</kbd>. O aparelho sairá do estoque de disponíveis e o termo será adicionado ao histórico.</li>
+                        </ol>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 10l-5 5 5 5"></path><path d="M20 4v7a4 4 0 0 1-4 4H4"></path></svg>5. Registrar uma Devolução</h4>
+                        <p>Quando um aparelho entregue é devolvido, encontre-o na lista de <strong>Estoque Disponível</strong>. O status será "Entregue". Clique no status para abrir os detalhes da entrega e, em seguida, clique em <kbd>Registrar Devolução deste Aparelho</kbd>. O item será movido para o <strong>Estoque de Usados</strong>.</p>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>6. Edição em Lote</h4>
+                        <ol>
+                            <li>Na tela de <strong>Estoque Disponível</strong>, marque as caixas de seleção dos itens que deseja editar.</li>
+                            <li>Um painel de ações em lote aparecerá no topo. Use os seletores para escolher o novo <strong>Modelo</strong> ou <strong>Localidade</strong>.</li>
+                            <li>Clique em <kbd>Aplicar Edição</kbd> para salvar as alterações em todos os itens selecionados.</li>
+                        </ol>
+                    </div>
+
+                    <div class="instruction-step">
+                        <h4><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>7. Gerar Termos em Lote</h4>
+                        <p>Na aba <strong>"Gerador de Termo"</strong>, você pode carregar uma planilha (CSV/Excel) com os dados de vários colaboradores e aparelhos para gerar todos os PDFs de uma só vez em um arquivo ZIP.</p>
+                    </div>
+                </div>
+            </div>
+            <!-- Conteúdo da Aba: Zona de Perigo -->
+            <div class="settings-tab-content" id="tab-danger">
+                <div class="setting-item danger-item">
+                    <div>
+                        <strong>Limpar Estoque Total</strong>
+                        <p class="setting-item-description">Esta ação removerá permanentemente todos os registros de telefones. Não pode ser desfeita.</p>
+                    </div>
+                    <button class="btn btn-danger" id="btnClearStock" disabled>Limpar Estoque</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- MODAL LIGHTBOX -->
+<div id="photoModal" class="custom-modal">
+    <div class="modal-content">
+        <span class="modal-close" id="modalClose"></span>
+        <div class="modal-body">
+            <div class="modal-image-container">
+                <button class="modal-nav-btn prev" id="modalPrev">&#10094;</button>
+                <img id="modalImg" src="">
+                <button class="modal-nav-btn next" id="modalNext">&#10095;</button>
+            </div>
+            <div class="modal-info-container">
+                <h3 class="modal-title-text" id="modalDisplayModelo">Detalhes</h3>
+                <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 20px;">
+                <div class="info-group"><label>Número de Série (SN)</label><div id="modalDisplaySN" class="info-value text-monospace">-</div></div>
+                <div class="info-group"><label>IMEI 1</label><div id="modalDisplayImei1" class="info-value">-</div></div>
+                <div class="info-group"><label>IMEI 2</label><div id="modalDisplayImei2" class="info-value">-</div></div>
+                <div class="info-group"><label>Status</label><div id="modalStatusContainer"><span class="user-badge stock">Em Estoque</span></div></div>
+                <div class="info-group"><label>Data e Hora de Entrada</label><div id="modalDisplayDataEntrada" class="info-value">-</div></div>
+            </div>
+
+            <!-- NOVO: Container para o Histórico no Modal -->
+            <div id="modalHistoryContainer" class="modal-history-container" style="display: none;">
+                <h4 class="modal-history-title">Histórico de Uso</h4>
+                <ul id="modalHistoryList" class="history-list-container">
+                    <!-- Histórico preenchido via JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE DETALHES DA ENTREGA -->
+<div id="entregaModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <span class="modal-close" onclick="closeEntregaModal()"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none; display: flex; flex-direction: column;">
+            <h3 class="modal-title-text" style="margin-bottom: 15px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>Informações de Entrega</h3>
+            <hr style="border: 0; border-top: 1px solid var(--border-color); margin-bottom: 20px;">
+            
+            <div class="info-group">
+                <label>Nome do Colaborador</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaNome" class="info-value" style="font-weight: 600;">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaNome')"></button>
+                </div>
+            </div>
+            <div class="info-group">
+                <label>Matrícula</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaMatricula" class="info-value">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaMatricula')"></button>
+                </div>
+            </div>
+            <div class="info-group">
+                <label>Centro de Custo (CC)</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaCC" class="info-value">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaCC')"></button>
+                </div>
+            </div>
+            <div class="info-group">
+                <label>Localidade</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaLocal" class="info-value">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaLocal')"></button>
+                </div>
+            </div>
+            <div class="info-group">
+                <label>Ticket / Chamado</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaTicket" class="info-value" style="font-family: monospace;">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaTicket')"></button>
+                </div>
+            </div>
+            <div class="info-group">
+                <label>Entregue por (Técnico)</label>
+                <div class="info-value-wrapper">
+                    <div id="entregaTecnico" class="info-value" style="font-weight: 600;">-</div>
+                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaTecnico')"></button>
+                </div>
+            </div>
+            <div style="margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+                <!-- Botão para registrar devolução normal -->
+                <button type="button" class="btn btn-secondary" id="btnRegistrarDevolucao" style="width: 100%; justify-content: center;">
+                    Registrar Devolução deste Aparelho</button>                
+                <!-- Botão para corrigir erro de entrega -->
+                <button type="button" class="btn btn-danger" id="btnRevertToAvailable" style="width: 100%; justify-content: center;">Reverter para Disponível (Corrigir Entrega)</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE AÇÃO PARA ITEM EM ESTOQUE -->
+<div id="stockActionModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 450px;">
+        <span class="modal-close" onclick="closeStockActionModal()"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none; display: flex; flex-direction: column;">
+            <h3 class="modal-title-text" style="margin-bottom: 20px;"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -4px; margin-right: 8px;"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Ação para Item em Estoque</h3>
+            <p id="stockActionItemInfo"></p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <button class="btn" id="stockActionVincular" style="justify-content: center;">Vincular Termo de Saída</button>
+                <button class="btn btn-secondary" id="stockActionMarcarDevolvido" style="justify-content: center;">Marcar como Devolvido</button>
+                <button class="btn btn-secondary" id="stockActionMarcarEnviado" style="justify-content: center;">Marcar como Enviado</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE NOTIFICAÇÃO PERSONALIZADO -->
+<div id="notificationModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 400px; padding: 25px;">
+        <div class="notification-content">
+            <div class="notification-icon" id="notificationIcon">
+                <!-- Ícone será inserido via JS -->
+            </div>
+            <div class="notification-text">
+                <h3 class="modal-title-text" id="notificationTitle">Aviso</h3>
+                <p id="notificationMessage" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 5px;">Mensagem aqui.</p>
+            </div>
+        </div>
+        <button class="btn" id="notificationCloseBtn" style="width: 100%; margin-top: 20px;">OK</button>
+    </div>
+</div>
+
+<!-- MODAL DE SENHA PARA AÇÕES DE PERIGO -->
+<div id="passwordModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <span class="modal-close" id="passwordModalClose"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none;">
+            <h3 class="modal-title-text" id="passwordModalTitle">Confirmação de Segurança</h3>
+            <p id="passwordModalMessage" style="font-size: 0.9rem; color: var(--text-muted); margin: 15px 0;">Para continuar, por favor, insira a senha de administrador.</p>
+            <div class="form-group">
+                <label for="adminPasswordInput">Senha</label>
+                <input type="password" id="adminPasswordInput" class="input-field" placeholder="Digite a senha...">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" id="passwordModalCancel" style="width: 100%;">Cancelar</button>
+                <button class="btn btn-danger" id="passwordModalConfirm" style="width: 100%;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO GENÉRICO -->
+<div id="confirmModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <span class="modal-close" id="confirmModalClose"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none;">
+            <h3 class="modal-title-text" id="confirmModalTitle">Confirmar Ação</h3>
+            <p id="confirmModalMessage" style="font-size: 0.9rem; color: var(--text-muted); margin: 15px 0;">Você tem certeza?</p>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-secondary" id="confirmModalCancel" style="width: 100%;">Cancelar</button>
+                <button class="btn btn-danger" id="confirmModalConfirm" style="width: 100%;">Confirmar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- NOVO: MODAL DE VÍNCULO RÁPIDO PARA CÓPIA -->
+<div id="quickLinkModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 480px;">
+        <span class="modal-close" id="quickLinkModalClose"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none;">
+            <h3 class="modal-title-text">Vincular Usuário e Copiar</h3>
+            <p id="quickLinkItemInfo" style="font-size: 0.9rem; color: var(--text-muted); margin: 15px 0;"></p>
+            
+            <div class="form-group">
+                <label for="quickLinkNome">Nome do Colaborador *</label>
+                <input type="text" id="quickLinkNome" class="input-field" placeholder="Nome completo do usuário">
+            </div>
+
+            <div class="imei-row">
+                <div class="form-group">
+                    <label for="quickLinkMatricula">Matrícula</label>
+                    <input type="text" id="quickLinkMatricula" class="input-field" placeholder="Opcional">
+                </div>
+                <div class="form-group">
+                    <label for="quickLinkTicket">Ticket / Chamado</label>
+                    <input type="text" id="quickLinkTicket" class="input-field" placeholder="Opcional">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="quickLinkCC">Centro de Custo (CC)</label>
+                <input type="text" id="quickLinkCC" class="input-field" placeholder="Opcional">
+            </div>
+
+            <button class="btn" id="btnQuickLinkConfirm" style="width: 100%; margin-top: 15px;">Salvar Vínculo e Copiar Dados</button>
+        </div>
+    </div>
+</div>
+
+<!-- NOVO: MODAL DE CÓPIA SIMPLES COM NOME -->
+<div id="simpleCopyModal" class="custom-modal">
+    <div class="modal-content" style="max-width: 400px;">
+        <span class="modal-close" id="simpleCopyModalClose"></span>
+        <div class="modal-info-container" style="padding: 30px; border-left: none;">
+            <h3 class="modal-title-text">Copiar Dados com Usuário</h3>
+            <p id="simpleCopyItemInfo" style="font-size: 0.9rem; color: var(--text-muted); margin: 15px 0;"></p>
+            
+            <div class="form-group">
+                <label for="simpleCopyNome">Nome do Colaborador *</label>
+                <input type="text" id="simpleCopyNome" class="input-field" placeholder="Nome completo do usuário">
+            </div>
+
+            <button class="btn" id="btnSimpleCopyConfirm" style="width: 100%; margin-top: 15px;">Confirmar e Copiar</button>
+        </div>
+    </div>
+</div>
+<!-- Registro do Service Worker para PWA -->
+<script>
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('sw.js')
+                .then(registration => console.log('Service Worker registrado com sucesso:', registration.scope))
+                .catch(err => console.error('Falha no registro do Service Worker:', err));
+        });
+    }
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

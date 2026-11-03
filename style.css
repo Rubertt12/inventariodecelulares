@@ -1,0 +1,2446 @@
+/* ==========================================================================
+   ESTILO: Microsoft Fluent Design (Windows 11 / Clean, Precise & High-Contrast)
+   ========================================================================== */
+
+:root {
+    /* Paleta de Cores (Modo Claro) */
+    --bg-app: #f8f9fa;
+    --sidebar-bg: #173f5f;
+    --card-bg: #ffffff;
+    --main-content-bg: #f9f9f9;
+    --table-header-bg: #f4f4f4;
+    --table-row-hover-bg: #f9f9f9;
+    --input-bg: #ffffff;
+    --switch-bg: #f0f0f0;
+    --switch-glider-bg: #ffffff;
+    --menu-item-hover-bg: rgba(0, 0, 0, 0.03);
+    --menu-item-active-bg: #eaf2fa;
+    --input-readonly-bg: rgba(0,0,0,0.03);
+    --btn-secondary-bg: #ffffff;
+    --btn-secondary-hover-bg: #f4f4f4;
+    --btn-group-bg: rgba(0,0,0,0.05);
+    --btn-disabled-bg: #e0e0e0;
+    --btn-disabled-border: #d0d0d0;
+    --btn-disabled-text: #8c8c8c;
+    --modal-bg: #ffffff;
+    --accent-color-subtle: #eaf2fa; /* Mesmo que o item de menu ativo */
+    --modal-info-bg: #ffffff;
+    --modal-image-bg: #f9f9f9;
+    --modal-history-bg: #fcfcfc;
+
+    /* Cores de Destaque */
+    --accent-color: #0078d4;
+    --accent-hover: #106ebe;
+    --accent-active: #005a9e;
+
+    /* Cores de Texto */
+    --text-main: #111111;
+    --text-muted: #5f6368;
+    --text-on-accent: #ffffff;
+    --btn-secondary-text: var(--text-main);
+    --menu-item-active-text: var(--accent-color);
+    --switch-knob-bg: #323130;
+
+    /* Cores de Borda */
+    --border-color: #dcdcdc;
+    --input-border: #a19f9d;
+    --input-border-bottom: #605e5c;
+    --input-border-focus: var(--accent-color);
+
+    --input-readonly-border: #f0f0f0;
+    /* Elementos Visuais */
+    --fluent-border: 1px solid rgba(0, 0, 0, 0.08);
+    --fluent-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    --radius-main: 8px;
+    --radius-sm: 4px;
+}
+
+/* --- NOVO: Ajustes para sidebar escura em modo claro --- */
+body:not(.dark-mode) .sidebar {
+    border-right-color: rgba(0,0,0,0.2);
+}
+
+/* --- CORREÇÃO: Garante que o título do logo seja branco no modo claro --- */
+body:not(.dark-mode) .sidebar .sidebar-brand h2 {
+    color: #ffffff;
+}
+
+body:not(.dark-mode) .sidebar .sidebar-brand,
+body:not(.dark-mode) .sidebar .status-indicator,
+body:not(.dark-mode) .sidebar .menu-item {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+body:not(.dark-mode) .sidebar .menu-item:hover,
+body:not(.dark-mode) .sidebar .sidebar-toggle-btn:hover {
+    color: #ffffff;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+body:not(.dark-mode) .sidebar .menu-item.active {
+    color: #ffffff;
+    background: var(--accent-color);
+}
+
+body:not(.dark-mode) .sidebar .menu-item.active::before {
+    background-color: #ffffff;
+}
+
+body:not(.dark-mode) .sidebar .db-status-card {
+    background: rgba(0, 0, 0, 0.15);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+body:not(.dark-mode) .sidebar .db-status-card .btn-secondary {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+}
+
+body:not(.dark-mode) .sidebar .db-status-card .btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--btn-secondary-hover-bg);
+}
+
+/* NOVO: Garante que o texto do divisor seja legível na sidebar escura do modo claro */
+body:not(.dark-mode) .menu-divider .menu-item-text {
+    color: rgba(255, 255, 255, 0.7); /* Cor branca com um pouco de transparência para ser sutil */
+    opacity: 1; /* Reseta a opacidade para não ter efeito duplo */
+}
+
+body:not(.dark-mode) .sidebar .sidebar-toggle-wrapper {
+    border-top-color: rgba(255, 255, 255, 0.15);
+}
+
+/* NOVO: Cor da linha divisória da dock no modo claro */
+body:not(.dark-mode).dock-layout .menu-divider {
+    border-left-color: rgba(0, 0, 0, 0.2);
+}
+
+/* --- NOVO: MODO ESCURO --- */
+body.dark-mode {
+    --bg-app: #1a1a1a;
+    --sidebar-bg: #252525;
+    --card-bg: #2d2d2d;
+    --main-content-bg: #1a1a1a;
+    --table-header-bg: #3a3a3a;
+    --table-row-hover-bg: #3a3a3a;
+    --input-bg: #3a3a3a;
+    --switch-bg: #3a3a3a;
+    --switch-glider-bg: #5a5a5c;
+    --menu-item-hover-bg: rgba(255, 255, 255, 0.08);
+    --menu-item-active-bg: var(--accent-color);
+    --input-readonly-bg: rgba(255,255,255,0.05);
+    --btn-secondary-bg: #3a3a3c;
+    --btn-secondary-hover-bg: #4a4a4c;
+    --btn-group-bg: rgba(255,255,255,0.08);
+    --btn-disabled-bg: #404040;
+    --btn-disabled-border: #505050;
+    --btn-disabled-text: #7a7a7a;
+    --modal-bg: #2d2d2d;
+    --accent-color-subtle: #253245; /* Um azul escuro sutil */
+    --modal-info-bg: #2d2d2d;
+    --modal-image-bg: #252525;
+    --modal-history-bg: #252525;
+
+    --accent-color: #0a84ff;
+    --accent-hover: #359aff;
+    --accent-active: #006adc;
+
+    --text-main: #e0e0e0;
+    --text-muted: #9e9e93;
+    --text-on-accent: #ffffff;
+    --btn-secondary-text: var(--text-main);
+    --menu-item-active-text: #ffffff;
+    --switch-knob-bg: #e0e0e0;
+
+    --border-color: #424242;
+    --input-border: #545458;
+    --input-border-bottom: #6a6a6e;
+    --input-border-focus: var(--accent-color);
+
+    --input-readonly-border: #424242;
+    --fluent-border: 1px solid rgba(255, 255, 255, 0.1);
+    --fluent-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+
+    /* --- Sobrescreve cores de botões para melhor contraste --- */
+    .btn-danger {
+        background: #da3b3b;
+        border-color: rgba(0,0,0,0.1);
+    }
+    .btn-danger:hover {
+        background: #e15757;
+    }
+    .btn-success { background: #18a957; }
+    .btn-success:hover { background: #1bc565; }
+
+    .btn-zebra { background: #4f4f4f; }
+    .btn-zebra:hover { background: #5f5f5f; }
+
+    /* NOVO: Cores para os botões de ação rápida no modo escuro */
+    .quick-action-btn {
+        background-color: var(--btn-secondary-bg);
+        color: var(--text-muted);
+    }
+
+    .quick-action-btn:hover {
+        background-color: var(--accent-color);
+        color: var(--text-on-accent);
+    }
+
+}
+/* NOVO: Fundo da dock no modo escuro */
+body.dark-mode.dock-layout .sidebar {
+    background: rgba(37, 37, 37, 0.75);
+    border-color: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+}
+
+/* NOVO: Cor da linha divisória da dock no modo escuro */
+body.dark-mode.dock-layout .menu-divider {
+    border-left-color: rgba(255, 255, 255, 0.2);
+}
+
+
+.btn-group .btn.active {
+    background: var(--accent-color) !important;
+    color: var(--text-on-accent);
+    border-color: var(--accent-color);
+    font-weight: 600;
+}
+.btn-group .btn {
+    flex: 1; /* Ocupa o mesmo espaço */
+    background: var(--btn-group-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+}
+
+   /* ==========================================================================
+           RETOQUES VISUAIS: Edição em Lote & Componentes de Grid no Padrão Windows 11
+           ========================================================================== */
+        
+        .edit-select, .edit-input {
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            border: 1px solid var(--input-border);
+            border-bottom: 2px solid var(--input-border-bottom);
+            border-radius: var(--radius-sm);
+            background-color: var(--input-bg);
+            color: var(--btn-secondary-text);
+            width: 100%;
+            max-width: 130px;
+            transition: border-color 0.1s ease;
+        }
+
+        .edit-select:focus, .edit-input:focus {
+            border-color: var(--accent-color);
+            border-bottom-color: var(--accent-color);
+            outline: none;
+        }
+
+        .edit-input {
+            max-width: 130px;
+        }
+
+        /* Painel de Ações em Lote (Estilo Central de Ações do Windows) */
+        .batch-actions-panel {
+            display: none;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-bottom: 3px solid var(--accent-color); /* Linha sutil de destaque azul */
+            border-radius: var(--radius-main);
+            padding: 14px 20px;
+            margin-bottom: 18px;
+            box-shadow: var(--fluent-shadow);
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            animation: fluentFadeIn 0.2s ease-in-out;
+        }
+
+        .batch-actions-panel.active {
+            display: flex;
+        }
+
+        .batch-checkbox {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            accent-color: var(--accent-color); /* Caixa de seleção azul padrão */
+        }
+
+        .grid-checkbox-wrapper {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background: var(--card-bg);
+            border: var(--fluent-border);
+            padding: 4px;
+            border-radius: var(--radius-sm);
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        @keyframes fluentFadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Container do Switch de Visualização */
+        .view-switch-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: var(--switch-bg);
+            padding: 6px 14px;
+            border-radius: 20px;
+            border: 1px solid rgba(0, 0, 0, 0.06);
+            user-select: none;
+        }
+
+        /* Labels de texto do Switch */
+        .switch-label {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            transition: color 0.15s ease;
+        }
+
+        .switch-label.active {
+            color: var(--text-main);
+        }
+
+        /* O Switch em si (Wrapper) */
+        .fluent-switch {
+            position: relative;
+            display: inline-block;
+            width: 36px;
+            height: 18px;
+        }
+
+        /* Esconde o checkbox padrão */
+        .fluent-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        /* Slider (fundo do switch) */
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: var(--switch-glider-bg);
+            border: 1px solid var(--input-border);
+            transition: .2s ease-in-out;
+            border-radius: 10px;
+        }
+
+        /* A bolinha interna (Knob) */
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 10px;
+            width: 10px;
+            left: 3px;
+            bottom: 3px;
+            background-color: var(--switch-knob-bg);
+            transition: .2s ease-in-out;
+            border-radius: 50%;
+        }
+
+        /* Quando marcado (Modo Grid ativo) */
+        .fluent-switch input:checked + .switch-slider {
+            background-color: var(--accent-color);
+            border-color: var(--accent-color);
+        }
+
+        .fluent-switch input:checked + .switch-slider:before {
+            transform: translateX(18px);
+            background-color: var(--text-on-accent);
+        }
+
+        /* Hover suave */
+        .fluent-switch:hover .switch-slider {
+            border-color: var(--text-main);
+        }
+        .fluent-switch input:checked:hover + .switch-slider {
+            background-color: var(--accent-hover);
+            border-color: var(--accent-hover);
+        }
+
+        /* Botão Voltar Translucido no Menu Lateral (Apple Style) */
+        .glass-btn-back-sidebar {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+            cursor: pointer;
+            margin: 15px 20px;
+            width: calc(100% - 40px);
+            box-sizing: border-box;
+            justify-content: center;
+        }
+
+        .glass-btn-back-sidebar:hover {
+            background: rgba(255, 255, 255, 0.18);
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+            transform: translateX(-3px);
+        }
+
+        .glass-btn-back-sidebar:active {
+            transform: translateX(0) scale(0.97);
+        }
+
+        /* --- NOVAS ANIMAÇÕES: Transição Suave para Filtros --- */
+        @keyframes contentFadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        @keyframes contentFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .glass-btn-back-sidebar svg {
+            transition: transform 0.25s ease;
+        }
+
+        .glass-btn-back-sidebar:hover svg {
+            transform: translateX(-3px);
+        }
+   
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: var(--bg-app);
+    color: var(--text-main);
+    font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, Roboto, sans-serif;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+}
+
+/* --- SIDEBAR (Menu Lateral Cinza Escovado Windows Settings) --- */
+.sidebar {
+    width: 280px;
+    background: var(--sidebar-bg);
+    border-right: 1px solid rgba(0, 0, 0, 0.08);
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    flex-shrink: 0;
+    transition: width 0.25s ease-in-out;
+}
+
+.sidebar-toggle-wrapper {
+    margin-top: auto;
+    padding-top: 16px;
+    border-top: 1px solid var(--border-color);
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 8px;
+    margin-bottom: 4px;
+}
+
+.sidebar-brand h2 { 
+    font-size: 1.05rem; 
+    font-weight: 600; 
+    color: var(--text-main);
+    margin: 0;
+    line-height: 1.2;
+}
+
+.sidebar-brand span {
+    font-size: 0.8rem;
+    font-weight: 500;
+    opacity: 0.7;
+}
+
+.sidebar-logo-wrapper {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-color);
+    border-radius: var(--radius-main);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.sidebar-brand svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-on-accent);
+}
+
+/* Status do DB como Card Minimalista */
+.db-status-card {
+    background: var(--card-bg);
+    border: var(--fluent-border);
+    border-radius: var(--radius-main);
+    padding: 12px 14px;
+    font-size: 0.82rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+}
+
+.status-dot { 
+    width: 8px; 
+    height: 8px; 
+    background: #e81123; /* Windows Red */
+    border-radius: 50%;
+}
+
+.status-dot.connected { 
+    background: #107c41; /* Windows Green */
+    box-shadow: 0 0 6px rgba(16, 124, 65, 0.3);
+    animation: fluentPulse 2s infinite ease-in-out;
+}
+
+@keyframes fluentPulse {
+    0% { opacity: 0.8; }
+    50% { opacity: 1; }
+    100% { opacity: 0.8; }
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.menu-item {
+    padding: 10px 14px;
+    margin: 4px 0;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: var(--text-muted);
+    position: relative; /* Necessário para o pseudo-elemento */
+}
+
+.menu-item:hover { 
+    background: var(--menu-item-hover-bg);
+    color: var(--text-main);
+}
+
+/* --- NOVO: Animação de deslize para o lado no hover --- */
+.menu-item:not(.active):hover {
+    transform: translateX(4px);
+} 
+
+.menu-item.active { 
+    background: var(--menu-item-active-bg);
+    color: var(--menu-item-active-text);
+    font-weight: 600;
+}
+
+/* --- NOVO: Indicador visual para o item ativo --- */
+.menu-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 0; /* Começa com altura 0 */
+    background-color: var(--accent-color);
+    border-radius: 2px;
+    transition: height 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.menu-item.active::before {
+    height: 20px; /* Altura final quando o item está ativo */
+}
+
+.menu-item svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.2px;
+}
+
+/* NOVO: Estilo para o divisor de menu */
+.menu-divider {
+    padding: 12px 14px 4px;
+    margin-top: 12px;
+    cursor: default;
+    list-style: none;
+    border-top: 1px solid var(--border-color); /* Adiciona uma linha divisória */
+}
+
+.menu-divider .menu-item-text {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    opacity: 0.8;
+    padding-top: 8px; /* Adiciona um pequeno espaçamento acima do texto */
+}
+.sidebar-toggle-btn {
+    /* NOVO: Estilo para o divisor de menu na dock */
+    body.dock-layout .menu-divider {
+        border-top: none; /* Remove a borda horizontal */
+        border-left: 1px solid var(--border-color); /* Adiciona a borda vertical */
+        height: 40px; /* Altura da linha */
+        margin: 0 5px; /* Espaçamento horizontal */
+        padding: 0; /* Remove padding */
+        align-self: center; /* Centraliza verticalmente na linha de itens */
+        opacity: 0.5; /* Torna um pouco mais sutil */
+    }
+
+    width: 100%;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    /* Estilo é herdado da classe .menu-item agora */
+}
+
+.sidebar-toggle-btn svg {
+    width: 18px;
+    height: 18px; 
+    stroke-width: 2.2px;
+}
+
+/* NOVO: Estilo para o divisor de menu na dock */
+body.dock-layout .menu-divider {
+    border-top: none; /* Remove a borda horizontal */
+    border-left: 1px solid var(--border-color); /* Adiciona a borda vertical */
+    height: 40px; /* Altura da linha */
+    margin: 0 5px; /* Espaçamento horizontal */
+    padding: 0; /* Remove padding */
+    align-self: center; /* Centraliza verticalmente na linha de itens */
+    opacity: 0.5; /* Torna um pouco mais sutil */
+}
+
+/* --- CONTEÚDO PRINCIPAL (Fundo Limpo) --- */
+.main-content { 
+    flex-grow: 1; 
+    padding: 24px; 
+    overflow-y: auto;
+    background: var(--main-content-bg);
+}
+
+/* --- ESTADOS DA SIDEBAR --- */
+
+/* Estado Recolhido (Desktop) */
+body.sidebar-collapsed .sidebar {
+    width: 80px;
+}
+/* Oculta o texto da marca, mantendo apenas o logo */
+body.sidebar-collapsed .sidebar-brand-text,
+body.sidebar-collapsed .db-status-card .status-indicator span,
+body.sidebar-collapsed .db-status-card .btn-text,
+body.sidebar-collapsed #btnConnectDir .btn-text {
+    display: none;
+}
+
+body.sidebar-collapsed .menu-item-text {
+    display: none;
+}
+
+body.sidebar-collapsed #btnConnectDir .icon-only {
+    display: block;
+}
+
+body.sidebar-collapsed .db-status-card .btn {
+    justify-content: center; /* Centraliza o ícone quando o texto some */
+    padding: 6px 10px; /* Ajusta o padding para um botão de ícone */
+}
+
+body.sidebar-collapsed .db-status-card {
+    padding: 12px 0;
+}
+
+body.sidebar-collapsed .menu-item,
+body.sidebar-collapsed .sidebar-toggle-btn {
+    justify-content: center;
+}
+
+/* Centraliza o logo e remove o padding quando a sidebar está recolhida */
+body.sidebar-collapsed .sidebar-brand {
+    padding: 0;
+    justify-content: center;
+}
+
+/* Lógica de troca de ícones no botão de recolher */
+.icon-expand {
+    display: none;
+}
+
+body.sidebar-collapsed .icon-expand {
+    display: block;
+}
+
+body.sidebar-collapsed .icon-collapse {
+    display: none;
+}
+
+body.sidebar-collapsed .status-indicator {
+    justify-content: center;
+}
+.db-status-card .btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.view-section { 
+    display: none; 
+}
+
+.view-section.active { 
+    display: flex; 
+    flex-direction: column;
+    gap: 20px;
+    /* NOVO: Garante que a view ocupe toda a altura disponível */
+    height: 100%; 
+    max-height: calc(100vh - 48px); /* Altura da viewport menos o padding do main-content */
+    animation: fluentFadeIn 0.3s ease-out;
+}
+
+@keyframes fluentFadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cards sem gradiente, focados na sombra leve e elevação do Windows 11 */
+.card {
+    background: var(--card-bg);
+    border: var(--fluent-border); 
+    padding: 24px;
+    box-shadow: var(--fluent-shadow);
+    border-radius: var(--radius-main);
+    position: relative;
+}
+
+.card-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.menu-item-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.card-title svg, .modal-title-text svg {
+    width: 18px;
+    height: 18px;
+    margin-right: 8px;
+    vertical-align: -4px;
+}
+
+/* --- GRID DO CADASTRO --- */
+.grid-cadastro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    align-items: start;
+}
+
+.card-flex {
+    display: flex;
+    flex-direction: column;
+    /* NOVO: Permite que o card cresça para preencher o espaço da view */
+    flex-grow: 1;
+}
+
+/* --- CÂMERA E PREVIEW (Fundo Preto com Contraste Alto) --- */
+.camera-box {
+    background: #000000; 
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+
+.camera-placeholder { 
+    color: #e0e0e0; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.camera-placeholder svg {
+    width: 48px;
+    height: 48px;
+    fill: currentColor;
+}
+
+.camera-controls { 
+    display: flex; 
+    gap: 12px; 
+}
+
+#video, #canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* --- FORMULÁRIOS (Inputs do Fluent Design com Focus Azul) --- */
+.form-group { 
+    display: flex; 
+    flex-direction: column; 
+    gap: 6px; 
+    margin-bottom: 18px; 
+}
+
+.form-group label { 
+    font-size: 0.85rem; 
+    font-weight: 600; 
+    color: var(--text-main); 
+}
+
+.input-field {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid var(--input-border);
+    border-bottom: 2px solid var(--input-border-bottom);
+    background: var(--input-bg);
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    color: var(--text-main);
+    transition: all 0.1s ease;
+} 
+
+.input-field:focus { 
+    border-color: var(--accent-color);
+    border-bottom: 2px solid var(--accent-color);
+    outline: none; 
+}
+
+textarea.input-field { 
+    border: 1px dashed var(--input-border);
+    border-bottom: 2px solid var(--input-border-bottom);
+    background: #fdfdfd; 
+    height: 120px; 
+    font-family: 'Consolas', monospace; 
+}
+
+.imei-row { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 16px; 
+}
+
+.form-actions-group {
+    display: flex;
+    gap: 12px;
+    margin-top: auto; /* Alinha o grupo de botões na parte inferior do card */
+    padding-top: 10px;
+}
+
+/* NOVO: Estilo para campos de formulário somente leitura */
+.input-readonly {
+    background-color: var(--input-readonly-bg);
+    border-color: var(--input-readonly-border);
+    cursor: default;
+    font-weight: 600;
+}
+
+.input-readonly:focus {
+    border-color: var(--input-readonly-border); /* Previne o anel de foco azul */
+}
+
+/* --- BOTÕES DO WINDOWS (Sólidos, Sem Gradientes, Foco em Azul) --- */
+.btn {
+    background: var(--accent-color);
+    color: var(--text-on-accent);
+    border: 1px solid rgba(0,0,0,0.1);
+    border-bottom-color: rgba(0,0,0,0.3);
+    padding: 8px 20px;
+    cursor: pointer;
+    border-radius: var(--radius-sm); 
+    font-weight: 600;
+    font-size: 0.9rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: background 0.1s ease, transform 0.05s ease;
+}
+
+.btn:hover { 
+    background: var(--accent-hover);
+}
+
+.btn:active {
+    background: var(--accent-active);
+    transform: scale(0.98);
+}
+
+.btn:disabled { 
+    background: var(--btn-disabled-bg);
+    border-color: var(--btn-disabled-border);
+    color: var(--btn-disabled-text);
+    box-shadow: none;
+    cursor: not-allowed;
+}
+
+.btn-sm {
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    border-radius: var(--radius-sm);
+}
+
+.btn-secondary { 
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid var(--input-border); 
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.btn-secondary:hover { 
+    background: var(--btn-secondary-hover-bg);
+    border-color: var(--text-main);
+}
+
+.btn-danger {
+    background: #e81123; /* Windows Red */
+    border-color: rgba(0,0,0,0.1);
+}
+
+.btn-danger:hover {
+    background: #c70d1a;
+}
+/* --- NOVO: Botões de Ação Adicionais --- */
+.btn-success {
+    background: #107c41; /* Windows Green */
+    color: white;
+    border-color: rgba(0,0,0,0.1);
+}
+.btn-success:hover {
+    background: #0d6334;
+}
+
+.btn-zebra {
+    background: #333;
+    color: white;
+    border-color: rgba(0,0,0,0.1);
+}
+.btn-zebra:hover { background: #444; }
+
+/* --- NOVO: Grupo de Botões de Ação --- */
+.action-btn-group {
+    display: inline-flex;
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+    border: 1px solid var(--input-border);
+}
+
+.action-btn-group .btn {
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    border-left: 1px solid var(--border-color);
+}
+
+.action-btn-group .btn:first-child {
+    border-left: none;
+}
+
+/* --- TABELAS MODERNAS DO OFFICE/AZURE --- */
+.table-wrapper { 
+    background: var(--card-bg);
+    border: var(--fluent-border); 
+    overflow: auto; /* Garante rolagem vertical e horizontal */
+    /* NOVO: Faz a tabela crescer e ter sua própria rolagem vertical */
+    flex-grow: 1;
+    border-radius: var(--radius-main);
+}
+
+table { 
+    width: 100%; 
+    border-collapse: collapse; 
+    text-align: left; 
+}
+
+th {
+    background: var(--table-header-bg);
+    color: var(--text-main);
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 12px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+td { 
+    padding: 12px; 
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+tr:hover { 
+    background-color: var(--table-row-hover-bg);
+}
+
+.badge-photo { 
+    width: 72px; 
+    height: 48px; 
+    object-fit: cover; 
+    border-radius: 4px; 
+    border: 1px solid var(--border-color);
+}
+
+/* Badges de Status (Padrão Windows) */
+.user-badge.stock {
+    background: #f3f3f3; /* Cinza Neutro para Estoque */
+    color: #111111;
+    border: 1px solid #d3d3d3;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* Badge de entrega atualizado para a identidade Azul de Conclusão */
+.user-badge.entregue {
+    background: #e5f1ff;       /* Azul claro e limpo */
+    color: var(--accent-color); /* Azul padrão Windows */
+    border: 1px solid #cfe4ff;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.user-badge.entregue:hover {
+    background: var(--accent-color);
+    color: #ffffff;
+    border-color: var(--accent-color);
+}
+
+.user-badge.enviado {
+    background: #fef9c3; /* Amarelo claro */
+    color: #a16207;      /* Amarelo escuro (texto) */
+    border: 1px solid #fde68a;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.user-badge.devolvido {
+    background: #e0e7ff; /* Roxo/índigo claro */
+    color: #4338ca;      /* Roxo/índigo escuro (texto) */
+    border: 1px solid #c7d2fe;
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.action-cell {
+    text-align: right;
+    padding-right: 20px;
+}
+
+/* --- MODO GRID (Cards no Estilo Windows 11) --- */
+.grid-wrapper {
+    width: 100%;
+    /* NOVO: Faz o grid crescer e ter sua própria rolagem vertical */
+    flex-grow: 1;
+    /* CORREÇÃO: Adiciona a rolagem vertical e um padding para consistência */
+    overflow-y: auto;
+    padding-right: 6px; /* Evita que a barra de rolagem cole nos cards */
+}
+
+.stock-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+}
+
+.stock-card {
+    background: var(--card-bg);
+    border: var(--fluent-border);
+    border-radius: var(--radius-main);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stock-card:hover {
+    border-color: #a19f9d;
+    box-shadow: var(--fluent-shadow);
+}
+
+.stock-card-img-container {
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    background: var(--table-header-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.stock-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.stock-card-no-img {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.stock-card-content {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-grow: 1;
+}
+
+.stock-card-sn {
+    font-family: 'Consolas', monospace;
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-main);
+}
+
+.stock-card-info {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stock-card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* --- CONTROLES DE BUSCA (Estilo Configurações do Windows) --- */
+.search-container {
+    display: flex;
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+    gap: 12px;
+    align-items: center;
+    width: 100%;
+}
+
+#inputSearchStock {
+    background: var(--input-bg);
+    /* NOVO: Adiciona o ícone de busca via CSS para melhor manutenção */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: 12px center;
+    border: 1px solid var(--input-border);
+    border-bottom: 2px solid var(--input-border-bottom);
+    padding: 8px 16px 8px 38px; /* Ajusta o padding para o ícone */
+    font-size: 0.9rem;
+    border-radius: var(--radius-sm); 
+    flex-grow: 1; /* Permite que o campo de busca cresça */
+    min-width: 250px; /* Garante uma largura mínima para o campo de busca */
+}
+.view-toggle-buttons {
+    background: #f0f0f0 !important;
+    border-radius: var(--radius-sm) !important;
+    padding: 2px !important;
+}
+
+.view-toggle-buttons .btn.active {
+    background: #ffffff !important;
+    color: var(--text-main) !important;
+    border: 1px solid rgba(0,0,0,0.06);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
+}
+
+/* --- PAGINAÇÃO --- */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border-color);
+}
+
+.pagination-info {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+/* --- MODAL DO WINDOWS (Fluent Card Overlay) --- */
+.custom-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0; top: 0;
+    width: 100%; height: 100%;
+    background-color: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(16px);
+    align-items: center;
+    justify-content: center;
+}
+
+.custom-modal.active {
+    display: flex;
+}
+
+.modal-content {
+    background-color: var(--modal-bg);
+    border: var(--fluent-border);
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.15);
+    border-radius: var(--radius-main);
+    width: 85%;
+    max-width: 900px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Botão Fechar no Padrão Windows (Fundo Vermelho ao passar o mouse) */
+.modal-close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 46px;
+    height: 32px;
+    background: transparent;
+    color: var(--text-main);
+    border: none;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    transition: background 0.15s, color 0.15s;
+}
+
+.modal-close::before {
+    content: '✕';
+    font-size: 11px;
+}
+
+.modal-close:hover {
+    background: #e81123;
+    color: #ffffff;
+}
+
+.modal-body {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+    min-height: 450px;
+    padding-top: 32px;
+}
+
+.modal-image-container {
+    background-color: var(--modal-image-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 30px;
+}
+
+#modalImg {
+    max-width: 100%;
+    max-height: 65vh;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+    cursor: zoom-in;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid var(--border-color);
+}
+
+#modalImg:fullscreen {
+    object-fit: contain;
+    background-color: #000000;
+    width: 100vw;
+    height: 100vh;
+    border: none;
+}
+
+.modal-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%); 
+    background: #ffffff;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    z-index: 5;
+    transition: background 0.15s;
+}
+
+.modal-nav-btn:hover {
+    background: #f4f4f4;
+    border-color: #8a8886;
+}
+
+.modal-nav-btn.prev { left: 15px; }
+.modal-nav-btn.next { right: 15px; }
+
+.modal-info-container {
+    padding: 30px 24px;
+    display: flex;
+    flex-direction: column; 
+    background: var(--modal-info-bg);
+    border-left: 1px solid var(--border-color);
+}
+
+/* --- NOVO: Estilo para o histórico no modal --- */
+.modal-history-container {
+    grid-column: 1 / -1;
+    padding: 20px 24px;
+    border-top: 1px solid var(--border-color);
+    background: var(--modal-history-bg);
+}
+
+.modal-history-title {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+
+.modal-title-text {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.info-group {
+    margin-bottom: 20px;
+}
+
+.check-icon {
+    width: 14px;
+    height: 14px;
+    stroke: #107c41; /* Verde Windows */
+    stroke-width: 3;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    margin-left: 8px;
+    vertical-align: -2px;
+    opacity: 0.8;
+}
+
+.info-group label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+}
+
+.info-value {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    background: var(--main-content-bg);
+    padding: 8px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.text-monospace {
+    font-family: 'Consolas', monospace;
+}
+
+.info-value-wrapper {
+    position: relative;
+    display: flex;
+}
+
+.info-value-wrapper .info-value {
+    flex-grow: 1;
+    padding-right: 40px; /* Espaço para o botão */
+}
+
+.btn-copy {
+    position: absolute;
+    right: 1px;
+    top: 1px;
+    bottom: 1px;
+    width: 38px;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    border-radius: var(--radius-sm);
+    opacity: 0.4;
+    transition: opacity 0.2s, background-color 0.2s;
+}
+
+.btn-copy:hover {
+    background-color: rgba(0,0,0,0.05);
+    opacity: 1;
+}
+
+.btn-copy::before {
+    content: '';
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235f6368' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='9' y='9' width='13' height='13' rx='2' ry='2'%3E%3C/rect%3E%3Cpath d='M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1'%3E%3C/path%3E%3C/svg%3E");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.location-filter-group {
+    position: relative; /* Necessário para o glider absoluto */
+    display: flex;
+    gap: 5px;    
+    background: transparent;
+    padding: 4px;
+    border-radius: 20px;
+    user-select: none;
+    filter: url(#goo);
+}
+
+/* NOVO: Estilo para o elemento deslizante (glider) */
+.filter-glider {
+    position: absolute;
+    top: 4px;
+    height: calc(100% - 8px);
+    background: var(--accent-color);
+    border-radius: 16px;
+    /* ANIMAÇÃO MELHORADA: Efeito "elástico" (ease-in-out-back) para a seleção final */
+    transition: all 0.4s cubic-bezier(0.68, -0.4, 0.27, 1.4);
+    z-index: 1; /* Fica abaixo do texto dos botões */
+}
+
+.filter-glider.dragging {
+    /* Transição rápida e linear apenas durante o arraste para uma resposta imediata */
+    transition: all 0.05s linear;
+}
+
+.btn-filter {
+    border: none;
+    background: var(--switch-bg);
+    padding: 4px 14px;
+    border-radius: 16px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: color 0.3s ease;
+    z-index: 2; /* Fica acima do glider */
+}
+.btn-filter.active {
+    /* O fundo é fornecido pelo glider que está abaixo, então não precisa de background */
+    color: var(--text-on-accent);
+    background: transparent;
+    box-shadow: none;
+}
+.edit-select {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid #8a8886;
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    width: 100%;
+    max-width: 130px;
+}
+
+
+/* Container do Switch */
+.view-switch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--switch-bg);
+    padding: 6px 12px;
+    border-radius: 20px; /* Switch oval */
+    border: 1px solid var(--border-color);
+    user-select: none;
+}
+
+/* Labels de texto do Switch */
+.switch-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    transition: color 0.15s ease;
+}
+
+.switch-label.active {
+    color: var(--text-main);
+}
+
+/* O Switch em si (Wrapper) */
+.fluent-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+/* Esconde o checkbox padrão */
+.fluent-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider (fundo do switch) */
+.switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: var(--switch-glider-bg);
+    border: 1px solid var(--input-border);
+    transition: .2s ease-in-out;
+    border-radius: 10px;
+}
+
+/* A bolinha interna (Knob) */
+.switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 12px;
+    width: 12px;
+    left: 3px;
+    bottom: 3px;
+    background-color: var(--switch-knob-bg);
+    transition: .2s ease-in-out;
+    border-radius: 50%;
+}
+
+/* Quando marcado (Modo Grid ativo) */
+.fluent-switch input:checked + .switch-slider {
+    background-color: var(--accent-color); /* Fundo Azul Windows */
+    border-color: var(--accent-color);
+}
+
+.fluent-switch input:checked + .switch-slider:before {
+    transform: translateX(20px); /* Move a bolinha para a direita */
+    background-color: var(--text-on-accent);
+}
+
+/* Hover suave do Switch */
+.fluent-switch:hover .switch-slider {
+    border-color: var(--text-main);
+}
+.fluent-switch input:checked:hover + .switch-slider {
+    background-color: var(--accent-hover);
+    border-color: var(--accent-hover);
+}
+
+/* --- MODAL DE NOTIFICAÇÃO --- */
+.notification-content {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notification-icon svg {
+  width: 24px;
+    height: 24px;
+    stroke-width: 2.5;
+    color: white;
+}
+
+.notification-icon.success { background-color: #107c41; }
+.notification-icon.error { background-color: #e81123; }
+.notification-icon.warning { background-color: #ff8c00; }
+
+.notification-text .modal-title-text.success { color: #107c41; }
+.notification-text .modal-title-text.error { color: #e81123; }
+.notification-text .modal-title-text.warning { color: #ff8c00; }
+
+#notificationModal .modal-content {
+    animation: fluentFadeIn 0.2s ease-out;
+}
+
+/* Estilo para o parágrafo de informação no modal de ação */
+#stockActionItemInfo {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 25px;
+    text-align: center;
+    background: var(--main-content-bg);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+}
+/* --- GERENCIAMENTO DE MODELOS --- */
+.model-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+
+.model-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+
+.model-list-item:last-child {
+    border-bottom: none;
+}
+
+.model-list-item .badge {
+    font-size: 0.7rem;
+}
+.locality-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+}
+.locality-list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+    font-size: 0.9rem;
+}
+.locality-list-item:last-child { border-bottom: none; }
+
+/* Ajuste para o texto do menu não quebrar linha */
+.menu-item-link, .menu-item {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- CORREÇÃO GERAL: Estilos para a View de Configurações --- */
+
+.settings-tabs {
+    display: flex;
+    border-bottom: 1px solid var(--border-color);
+    margin: -24px -24px 24px -24px; /* Estica a borda para as laterais do card */
+    padding: 0 20px;
+}
+
+.settings-tab-btn {
+    padding: 12px 20px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px; /* Faz a borda ativa sobrepor a borda principal */
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.settings-tab-btn:hover {
+    color: var(--text-main);
+}
+
+.settings-tab-btn.active {
+    color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+}
+
+.settings-tab-content {
+    display: none;
+    padding: 0 24px; /* Adiciona padding horizontal para alinhar com o título */
+}
+
+.settings-tab-content.active {
+    display: flex;
+    flex-direction: column;
+    animation: fluentFadeIn 0.3s ease-out;
+}
+
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 0; /* Usa padding vertical para espaçamento */
+    border-bottom: 1px solid var(--border-color);
+}
+
+.settings-tab-content > .setting-item:first-child {
+    padding-top: 24px;
+}
+
+.settings-tab-content > .setting-item:last-child {
+    border-bottom: none;
+    padding-bottom: 24px;
+}
+
+.setting-item strong {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.setting-item-description {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.setting-item.danger-item {
+    background-color: rgba(232, 17, 35, 0.05);
+    padding: 20px;
+    margin: 0 -24px; /* Compensa o padding do container para o fundo ir até as bordas */
+    border-radius: var(--radius-sm);
+    border-bottom: 1px solid rgba(232, 17, 35, 0.2);
+}
+
+.setting-item.danger-item strong {
+    color: #e81123;
+}
+
+.settings-tab-content#tab-models,
+.settings-tab-content#tab-localities {
+    padding: 24px; /* Adiciona padding para as abas que não usam .setting-item */
+}
+
+/* --- NOVO: Animação para destacar itens recém-adicionados --- */
+@keyframes newItemFadeIn {
+    from {
+        background-color: var(--accent-color-subtle);
+    }
+    to {
+        /* A cor de fundo voltará ao seu estado padrão (transparent para TR, var(--card-bg) para card) 
+           ao longo da duração da animação. */
+    }
+}
+
+.new-item-animation {
+    animation: newItemFadeIn 2s ease-out;
+}
+
+/* --- CORREÇÃO: Estilos para inputs na tela de configurações --- */
+.setting-input, .setting-select {
+    padding: 6px 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border: 1px solid var(--input-border);
+    border-bottom: 2px solid var(--input-border-bottom);
+    border-radius: var(--radius-sm);
+    background-color: var(--input-bg);
+    color: var(--text-main);
+    transition: border-color 0.1s ease;
+}
+
+.setting-input:focus, .setting-select:focus {
+    border-color: var(--accent-color);
+    border-bottom-color: var(--accent-color);
+    outline: none;
+}
+
+.setting-input {
+    width: 80px;
+    text-align: center;
+}
+
+.setting-select {
+    width: 150px;
+}
+/* --- NOVO: Layout de Dock Inferior (Estilo macOS) --- */
+
+/* Esconde o botão de conexão nas configurações por padrão */
+.dock-only-setting {
+    display: none;
+}
+
+/* Exibe o botão de conexão nas configurações apenas no modo dock */
+body.dock-layout .dock-only-setting {
+    display: flex;
+    margin-top: 16px;
+}
+
+/* Estilo para o container do botão de conexão nas configurações */
+.db-status-card-inline {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: var(--main-content-bg);
+    padding: 4px 8px;
+    border-radius: var(--radius-main);
+    border: 1px solid var(--border-color);
+}
+
+body.dock-layout .sidebar {
+    width: auto;
+    height: auto;
+    position: fixed;
+    bottom: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    flex-direction: row;
+    align-items: flex-end; /* Alinha os ícones na base para o efeito de pulo */
+    justify-content: center;
+    gap: 10px;
+    padding: 10px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 22px;
+    z-index: 100;
+    background: rgba(245, 245, 247, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    background: rgba(245, 245, 247, 0.65); /* Reduzi a opacidade para um blur mais visível */
+    backdrop-filter: blur(24px) saturate(180%); /* Aumentei o blur */
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    transition: all 0.3s ease-in-out;
+}
+
+/* --- NOVO: Correção de cores da Dock no Modo Claro --- */
+body:not(.dark-mode).dock-layout .sidebar .menu-item {
+    color: var(--text-muted);
+}
+
+body:not(.dark-mode).dock-layout .sidebar .menu-item:hover {
+    color: var(--text-main);
+    background: transparent; /* Garante que o fundo não seja o do menu vertical */
+}
+
+body:not(.dark-mode).dock-layout .sidebar .menu-item.active {
+    color: var(--accent-color);
+    background: transparent; /* Garante que o fundo não seja o azul do menu vertical */
+}
+
+body.dock-layout .main-content {
+    padding-bottom: 100px; /* Altura da dock + margem */
+}
+
+/* Esconde elementos que não fazem sentido na dock */
+body.dock-layout .sidebar-brand,
+body.dock-layout .db-status-card,
+body.dock-layout .sidebar-toggle-wrapper {
+    display: none;
+}
+body.dock-layout .sidebar-menu {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end; /* Alinha na base */
+    gap: 10px;
+    height: 60px; /* Altura fixa para o pulo */
+}
+body.dock-layout .menu-item {
+    justify-content: center;
+    align-items: center;
+    width: 55px;
+    height: 60px;
+    padding: 0;
+    margin: 0;
+    gap: 4px;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+body.dock-layout .menu-item-text {
+    display: block;
+    position: absolute;
+    bottom: 120%;
+    background-color: rgba(20, 20, 20, 0.85);
+    color: white;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transform: translateY(5px);
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    pointer-events: none;
+    z-index: 101;
+}
+
+/* Esconde o texto do divisor no modo dock */
+body.dock-layout .menu-divider .menu-item-text {
+    display: none;
+}
+
+body.dock-layout .menu-item:hover .menu-item-text {
+    opacity: 1;
+    transform: translateY(0);
+}
+/* Reposiciona o indicador de item ativo para ser um ponto abaixo */
+body.dock-layout .menu-item::before {
+    height: 5px;
+    width: 5px;
+    top: auto;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+body.dock-layout .menu-item.active::before {
+    width: 5px;
+    height: 5px;
+    opacity: 1;
+}
+/* Remove a animação de deslize lateral e adiciona uma para cima */
+body.dock-layout .menu-item:not(.active):hover {
+    transform: translateY(-10px) scale(1.1);
+}
+
+body.dock-layout .menu-item.active {
+    transform: translateY(-5px);
+}
+
+/* --- NOVO: Estilos para a Pré-visualização da Dock --- */
+.dock-preview-container {
+    display: none;
+    position: fixed;
+    bottom: 100px; /* Acima da dock */
+    width: 320px;
+    height: 215px; /* Altura para o título + conteúdo */
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.2);
+    z-index: 102;
+    overflow: hidden;
+    transform-origin: bottom center;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    opacity: 0;
+    transform: translateY(10px);
+    pointer-events: none;
+}
+
+.dock-preview-container.visible {
+    display: block;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.simple-preview h3 {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+/* --- ALTERADO: Layout principal do Dashboard --- */
+.dashboard-grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* Coluna principal maior que a lateral */
+    gap: 20px;
+    /* NOVO: Faz o grid ocupar o espaço restante e define uma altura mínima para evitar colapso */
+    flex-grow: 1;
+    min-height: 0;
+
+    align-items: start;
+}
+
+.dashboard-main-column, .dashboard-side-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    /* NOVO: Garante que as colunas também tenham uma altura mínima para o overflow funcionar */
+    min-height: 0;
+}
+
+/* Torna o grid responsivo em telas menores, empilhando os cards */
+@media (max-width: 1300px) {
+    .dashboard-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* --- NOVO: Faz o card de atividade recente crescer e ter rolagem interna --- */
+.dashboard-main-column .card:last-child {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    min-height: 0; /* Garante que o flex-grow funcione corretamente com conteúdo que transborda */
+}
+
+/* --- NOVO: Layout para a linha superior do Dashboard --- */
+.dashboard-top-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: -10px; /* Aproxima do grid de stats */
+}
+
+/* --- NOVO: Cabeçalho do Dashboard --- */
+.dashboard-header {
+    margin-bottom: -12px; /* Puxa os cards de stats para mais perto */
+}
+
+.dashboard-title {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.dashboard-subtitle {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+/* --- NOVO: Estilos para Ações Rápidas --- */
+.quick-actions-grid {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    background-color: var(--accent-color-subtle);
+    border: 1px solid transparent;
+    border-radius: 50%;
+    cursor: pointer;
+    color: var(--accent-color);
+    transition: all 0.2s ease;
+}
+
+.quick-action-btn:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+    color: var(--text-on-accent);
+    transform: scale(1.1);
+}
+
+.quick-action-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2;
+}
+
+.chart-container {
+    display: flex; /* Mantém flex para centralizar o placeholder */
+    flex-direction: column;
+    min-height: 250px;
+    justify-content: center; /* Centraliza o placeholder verticalmente */
+}
+
+/* --- NOVO: Estilos para o Gráfico de Barras --- */
+.bar-chart-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 16px; /* Espaçamento entre as barras */
+}
+
+.bar-chart-item {
+    display: grid;
+    grid-template-columns: minmax(80px, 1fr) 2fr auto; /* Label | Barra | Valor */
+    align-items: center;
+    gap: 12px;
+}
+
+.bar-chart-label {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.bar-chart-bar-container {
+    width: 100%;
+    background-color: var(--main-content-bg);
+    border-radius: 4px;
+    height: 18px;
+    overflow: hidden;
+}
+
+.bar-chart-bar {
+    height: 100%;
+    border-radius: 4px;
+    animation: barGrow 0.8s cubic-bezier(0.25, 1, 0.5, 1);
+    transform-origin: left;
+}
+
+@keyframes barGrow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+
+.bar-chart-value {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    font-family: 'Consolas', monospace;
+}
+/* --- NOVO: Estilos para a Lista de Atividade Recente --- */
+.recent-activity-list {
+    list-style: none;
+    padding: 0;
+    /* NOVO: Adiciona rolagem interna à lista de atividades */
+    overflow-y: auto;
+    flex-grow: 1;
+    margin: 0; /* Reseta margens padrão da UL */
+}
+
+.activity-item {
+    display: grid;
+    grid-template-columns: auto 1fr auto; /* Icon | Details | Time */
+    align-items: center;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.recent-activity-list li:first-child {
+    padding-top: 0; /* Remove padding extra do primeiro item */
+}
+
+.recent-activity-list li:last-child {
+    border-bottom: none;
+    padding-bottom: 0; /* Remove padding extra do último item */
+}
+
+.activity-icon {
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.activity-icon svg {
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+    color: #ffffff;
+}
+
+.activity-details {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+}
+
+.activity-details p {
+    margin: 0;
+}
+
+.activity-details strong {
+    color: var(--text-main);
+    font-weight: 600;
+}
+
+.activity-time {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    white-space: nowrap;
+    text-align: right;
+}
+
+.activity-placeholder {
+    text-align: center;
+    padding: 30px 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* --- NOVO: Estilos para o Dashboard --- */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    border: var(--fluent-border);
+    border-radius: var(--radius-main);
+    padding: 24px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    box-shadow: var(--fluent-shadow);
+}
+
+.stat-card-icon {
+    width: 54px;
+    height: 54px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    margin-bottom: 12px;
+}
+.stat-card-icon svg {
+    width: 26px;
+    height: 26px;
+    width: 24px;
+    height: 24px;
+    stroke-width: 2;
+}
+.stat-card-value {
+    font-size: 2.5rem;
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--text-main);
+    line-height: 1.1;
+}
+.stat-card-label {
+    font-size: 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: 8px;
+    margin-top: 6px;
+}
+.dock-preview-title {
+    padding: 8px 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-main);
+    border-bottom: 1px solid var(--border-color);
+    background-color: var(--main-content-bg);
+}
+
+.dock-preview-content {
+    width: 1600px; /* Largura virtual para escalar (320 * 5) */
+    height: 900px;  /* Altura virtual para escalar (180 * 5) */
+    transform-origin: top left;
+    transform: scale(0.2);
+    background-color: var(--main-content-bg);
+    overflow: hidden;
+}
+
+/* Força a view clonada a ser visível e preencher o espaço */
+.dock-preview-content > .view-section {
+    display: flex !important;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.simple-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 180px; /* Altura do conteúdo */
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.simple-preview svg {
+    width: 48px;
+    height: 48px;
+    stroke-width: 1.5;
+    margin-bottom: 15px;
+    color: var(--text-main);
+}
+
+.simple-preview h3 {
+    font-size: 1.2rem;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+/* --- NOVO: Estilos para a Aba de Instruções --- */
+.instructions-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.instructions-header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.instructions-header h3 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.instructions-header p {
+    font-size: 1rem;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.instruction-step {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-main);
+    background-color: var(--card-bg);
+    box-shadow: var(--fluent-shadow);
+}
+
+.instruction-step h4 {
+    font-size: 1.2rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.instruction-step h4 svg {
+    width: 22px;
+    height: 22px;
+    stroke-width: 2;
+}
+
+.instruction-step p, .instruction-step li {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+
+.instruction-step ol {
+    padding-left: 20px;
+    margin-top: 10px;
+}
+
+.instruction-step li {
+    margin-bottom: 8px;
+}
+
+kbd {
+    background-color: var(--main-content-bg);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 2px 6px;
+    font-family: 'Consolas', monospace;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+/* --- NOVO: Estilização da Barra de Rolagem (Scrollbar) --- */
+
+/* A barra de rolagem inteira */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+    background-color: transparent;
+}
+
+/* O "trilho" da barra de rolagem */
+::-webkit-scrollbar-track {
+    background: transparent;
+    border-radius: 8px;
+}
+
+/* A alça (o que você arrasta) */
+::-webkit-scrollbar-thumb {
+    background-color: var(--border-color);
+    border-radius: 8px;
+    border: 2px solid var(--main-content-bg); /* Efeito de preenchimento reduzido */
+}
+
+/* A alça ao passar o mouse */
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--input-border);
+}

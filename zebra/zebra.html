@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>VOKE | Gestor ZPL Completo + Excel</title>
+    <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <style>
+        :root { --apple-blue: #007aff; --apple-green: #34c759; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background: #f5f5f7; display: flex; padding: 20px; gap: 20px; margin: 0; }
+        .editor-panel { background: white; padding: 20px; border-radius: 12px; width: 420px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); flex-shrink: 0; }
+        
+        .preview-panel { 
+            flex-grow: 1; 
+            text-align: center; 
+            position: sticky; 
+            top: 20px; 
+            align-self: flex-start; 
+        }
+
+        .control-group { margin-bottom: 15px; }
+        .control-group label { font-weight: 500; font-size: 14px; display: block; margin-bottom: 4px; }
+        .row { display: flex; gap: 10px; margin-top: 5px; align-items: center; }
+        input, select, textarea { width: 100%; padding: 8px; border: 1px solid #d2d2d7; border-radius: 6px; box-sizing: border-box; }
+        button { cursor: pointer; padding: 12px; border: none; border-radius: 8px; font-weight: 600; width: 100%; margin-top: 10px; }
+        
+        .excel-box {
+            background: #eef7ed;
+            border: 2px dashed #34c759;
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .field-controls-container { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+        .font-controls { display: flex; gap: 5px; }
+        .font-control-btn { width: 40px; height: 30px; padding: 0; margin: 0; flex-shrink: 0; line-height: 1; font-size: 18px; }
+
+        .pos-controls-grid { display: grid; grid-template-areas: ". up ." "left center right" ". down ."; gap: 2px; align-items: center; justify-items: center; }
+        .pos-control-btn { width: 28px; height: 28px; padding: 0; margin: 0; line-height: 1; font-size: 14px; }
+        .pos-controls-grid .pos-up { grid-area: up; }
+        .pos-controls-grid .pos-down { grid-area: down; }
+        .pos-controls-grid .pos-left { grid-area: left; }
+        .pos-controls-grid .pos-right { grid-area: right; }
+
+        .btn-excel { background: #107c41; color: white; margin-top: 5px; }
+        .btn-print { background: var(--apple-green); color: white; }
+        .btn-save { background: var(--apple-blue); color: white; }
+        .btn-reset { background: #e5e5ea; color: #333; }
+        #zplCode { height: 130px; font-family: monospace; font-size: 11px; background: #f8f8f8; resize: vertical; }
+
+        .back-button {
+            display: inline-flex; align-items: center; gap: 8px; background: #e8edf2; color: #344054;
+            padding: 8px 14px; font-size: 13px; margin-bottom: 15px; border-radius: 6px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="editor-panel">
+    <button class="back-button" onclick="window.location.href='../celular.rubertt.html'">← Voltar</button>
+    
+    <div class="row" style="margin-bottom: 15px;">
+        <button class="btn-save" onclick="salvarConfiguracao()">Salvar Ajustes</button>
+        <button class="btn-reset" onclick="restaurarPadrao()">Restaurar</button>
+    </div>
+
+    <!-- MÓDULO EXCEL -->
+    <div class="excel-box">
+        <label style="color: #107c41; font-weight: bold;">📊 Importar Lote via Excel</label>
+        <p style="font-size: 11px; color: #555; margin: 4px 0 8px 0;">Colunas: <b>Patrimonio</b>, <b>Serial</b>, <b>Qtd</b> (ou <b>IMEI1</b>, <b>IMEI2</b>, <b>SN</b>)</p>
+        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" style="display: none;" onchange="processarExcel(event)">
+        <div class="row">
+            <button class="btn-excel" onclick="document.getElementById('excelFile').click()">Subir Excel (.xlsx)</button>
+            <button id="btnClearExcel" class="btn-reset" style="display:none; margin-top:5px;" onclick="limparExcel()">Limpar Lote</button>
+        </div>
+        <button onclick="baixarModeloExcel()" style="background: transparent; color: #107c41; font-size: 11px; text-decoration: underline; margin-top: 6px; padding: 0;">Baixar Modelo Planilha</button>
+    </div>
+
+    <h3>Modelo & Posições</h3>
+    <select id="templateSelector" onchange="carregarModelo()">
+        <option value="padrao">Modelo Padrão VOKE</option>
+        <option value="celular">Modelo Celular</option>
+        <option value="minimal">Modelo Minimalista</option>
+    </select>
+
+    <!-- CONTROLES MODELO PADRÃO -->
+    <div id="controlsPadrao" style="margin-top: 15px;">
+        <div class="row" style="gap: 20px;">
+            <label>PW: <input type="number" id="pw_padrao" value="560" oninput="gerar()"></label>
+            <label>LL: <input type="number" id="ll_padrao" value="300" oninput="gerar()"></label>
+        </div>
+        <div class="control-group" style="margin-top: 10px;">
+            <label>Título:</label>
+            <input type="text" id="val_t" value="DEVOLUCAO VOKE" oninput="gerar()">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('t', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('t', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('t', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('t', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('t', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('t', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Patrimônio:</label>
+            <input type="text" id="val_p" value="AM005473" oninput="gerar()">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('p', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('p', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('p', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('p', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('p', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('p', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Serial / Barcode:</label>
+            <input type="text" id="val_s" value="3X0D6R3" oninput="sincronizarSerial(this.value)">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('s', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('s', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('s', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('s', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('s', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('s', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Posição do Código de Barras:</label>
+            <div class="field-controls-container">
+                <div class="font-controls"></div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('b', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('b', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('b', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('b', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <input type="hidden" id="bc_type_padrao" value="B3N,N,90,Y,N">
+        <input type="hidden" id="val_b" value="3X0D6R3">
+    </div>
+
+    <!-- CONTROLES MODELO CELULAR -->
+    <div id="controlsCelular" style="display: none; margin-top: 15px;">
+        <div class="row" style="gap: 20px;">
+            <label>PW: <input type="number" id="pw_cel" value="560" oninput="gerar()"></label>
+            <label>LL: <input type="number" id="ll_cel" value="300" oninput="gerar()"></label>
+        </div>
+        <div class="control-group" style="margin-top: 10px;">
+            <label>IMEI 1:</label>
+            <input type="text" id="val_imei1" value="" oninput="gerar()" placeholder="Obrigatório">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('imei1', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('imei1', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('imei1', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('imei1', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('imei1', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('imei1', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>IMEI 2:</label>
+            <input type="text" id="val_imei2" value="" oninput="gerar()" placeholder="Opcional">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('imei2', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('imei2', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('imei2', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('imei2', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('imei2', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('imei2', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>SN:</label>
+            <input type="text" id="val_sn" value="" oninput="gerar()" placeholder="Obrigatório">
+            <div class="field-controls-container">
+                <div class="font-controls">
+                    <button class="font-control-btn" onclick="ajustarFonte('sn', 5)">+</button>
+                    <button class="font-control-btn" onclick="ajustarFonte('sn', -5)">-</button>
+                </div>
+                <div class="pos-controls-grid">
+                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('sn', 'y', -5)">▲</button>
+                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('sn', 'x', -5)">◀</button>
+                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('sn', 'x', 5)">▶</button>
+                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('sn', 'y', 5)">▼</button>
+                </div>
+            </div>
+        </div>
+        <div class="control-group">
+            <label>Nome (Reserva):</label>
+            <input type="text" id="val_nome" value="" oninput="gerar()" placeholder="Opcional">
+        </div>
+    </div>
+
+    <!-- CAMPO QTD MANUAL (USADO QUANDO NÃO HÁ EXCEL) -->
+    <div class="control-group" id="boxQtdManual" style="margin-top: 15px; background: #f0f4f8; padding: 10px; border-radius: 8px;">
+        <label for="qtd_etiquetas" style="font-weight: 600; color: #007aff;">Qtd. de Etiquetas (Manual):</label>
+        <input type="number" id="qtd_etiquetas" value="1" min="1" max="999" oninput="gerar()">
+    </div>
+
+    <p style="font-size: 11px; color: #666; margin-top:10px;">Código ZPL (Edite Livremente):</p>
+    <textarea id="zplCode" oninput="atualizarPreview(this.value)"></textarea>
+    
+    <button class="btn-print" onclick="enviarParaImpressora()">Imprimir via QZ Tray</button>
+</div>
+
+<div class="preview-panel">
+    <h3>Preview</h3>
+    <img id="labelPreview" src="" style="border: 1px dashed #ccc; max-width: 100%; height: auto;">
+</div>
+
+<script>
+    const CONFIG_STORAGE_KEY = 'zplConfigV1';
+    let dadosExcel = [];
+
+    const defaultFontSizes = { t: 55, p: 45, s: 45, imei1: 45, imei2: 45, sn: 45, nome: 45 };
+    const defaultPositions = {
+        t: { x: -11, y: 30 }, p: { x: -30, y: 95 }, s: { x: 20, y: 150 },
+        b: { x: 0, y: 200 }, b_text: { x: 0, y: 280 },
+        imei1: { x: 0, y: 40 }, imei2: { x: 0, y: 100 }, sn: { x: 0, y: 160 }, nome: { x: 0, y: 220 }
+    };
+
+    let tamanhosFonte = { ...defaultFontSizes };
+    let posicoes = JSON.parse(JSON.stringify(defaultPositions));
+
+    const modelos = {
+        padrao: "^XA\n^PW{{pw_padrao}}\n^LL{{ll_padrao}}\n^CI28\n^FO{{x_t}},{{y_t}}^A0N,{{font_t}},^FB{{pw_padrao}},1,0,C^FD{{val_t}}^FS\n^FO{{x_p}},{{y_p}}^A0N,{{font_p}},{{font_p}}^FB{{pw_padrao}},1,0,C^FDPATRIMONIO: {{val_p}}^FS\n^FO{{x_s}},{{y_s}}^A0N,{{font_s}},{{font_s}}^FB{{pw_padrao}},1,0,L^FDSN: {{val_s}}^FS\n^BY3,3\n^FO{{x_b}},{{y_b}}^FB{{pw_padrao}},1,0,C,0^BCN,80,N,N,N,A^FD{{val_b}}^FS\n^FO{{x_b_text}},{{y_b_text}}^A0N,20,20^FB{{pw_padrao}},1,0,C^FD{{val_b}}^FS\n^PQ{{qtd}}\n^XZ",
+        celular: "^XA\n^PW{{pw_cel}}\n^LL{{ll_cel}}\n^CI28\n^FO{{x_imei1}},{{y_imei1}}^A0N,{{font_imei1}},{{font_imei1}}^FB{{pw_cel}},1,0,C^FDIMEI 1: {{val_imei1}}^FS\n^FO{{x_imei2}},{{y_imei2}}^A0N,{{font_imei2}},{{font_imei2}}^FB{{pw_cel}},1,0,C^FDIMEI 2: {{val_imei2}}^FS\n^FO{{x_sn}},{{y_sn}}^A0N,{{font_sn}},{{font_sn}}^FB{{pw_cel}},1,0,C^FDS/N: {{val_sn}}^FS\n^FO{{x_nome}},{{y_nome}}^A0N,{{font_nome}},{{font_nome}}^FB{{pw_cel}},1,0,C^FD{{val_nome}}^FS\n^PQ{{qtd}}\n^XZ",
+        minimal: "^XA\n^PW{{pw_padrao}}\n^FO20,20^A0N,{{font_t}},{{font_t}}^FD{{val_t}}^FS\n^FO20,80^A0N,{{font_p}},{{font_p*0.75}}^FD{{val_p}} | {{val_s}}^FS\n^FO20,130^BY2^{{bc_type_padrao}}^FD{{val_b}}^FS\n^PQ{{qtd}}\n^XZ"
+    };
+
+    function processarExcel(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(firstSheet);
+
+            if (json.length === 0) {
+                alert("A planilha está vazia!");
+                return;
+            }
+
+            dadosExcel = json;
+            document.getElementById('btnClearExcel').style.display = 'inline-block';
+            document.getElementById('boxQtdManual').style.display = 'none';
+            alert(`${json.length} etiquetas carregadas da planilha!`);
+            gerar();
+        };
+        reader.readAsArrayBuffer(file);
+    }
+
+    function limparExcel() {
+        dadosExcel = [];
+        document.getElementById('excelFile').value = '';
+        document.getElementById('btnClearExcel').style.display = 'none';
+        document.getElementById('boxQtdManual').style.display = 'block';
+        gerar();
+    }
+
+    function gerar() {
+        const modo = document.getElementById('templateSelector').value;
+        let templateOriginal = modelos[modo];
+        let zplFinal = "";
+
+        if (dadosExcel.length > 0) {
+            // Gerar múltiplos blocos com base nas linhas da planilha
+            dadosExcel.forEach(row => {
+                let t = aplicarSubstituicoes(templateOriginal, modo, row);
+                zplFinal += t + "\n";
+            });
+        } else {
+            // Gerar apenas uma com os inputs da tela
+            zplFinal = aplicarSubstituicoes(templateOriginal, modo, null);
+        }
+
+        document.getElementById('zplCode').value = zplFinal;
+        
+        // Preview exibe a primeira etiqueta do lote
+        const primeiroBloco = zplFinal.split("^XZ")[0] + "^XZ";
+        atualizarPreview(primeiroBloco);
+    }
+
+    function aplicarSubstituicoes(template, modo, excelRow) {
+        let res = template;
+        const qtdInput = document.getElementById('qtd_etiquetas');
+        let qtd = excelRow ? (excelRow.Qtd || excelRow.QTD || excelRow.qtd || 1) : (parseInt(qtdInput.value) || 1);
+
+        let inputs = {};
+        if (modo === 'celular') {
+            inputs = {
+                pw_cel: document.getElementById('pw_cel').value,
+                ll_cel: document.getElementById('ll_cel').value,
+                val_imei1: excelRow ? (excelRow.IMEI1 || excelRow.imei1 || "") : document.getElementById('val_imei1').value,
+                val_imei2: excelRow ? (excelRow.IMEI2 || excelRow.imei2 || "") : document.getElementById('val_imei2').value,
+                val_sn: excelRow ? (excelRow.SN || excelRow.sn || excelRow.Serial || "") : document.getElementById('val_sn').value,
+                val_nome: excelRow ? (excelRow.Nome || excelRow.nome || "") : document.getElementById('val_nome').value
+            };
+        } else {
+            const valS = excelRow ? (excelRow.Serial || excelRow.SERIAL || excelRow.serial || "") : document.getElementById('val_s').value;
+            inputs = {
+                pw_padrao: document.getElementById('pw_padrao').value,
+                ll_padrao: document.getElementById('ll_padrao').value,
+                val_t: document.getElementById('val_t').value,
+                val_p: excelRow ? (excelRow.Patrimonio || excelRow.PATRIMONIO || excelRow.patrimonio || "") : document.getElementById('val_p').value,
+                val_s: valS,
+                val_b: valS,
+                bc_type_padrao: document.getElementById('bc_type_padrao').value
+            };
+        }
+
+        Object.keys(inputs).forEach(id => {
+            res = res.replace(new RegExp(`{{${id}}}`, 'g'), inputs[id]);
+        });
+
+        res = res.replace(new RegExp(`{{qtd}}`, 'g'), qtd);
+
+        // Substituição de Fontes
+        Object.keys(tamanhosFonte).forEach(key => {
+            res = res.replace(new RegExp(`{{font_${key}}}`, 'g'), Math.round(tamanhosFonte[key]));
+        });
+
+        // Substituição de Posições
+        Object.keys(posicoes).forEach(key => {
+            res = res.replace(new RegExp(`{{x_${key}}}`, 'g'), Math.round(posicoes[key].x));
+            res = res.replace(new RegExp(`{{y_${key}}}`, 'g'), Math.round(posicoes[key].y));
+        });
+
+        if (modo === 'celular' && !inputs.val_nome) {
+            const nomeRegex = new RegExp(`\\^FO{{x_nome}},{{y_nome}}\\^A0N,{{font_nome}},{{font_nome}}\\^FB{{pw_cel}},1,0,C\\^FD{{val_nome}}\\^FS\\n`, 'g');
+            res = res.replace(nomeRegex, '');
+        }
+
+        return res;
+    }
+
+    function ajustarFonte(campo, ajuste) {
+        tamanhosFonte[campo] = Math.max(10, tamanhosFonte[campo] + ajuste);
+        gerar();
+    }
+
+    function ajustarPosicao(campo, eixo, ajuste) {
+        posicoes[campo][eixo] += ajuste;
+        if (campo === 'b') posicoes['b_text'][eixo] += ajuste;
+        gerar();
+    }
+
+    function sincronizarSerial(valor) {
+        document.getElementById('val_b').value = valor;
+        gerar();
+    }
+
+    function salvarConfiguracao() {
+        const config = {
+            modelo: document.getElementById('templateSelector').value,
+            tamanhosFonte: tamanhosFonte,
+            posicoes: posicoes,
+            inputs: {
+                pw_padrao: document.getElementById('pw_padrao').value,
+                ll_padrao: document.getElementById('ll_padrao').value,
+                val_t: document.getElementById('val_t').value,
+                val_p: document.getElementById('val_p').value,
+                val_s: document.getElementById('val_s').value,
+                val_b: document.getElementById('val_b').value,
+                pw_cel: document.getElementById('pw_cel').value,
+                ll_cel: document.getElementById('ll_cel').value,
+                val_imei1: document.getElementById('val_imei1').value,
+                val_imei2: document.getElementById('val_imei2').value,
+                val_sn: document.getElementById('val_sn').value,
+                val_nome: document.getElementById('val_nome').value,
+                qtd_etiquetas: document.getElementById('qtd_etiquetas').value
+            }
+        };
+        localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(config));
+        alert('Ajustes salvos!');
+    }
+
+    function carregarConfiguracao() {
+        const savedConfig = localStorage.getItem(CONFIG_STORAGE_KEY);
+        if (savedConfig) {
+            const config = JSON.parse(savedConfig);
+            tamanhosFonte = config.tamanhosFonte || defaultFontSizes;
+            posicoes = config.posicoes || defaultPositions;
+            document.getElementById('templateSelector').value = config.modelo || 'padrao';
+            for (const id in config.inputs) {
+                const element = document.getElementById(id);
+                if (element) element.value = config.inputs[id];
+            }
+        }
+    }
+
+    function restaurarPadrao() {
+        if (confirm('Restaurar as configurações padrão?')) {
+            localStorage.removeItem(CONFIG_STORAGE_KEY);
+            window.location.reload();
+        }
+    }
+
+    function carregarModelo() {
+        const modo = document.getElementById('templateSelector').value;
+        const isCelular = (modo === 'celular');
+
+        document.getElementById('controlsPadrao').style.display = isCelular ? 'none' : 'block';
+        document.getElementById('controlsCelular').style.display = isCelular ? 'block' : 'none';
+
+        sincronizarSerial(document.getElementById('val_s').value);
+        gerar(); 
+    }
+
+    function atualizarPreview(zpl) { 
+        document.getElementById('labelPreview').src = `https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/${encodeURIComponent(zpl)}`; 
+    }
+
+    function baixarModeloExcel() {
+        const ws = XLSX.utils.json_to_sheet([
+            { Patrimonio: "AM005473", Serial: "3X0D6R3", Qtd: 1 },
+            { Patrimonio: "AM005474", Serial: "4Y1E7S4", Qtd: 2 }
+        ]);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Etiquetas");
+        XLSX.writeFile(wb, "modelo_etiquetas_voke.xlsx");
+    }
+
+    async function enviarParaImpressora() {
+        try {
+            if (!qz.websocket.isActive()) await qz.websocket.connect();
+            await qz.print(qz.configs.create("etiqueta"), [document.getElementById('zplCode').value]);
+            alert("Impressão enviada!");
+        } catch (e) { alert("Erro ao imprimir: " + e); }
+    }
+    
+    function preencherComURLParams() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('modelo') === 'celular') {
+            document.getElementById('templateSelector').value = 'celular';
+            document.getElementById('val_imei1').value = params.get('imei1') || '';
+            document.getElementById('val_imei2').value = params.get('imei2') || '';
+            document.getElementById('val_sn').value = params.get('sn') || '';
+        }
+        if (params.get('qtd')) document.getElementById('qtd_etiquetas').value = params.get('qtd');
+        
+        carregarModelo();
+    }
+
+    carregarConfiguracao();
+    preencherComURLParams();
+</script>
+</body>
+</html>
