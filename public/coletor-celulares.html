@@ -28,8 +28,8 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 <section class="card">
 <h2>1. Capturar aparelho</h2><p class="hint">Fotografe a etiqueta. O OCR apenas preenche os campos abaixo: nada entra no lote ou no ZIP automaticamente. Confira a foto e corrija IMEI 1, IMEI 2, SN e modelo. Quando estiver tudo certo, toque em “Adicionar ao lote”. Só os aparelhos revisados e adicionados entram no ZIP.</p>
 <label for="model">Modelo / identificação (opcional)</label><input id="model" placeholder="Ex.: Samsung Galaxy A54"><label for="locality">Localidade de entrada no estoque</label><input id="locality" value="Canoas" placeholder="Ex.: Canoas">
-<div class="row"><div><label for="imei">IMEI 1</label><input id="imei" inputmode="numeric" maxlength="17" placeholder="15 dígitos"></div><div><label for="imei2">IMEI 2 (opcional)</label><input id="imei2" inputmode="numeric" maxlength="17" placeholder="15 dígitos"></div></div>
-<label for="sn">Número de série (SN)</label><input id="sn" placeholder="Digite ou leia o SN">
+<div class="row"><div><label for="imei">IMEI 1 *</label><input id="imei" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div><div><label for="imei2">IMEI 2 *</label><input id="imei2" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div></div>
+<label for="sn">Número de série (SN) *</label><input id="sn" placeholder="Digite ou leia o SN" required>
 <div class="actions"><button id="startCam">Abrir câmera</button><button class="secondary" id="takePhoto" disabled>Fotografar aparelho</button></div>
 <div class="preview" id="preview"><span id="previewText">A câmera/foto aparecerá aqui</span><video id="video" playsinline autoplay></video><img id="photoPreview" alt="Foto capturada" hidden></div>
 <label for="labelPhoto">Ou selecionar foto da etiqueta para leitura</label><input id="labelPhoto" type="file" accept="image/*" capture="environment">
@@ -83,9 +83,9 @@ const serialLine=lines.find(x=>/(S\/?N|SERIAL|SER\.? NO|SN\s*[:#])/i.test(x));if
 function render(){const root=$('records');$('counter').textContent=items.length+' aparelho(s)';$('export').disabled=!items.length;$('importStock').disabled=!items.length;if(!items.length){root.className='empty';root.textContent='Nenhum aparelho adicionado ainda.';return}root.className='records';root.innerHTML='';items.forEach((it,i)=>{const row=document.createElement('div');row.className='record';const img=document.createElement('img');img.src=it.photoUrl;img.alt='Foto '+(i+1);const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=it.model||'Aparelho '+(i+1);const detail=document.createElement('small');detail.textContent='IMEI: '+(it.imei||'—')+' · SN: '+(it.sn||'—');info.append(strong,detail);const del=document.createElement('button');del.className='danger remove';del.textContent='Remover';del.onclick=()=>{URL.revokeObjectURL(it.photoUrl);items.splice(i,1);render();persistItems()};row.append(img,info,del);root.append(row)})}
 function addCurrentDevice(fromOcr=false){
  const imei=digits($('imei').value).slice(0,15),imei2=digits($('imei2').value).slice(0,15),sn=$('sn').value.trim(),model=$('model').value.trim();
- if(!imei&&!sn){say('Informe pelo menos o IMEI ou o SN.');return}
- if(imei&&imei.length!==15){say('IMEI 1 deve ter 15 dígitos.');return}
- if(imei2&&imei2.length!==15){say('IMEI 2 deve ter 15 dígitos.');return}
+ if(imei.length!==15){say('IMEI 1 é obrigatório e deve ter 15 dígitos.');$('imei').focus();return}
+ if(imei2.length!==15){say('IMEI 2 é obrigatório e deve ter 15 dígitos.');$('imei2').focus();return}
+ if(!sn){say('Número de série (SN) é obrigatório.');$('sn').focus();return}
  if(!photoBlob){say('Fotografe o aparelho antes de adicionar.');return}
  if(items.some(x=>(imei&&(x.imei===imei||x.imei2===imei))||(imei2&&(x.imei===imei2||x.imei2===imei2))||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){say('Possível duplicidade: IMEI ou SN já está no lote.');return}
  items.push({imei,imei2,sn,model,photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:new Date().toISOString()});render();persistItems();
@@ -95,7 +95,7 @@ function addCurrentDevice(fromOcr=false){
 }
 $('add').onclick=()=>addCurrentDevice(false);
 $('clear').onclick=()=>{$('imei').value='';$('imei2').value='';$('sn').value='';$('model').value='';$('labelPhoto').value='';photoBlob=null;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=null;photoPreview.hidden=true;$('previewText').hidden=false;progress.style.width='0%';say('Campos limpos.');persistDraft()};
-$('export').onclick=async()=>{if(!items.length)return;if(!window.JSZip){say('Biblioteca ZIP indisponível. Recarregue com internet.');return}
+$('export').onclick=async()=>{if(!items.length)return;const incomplete=items.findIndex(it=>digits(it.imei).length!==15||digits(it.imei2).length!==15||!String(it.sn||'').trim());if(incomplete!==-1){say('O aparelho '+(incomplete+1)+' do lote está sem IMEI 1, IMEI 2 ou SN válido. Remova-o ou corrija os dados antes de gerar o ZIP.');return;}if(!window.JSZip){say('Biblioteca ZIP indisponível. Recarregue com internet.');return}
 const zip=new JSZip(),photos=zip.folder('fotos'),devices=zip.folder('aparelhos'),rows=[['Modelo','IMEI 1','IMEI 2','SN','Foto','Data de captura']],manifest={format:'inventario-celulares-v1',createdAt:new Date().toISOString(),items:[]};
 for(let i=0;i<items.length;i++){const it=items[i],base=String(i+1).padStart(3,'0')+'_'+clean(it.imei||it.sn),photoName=base+'.jpg',photoPath='fotos/'+photoName;
 photos.file(photoName,it.photoBlob);const record={model:it.model,imei:it.imei,imei2:it.imei2,sn:it.sn,locality:$('locality').value.trim()||'Canoas',createdAt:it.createdAt,photo:photoPath};
@@ -112,7 +112,7 @@ const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.d
 $('importZip').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!window.JSZip){say('Biblioteca ZIP indisponível.');return;}
 try{say('Lendo pacote ZIP…');const zip=await JSZip.loadAsync(file),manifestFile=zip.file('manifest.json');if(!manifestFile)throw new Error('Este ZIP não possui manifest.json. Gere novamente o pacote pelo coletor atualizado.');
 const manifest=JSON.parse(await manifestFile.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
-let loaded=0,skipped=0;for(const record of manifest.items){const photoFile=record.photo&&zip.file(record.photo);if(!photoFile){skipped++;continue;}const photoBlob=await photoFile.async('blob');const imei=digits(record.imei),imei2=digits(record.imei2),sn=(record.sn||'').trim();if(items.some(x=>(imei&&x.imei===imei)||(imei2&&x.imei2===imei2)||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
+let loaded=0,skipped=0;for(const record of manifest.items){const photoFile=record.photo&&zip.file(record.photo);if(!photoFile){skipped++;continue;}const photoBlob=await photoFile.async('blob');const imei=digits(record.imei),imei2=digits(record.imei2),sn=(record.sn||'').trim();if(imei.length!==15||imei2.length!==15||!sn){skipped++;continue;}if(items.some(x=>(imei&&x.imei===imei)||(imei2&&x.imei2===imei2)||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
 items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model||'',photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:record.createdAt||new Date().toISOString()});loaded++;}
 render();persistItems();if(manifest.items[0]&&manifest.items[0].locality)$('locality').value=manifest.items[0].locality;
 say('ZIP carregado: '+loaded+' aparelho(s) pronto(s) para importar no estoque; '+skipped+' item(ns) ignorado(s). Agora clique em Importar no estoque.');}catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}finally{e.target.value='';}};
