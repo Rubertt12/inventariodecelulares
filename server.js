@@ -1,12 +1,15 @@
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const db = require('./queries');
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
 
 // --- Middlewares ---
+// Publica os arquivos da interface web (HTML, CSS, JS, imagens e manifest).
+app.use(express.static(__dirname));
 // Habilita o CORS para que seu arquivo HTML possa fazer requisições para esta API
 app.use(cors()); 
 // Habilita o parsing de JSON no corpo das requisições (para POST, PUT, etc.)
