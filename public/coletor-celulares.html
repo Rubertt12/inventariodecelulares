@@ -57,7 +57,36 @@ const video=$('video'),photoPreview=$('photoPreview'),status=$('status'),progres
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
-$('startCam').onclick=async()=>{try{stop();stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;$('takePhoto').disabled=false;say('Câmera ativa. Enquadre a etiqueta ou o aparelho.')}catch(e){say('Não foi possível abrir a câmera. Verifique a permissão ou use Selecionar foto.')}};
+$('startCam').onclick=async()=>{
+ try{
+  stop();
+  if(!window.isSecureContext){say('A câmera exige uma conexão segura (HTTPS). Abra o coletor pelo endereço https://inventariodecelulares.vercel.app.');return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say('Este navegador não disponibiliza acesso à câmera. Abra a página no Google Chrome atualizado ou use “Selecionar foto”.');return;}
+  say('Solicitando permissão para acessar a câmera…');
+  try{
+   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+  }catch(firstError){
+   if(firstError.name==='OverconstrainedError'||firstError.name==='ConstraintNotSatisfiedError'){
+    stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+   }else throw firstError;
+  }
+  video.muted=true;video.playsInline=true;video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;
+  await video.play();
+  $('takePhoto').disabled=false;say('Câmera ativa. Enquadre a etiqueta ou o aparelho.');
+ }catch(e){
+  stop();video.style.display='none';
+  const messages={
+   NotAllowedError:'Permissão da câmera negada. Toque no cadeado ao lado do endereço do site > Permissões > Câmera > Permitir. Depois recarregue a página.',
+   PermissionDeniedError:'Permissão da câmera negada pelo navegador ou pelo Android. Libere a câmera nas permissões do site e tente novamente.',
+   NotFoundError:'Nenhuma câmera foi encontrada neste aparelho.',
+   NotReadableError:'A câmera está sendo usada por outro aplicativo ou não pôde ser iniciada. Feche outros apps que usam a câmera e tente novamente.',
+   AbortError:'O Android interrompeu a abertura da câmera. Tente novamente.',
+   SecurityError:'O navegador bloqueou a câmera por segurança. Abra o coletor em HTTPS no Chrome.',
+   OverconstrainedError:'A câmera não aceitou as configurações solicitadas. Tente novamente.'
+  };
+  say((messages[e.name]||('Falha ao abrir a câmera ('+(e.name||'erro desconhecido')+'): '+(e.message||'sem detalhes')+'.'))+' Você também pode usar “Selecionar foto”.');
+ }
+};
 $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
 function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
