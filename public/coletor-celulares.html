@@ -205,3 +205,22 @@ say('Importação concluída: '+added+' aparelho(s) incluído(s) no estoque; '+s
 ['model','locality','imei','imei2','sn'].forEach(id=>$(id).addEventListener('input',persistDraft));window.addEventListener('beforeunload',stop);restoreLocalData();render();
 })();
 </script></body></html>
+<style>
+
+/* Refinos mobile do coletor */
+@media(max-width:600px){
+ header{padding:16px;align-items:flex-start}
+ header .back{width:100%}
+ .wrap{padding:0 10px}
+ .card{padding:13px}
+ .actions>*{flex:1 1 100%}
+ .preview{aspect-ratio:4/3;max-height:48vh}
+ .record{grid-template-columns:64px minmax(0,1fr);gap:9px}
+ .record img{width:64px;height:64px}
+ .record .remove{grid-column:1/-1}
+ .list-head{align-items:flex-start}
+ .list-head .actions{width:100%}
+ .list-head .actions>*{flex:1 1 100%}
+}
+
+</style>
