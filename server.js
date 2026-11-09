@@ -6,101 +6,86 @@ const db = require('./queries');
 
 const app = express();
 const PORT = process.env.API_PORT || 3000;
+const PUBLIC_DIR = path.join(__dirname, 'public');
 
-// --- Middlewares ---
-// Publica os arquivos da interface web (HTML, CSS, JS, imagens e manifest).
-app.use((req, res, next) => {
-    const publicFiles = /^\/(?:celular\.rubertt\.html|coletor-celulares\.html|geradordetermoprojetov1\.html|Gerador_Caixa_Etiqueta\.html|style\.css|app\.js|sw\.js|manifest\.json|icon\.svg|filters\.json|gerados\.json|localities\.json|models\.json|termos\.txt|IMG\/[A-Za-z0-9_.-]+|zebra\/(?:zebra\.html|main\.js))$/i;
-    if (!publicFiles.test(req.path)) return next();
-    return express.static(__dirname, { dotfiles: 'deny', index: false })(req, res, next);
-});
-// Habilita o CORS para que seu arquivo HTML possa fazer requisições para esta API
-app.use(cors()); 
-// Habilita o parsing de JSON no corpo das requisições (para POST, PUT, etc.)
-app.use(express.json());
+// Interface e recursos estáticos ficam centralizados em /public.
+// O includeFiles do vercel.json garante que essa pasta acompanhe a Function.
+app.use(express.static(PUBLIC_DIR, {
+  dotfiles: 'deny',
+  index: false
+}));
 
-// --- Rotas da API ---
+app.use(cors());
+app.use(express.json({ limit: '10mb' }));
 
-// Rota de verificação para saber se a API está no ar
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'celular.rubertt.html'));
+// Página inicial do sistema.
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(PUBLIC_DIR, 'celular.rubertt.html'));
 });
 
-app.get('/api/health', (req, res) => {
-    res.status(200).json({ info: 'API do Inventário de Celulares no ar!' });
+// Health check separado da interface.
+app.get('/api/health', (_req, res) => {
+  res.status(200).json({ info: 'API do Inventário de Celulares no ar!' });
 });
 
 // --- ROTAS DE SMARTPHONES ---
-
-app.get('/api/smartphones', async (req, res) => {
-    try {
-        const smartphones = await db.getSmartphones();
-        res.status(200).json(smartphones);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+app.get('/api/smartphones', async (_req, res) => {
+  try {
+    res.status(200).json(await db.getSmartphones());
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.post('/api/smartphones', async (req, res) => {
-    try {
-        const newSmartphone = await db.addSmartphone(req.body);
-        res.status(201).json(newSmartphone);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    res.status(201).json(await db.addSmartphone(req.body));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.put('/api/smartphones/:id', async (req, res) => {
-    try {
-        const updatedSmartphone = await db.updateSmartphone(req.params.id, req.body);
-        res.status(200).json(updatedSmartphone);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    res.status(200).json(await db.updateSmartphone(req.params.id, req.body));
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 app.delete('/api/smartphones/:id', async (req, res) => {
-    try {
-        await db.deleteSmartphone(req.params.id);
-        res.status(204).send(); // 204 No Content
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    await db.deleteSmartphone(req.params.id);
+    res.status(204).send();
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// Rota para vincular/entregar um aparelho
 app.post('/api/smartphones/:id/deliver', async (req, res) => {
-    try {
-        // O corpo da requisição terá os dados do termo (nome, matricula, etc.)
-        // E os dados da entrega (data, etc.)
-        const termoData = req.body.termo;
-        const entregaData = { ...termoData, dataEntrega: new Date().toISOString() };
-
-        // Primeiro, salva o termo no histórico de termos
-        await db.addTermo(termoData);
-        
-        // Depois, atualiza o status do smartphone e cria o registro de entrega
-        const result = await db.deliverSmartphone(req.params.id, entregaData);
-
-        res.status(200).json(result);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    const termoData = req.body.termo;
+    const entregaData = { ...termoData, dataEntrega: new Date().toISOString() };
+    await db.addTermo(termoData);
+    const result = await db.deliverSmartphone(req.params.id, entregaData);
+    res.status(200).json(result);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // --- ROTAS DE TERMOS ---
-
-app.get('/api/termos', async (req, res) => {
-    try {
-        const termos = await db.getTermos();
-        res.status(200).json(termos);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+app.get('/api/termos', async (_req, res) => {
+  try {
+    res.status(200).json(await db.getTermos());
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
-// --- Inicialização do Servidor ---
+// Exporta o Express para a Vercel; no uso local, inicia o listener.
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Servidor do Inventário rodando na porta ${PORT}.`));
+}
 
-app.listen(PORT, () => {
-    console.log(`Servidor da API rodando na porta ${PORT}.`);
-});
+module.exports = app;

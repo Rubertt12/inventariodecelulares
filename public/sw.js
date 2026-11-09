@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celular-inventario-v2';
+const CACHE_NAME = 'celular-inventario-v3';
 const urlsToCache = [
   'celular.rubertt.html',
   'style.css',

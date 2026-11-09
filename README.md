@@ -1,32 +1,50 @@
 # Inventário de Celulares
 
-## Aplicativo desktop para Windows
+Sistema composto por interface web/PWA, API Express, aplicativo desktop Electron e ferramentas auxiliares.
 
-O app desktop usa Electron e mantém os dados na pasta escolhida dentro do sistema. O arquivo `.env` e os bancos locais não são incluídos no instalador.
+## Estrutura
 
-Requisitos para desenvolvimento: Node.js 24.
+- `public/`: páginas HTML, CSS, JavaScript do navegador, PWA, imagens e ferramentas web.
+- `api/index.js`: ponto de entrada serverless da Vercel.
+- `server.js`: aplicação Express e rotas da API.
+- `queries.js`: acesso ao PostgreSQL.
+- `desktop/`: aplicativo Electron para Windows.
+- `desktop/zebra/`: aplicativo Electron auxiliar da Zebra.
+- `scripts/migrations/`: scripts de migração de dados.
+- `archive/`: versões antigas preservadas, fora da publicação web.
+
+## Executar localmente
+
+Requisitos: Node.js 20 ou superior e variáveis de ambiente do PostgreSQL configuradas em `.env`.
 
 ```bash
 npm ci
-npm run desktop
+npm start
 ```
 
-Para gerar o instalador NSIS em uma máquina Windows:
+A interface abre em `http://localhost:3000`; o health check fica em `/api/health`.
+
+## Vercel
+
+O arquivo `vercel.json` direciona as requisições para `api/index.js`. A configuração `includeFiles` inclui `public/**` no pacote serverless, e o Express entrega esses arquivos por meio de `express.static`. Assim, HTML, CSS, JavaScript, imagens, manifest e service worker são publicados juntos.
+
+Configure as variáveis `DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_DATABASE` e `DB_PORT` no projeto Vercel para habilitar as rotas que usam PostgreSQL.
+
+## Aplicativo Windows
 
 ```bash
+npm run desktop
 npm run dist:win
 ```
 
-O instalador será criado em `release/`. No GitHub, abra **Actions > Build Windows Installer > Run workflow**, informe a versão da nova release (por exemplo, `v1.1.1`) e execute. A workflow cria uma GitHub Release com o instalador `.exe` disponível na aba **Releases**; o artefato da execução também continua disponível em Actions.
+O instalador NSIS é gerado em `release/`. O app inclui a pasta `public/` e carrega a interface de `public/celular.rubertt.html`.
 
-Para gerar apenas o app Windows sem instalador, inclusive a partir de Linux:
+## Migrações
+
+O script principal legado pode ser executado a partir da raiz com:
 
 ```bash
-npm exec electron-builder -- --win --dir
+node scripts/migrations/migration_script.js
 ```
 
-O executável fica em `release/win-unpacked/Inventario de Celulares VOKE.exe`. Distribua a pasta `win-unpacked` completa, não apenas o `.exe`.
-
-O app ainda carrega algumas bibliotecas por CDN; esses recursos precisam de conexão com a internet. A impressão Zebra também depende do QZ Tray instalado na máquina.
-
-`npm start` continua iniciando a API Express existente.
+A versão alternativa está em `scripts/migrations/celular/`.

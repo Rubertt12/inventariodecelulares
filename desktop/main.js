@@ -131,7 +131,7 @@ function createWindow() {
     }
   });
 
-  mainWindow.loadFile(path.join(__dirname, '..', 'celular.rubertt.html'));
+  mainWindow.loadFile(path.join(__dirname, '..', 'public', 'celular.rubertt.html'));
 }
 
 app.whenReady().then(() => {

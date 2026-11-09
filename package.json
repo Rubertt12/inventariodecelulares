@@ -1,7 +1,7 @@
 {
   "name": "inventario-celulares",
   "version": "1.1.1",
-  "description": "API para o sistema de gerenciamento de celulares.",
+  "description": "Sistema de inventário de celulares com interface web, API Express e aplicativo Electron.",
   "main": "desktop/main.js",
   "scripts": {
     "start": "node server.js",
@@ -14,16 +14,7 @@
     "asar": true,
     "files": [
       "desktop/**",
-      "app.js",
-      "celular.rubertt.html",
-      "style.css",
-      "sw.js",
-      "manifest.json",
-      "icon.svg",
-      "geradordetermoprojetov1.html",
-      "Gerador_Caixa_Etiqueta.html",
-      "zebra/zebra.html",
-      "coletor-celulares.html"
+      "public/**"
     ],
     "directories": {
       "output": "release"
@@ -37,7 +28,7 @@
           ]
         }
       ],
-      "icon": "IMG/favicon_opcao_A.png"
+      "icon": "public/IMG/favicon_opcao_A.png"
     },
     "nsis": {
       "oneClick": false,
