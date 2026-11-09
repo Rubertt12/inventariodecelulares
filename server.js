@@ -23,7 +23,11 @@ app.use(express.json());
 
 // Rota de verificação para saber se a API está no ar
 app.get('/', (req, res) => {
-    res.json({ info: 'API do Inventário de Celulares no ar!' });
+    res.sendFile(path.join(__dirname, 'celular.rubertt.html'));
+});
+
+app.get('/api/health', (req, res) => {
+    res.status(200).json({ info: 'API do Inventário de Celulares no ar!' });
 });
 
 // --- ROTAS DE SMARTPHONES ---
