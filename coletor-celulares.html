@@ -26,7 +26,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 <header><div><h1>Coletor de celulares</h1><p>Leia IMEI e número de série, fotografe e exporte o lote.</p></div><a class="back" href="celular.rubertt.html">← Voltar ao inventário</a></header>
 <main class="wrap"><div class="layout">
 <section class="card">
-<h2>1. Capturar aparelho</h2><p class="hint">Use a câmera para fotografar a etiqueta. O OCR tenta localizar IMEI e SN; revise os campos antes de adicionar.</p>
+<h2>1. Capturar aparelho</h2><p class="hint">Fotografe a etiqueta: a imagem e os campos ficam salvos neste navegador. Ao tocar em Ler texto, o OCR preenche os dados e adiciona ao lote automaticamente quando encontra um IMEI válido ou SN. Confira o resultado; se a leitura falhar, corrija e adicione manualmente.</p>
 <label for="model">Modelo / identificação (opcional)</label><input id="model" placeholder="Ex.: Samsung Galaxy A54"><label for="locality">Localidade de entrada no estoque</label><input id="locality" value="Canoas" placeholder="Ex.: Canoas">
 <div class="row"><div><label for="imei">IMEI 1</label><input id="imei" inputmode="numeric" maxlength="17" placeholder="15 dígitos"></div><div><label for="imei2">IMEI 2 (opcional)</label><input id="imei2" inputmode="numeric" maxlength="17" placeholder="15 dígitos"></div></div>
 <label for="sn">Número de série (SN)</label><input id="sn" placeholder="Digite ou leia o SN">
@@ -42,7 +42,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 <p class="hint">O ZIP contém CSV, fotos e uma pasta individual por aparelho. Você também pode importar um ZIP gerado anteriormente.</p><label for="importZip">Importar lote de um ZIP salvo</label><input id="importZip" type="file" accept=".zip,application/zip">
 <div id="records" class="empty">Nenhum aparelho adicionado ainda.</div>
 </section></div></main>
-<footer>Privacidade: as fotos e os dados ficam no navegador até a exportação. Não são enviados para um servidor. A leitura OCR pode errar; sempre confira IMEI e SN antes de adicionar.</footer>
+<footer>Privacidade: fotos, rascunho e lote ficam no armazenamento local deste navegador (IndexedDB), sem envio ao servidor. Se fechar a página, o coletor tenta restaurar a captura e o lote ao voltar no mesmo aparelho e navegador. O OCR pode errar: confira IMEI e SN. Exporte o ZIP para manter uma cópia de segurança.</footer>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);let stream=null,photoBlob=null,photoUrl=null,items=[];
