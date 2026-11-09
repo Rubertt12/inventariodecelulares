@@ -115,11 +115,11 @@ try{
 let barcodeAdded=0;
 for(const raw of [...new Set(barcodeValues)]){
  const value=String(raw||'').trim();
- const labeledImei=value.match(/IMEI\\s*([12])?\\s*[:#=-]?\\s*((?:[0-9][\\s-]*){15})/i);
- const labeledSn=value.match(/(?:S\\/?N|SERIAL(?:\\s*(?:NO|NUMBER))?)\\s*[:#=-]?\\s*([A-Z0-9-]{5,40})/i);
- const number=value.replace(/\\D/g,'');
+ const labeledImei=value.match(/IMEI\s*([12])?\s*[:#=-]?\s*((?:[0-9][\s-]*){15})/i);
+ const labeledSn=value.match(/(?:S\/?N|SERIAL(?:\s*(?:NO|NUMBER))?)\s*[:#=-]?\s*([A-Z0-9-]{5,40})/i);
+ const number=value.replace(/\D/g,'');
  if(labeledImei&&number.length>=15){
-  const imeiValue=labeledImei[2].replace(/\\D/g,'').slice(0,15),field=labeledImei[1]==='2'?'imei2':'imei';
+  const imeiValue=labeledImei[2].replace(/\D/g,'').slice(0,15),field=labeledImei[1]==='2'?'imei2':'imei';
   if(!digits($(field).value)){$(field).value=imeiValue;barcodeAdded++;}
   else if(field==='imei'&&!digits($('imei2').value)&&imeiValue!==digits($('imei').value)){$('imei2').value=imeiValue;barcodeAdded++;}
   continue;
