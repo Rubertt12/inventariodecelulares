@@ -5,6 +5,7 @@
 <meta name="theme-color" content="#0b5cab"><title>Coletor de celulares | Inventário</title>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
 <style>
 :root{color-scheme:light;--bg:#f3f6fb;--panel:#fff;--text:#172033;--muted:#667085;--line:#e3e8f0;--brand:#1266b1;--brand2:#0b4e8a;--good:#12805c;--bad:#b42318}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}
@@ -92,6 +93,45 @@ function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl)
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
 $('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto da etiqueta carregada. Clique em Ler texto da etiqueta (OCR).')};
 $('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Preencha IMEI e SN manualmente.');return}try{say('Lendo etiqueta com OCR…');progress.style.width='5%';const result=await Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*90+5)+'%'}});const text=result.data.text||'';
+let barcodeValues=[];
+try{
+ if(window.ZXing&&window.createImageBitmap){
+  const bitmap=await createImageBitmap(source),canvas=document.createElement('canvas');
+  canvas.width=bitmap.width;canvas.height=bitmap.height;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const luminance=new ZXing.RGBLuminanceSource(pixels.data,canvas.width,canvas.height);
+  const binary=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminance));
+  const reader=new ZXing.MultiFormatReader();
+  try{
+   const multi=new ZXing.GenericMultipleBarcodeReader(reader);
+   barcodeValues=(multi.decodeMultiple(binary)||[]).map(x=>x.getText()).filter(Boolean);
+  }catch(multiError){
+   try{reader.reset();const one=reader.decode(binary);if(one)barcodeValues=[one.getText()]}catch(singleError){}
+  }
+  bitmap.close();
+ }
+}catch(barcodeError){console.warn('Falha na leitura de código de barras',barcodeError)}
+let barcodeAdded=0;
+for(const raw of [...new Set(barcodeValues)]){
+ const value=String(raw||'').trim();
+ const labeledImei=value.match(/IMEI\\s*([12])?\\s*[:#=-]?\\s*((?:[0-9][\\s-]*){15})/i);
+ const labeledSn=value.match(/(?:S\\/?N|SERIAL(?:\\s*(?:NO|NUMBER))?)\\s*[:#=-]?\\s*([A-Z0-9-]{5,40})/i);
+ const number=value.replace(/\\D/g,'');
+ if(labeledImei&&number.length>=15){
+  const imeiValue=labeledImei[2].replace(/\\D/g,'').slice(0,15),field=labeledImei[1]==='2'?'imei2':'imei';
+  if(!digits($(field).value)){$(field).value=imeiValue;barcodeAdded++;}
+  else if(field==='imei'&&!digits($('imei2').value)&&imeiValue!==digits($('imei').value)){$('imei2').value=imeiValue;barcodeAdded++;}
+  continue;
+ }
+ if(number.length===15){
+  if(!digits($('imei').value)){$('imei').value=number;barcodeAdded++;}
+  else if(!digits($('imei2').value)&&number!==digits($('imei').value)){$('imei2').value=number;barcodeAdded++;}
+  continue;
+ }
+ const serial=(labeledSn?labeledSn[1]:value).replace(/[^a-zA-Z0-9-]/g,'');
+ if(!/^[0-9]{15}$/.test(serial)&&/[A-Za-z]/.test(serial)&&serial.length>=5&&!$('sn').value.trim()){$('sn').value=serial.slice(0,40);barcodeAdded++;}
+}
 const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
 const normalizeOcrDigits=s=>String(s||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/[^0-9]/g,'');
 const candidates=[];
@@ -108,7 +148,7 @@ if(labeled1)$('imei').value=labeled1.value;
 else if(all[0])$('imei').value=all[0];
 if(labeled2)$('imei2').value=labeled2.value;
 else {const second=unique.find(v=>v!==$('imei').value);if(second)$('imei2').value=second;}
-const serialLine=lines.find(x=>/(S\/?N|SERIAL|SER\.? NO|SN\s*[:#])/i.test(x));if(serialLine){const candidate=serialLine.replace(/.*?(?:S\/?N|SERIAL(?:\s+NO)?|SN)\s*[:#-]?\s*/i,'').replace(/[^a-zA-Z0-9-]/g,'');if(candidate.length>=5)$('sn').value=candidate.slice(0,40)}progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();const hasCandidate=foundImei.length===15||foundImei2.length===15||foundSn.length>=5;say(hasCandidate?'OCR concluído. Revise a foto e os campos; corrija o que estiver errado e clique em “Adicionar ao lote” para confirmar.':'OCR concluído, mas não encontrei IMEI/SN suficiente. Confira a foto, preencha ou corrija os campos e clique em “Adicionar ao lote” quando estiver pronto.')}catch(e){say('Falha no OCR. Tente outra foto mais nítida ou preencha manualmente.')}};
+const serialLine=lines.find(x=>/(S\/?N|SERIAL|SER\.? NO|SN\s*[:#])/i.test(x));if(serialLine){const candidate=serialLine.replace(/.*?(?:S\/?N|SERIAL(?:\s+NO)?|SN)\s*[:#-]?\s*/i,'').replace(/[^a-zA-Z0-9-]/g,'');if(candidate.length>=5)$('sn').value=candidate.slice(0,40)}progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();const hasCandidate=foundImei.length===15||foundImei2.length===15||foundSn.length>=5;say('Leitura concluída: OCR + códigos de barras ('+barcodeValues.length+' código(s) detectado(s), '+barcodeAdded+' campo(s) preenchido(s) pelo código). Revise IMEI 1, IMEI 2 e SN; nada será adicionado ao lote até você confirmar.')}catch(e){say('Falha no OCR. Tente outra foto mais nítida ou preencha manualmente.')}};
 function render(){const root=$('records');$('counter').textContent=items.length+' aparelho(s)';$('export').disabled=!items.length;$('importStock').disabled=!items.length;if(!items.length){root.className='empty';root.textContent='Nenhum aparelho adicionado ainda.';return}root.className='records';root.innerHTML='';items.forEach((it,i)=>{const row=document.createElement('div');row.className='record';const img=document.createElement('img');img.src=it.photoUrl;img.alt='Foto '+(i+1);const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=it.model||'Aparelho '+(i+1);const detail=document.createElement('small');detail.textContent='IMEI: '+(it.imei||'—')+' · SN: '+(it.sn||'—');info.append(strong,detail);const del=document.createElement('button');del.className='danger remove';del.textContent='Remover';del.onclick=()=>{URL.revokeObjectURL(it.photoUrl);items.splice(i,1);render();persistItems()};row.append(img,info,del);root.append(row)})}
 function addCurrentDevice(fromOcr=false){
  const imei=digits($('imei').value).slice(0,15),imei2=digits($('imei2').value).slice(0,15),sn=$('sn').value.trim(),model=$('model').value.trim();
