@@ -305,14 +305,14 @@ const idb = {
     async getDb() {
         if (this.db) return this.db;
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('inventario-db', 1);
+            const request = indexedDB.open('inventario-db', 2);
             request.onerror = () => reject(request.error);
             request.onsuccess = () => {
                 this.db = request.result;
                 resolve(this.db);
             };
             request.onupgradeneeded = (e) => {
-                e.target.result.createObjectStore('keyval');
+                const db=e.target.result;if(!db.objectStoreNames.contains('keyval'))db.createObjectStore('keyval');if(!db.objectStoreNames.contains('photos'))db.createObjectStore('photos');
             };
         });
     },
@@ -333,6 +333,9 @@ const idb = {
             tx.onerror = () => reject(tx.error);
         });
     },
+    async putPhoto(key,blob){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(blob,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});},
+    async getPhoto(key){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readonly');const q=tx.objectStore('photos').get(key);q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error);});},
+    async deletePhoto(key){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 };
 
 // --- NOVA FUNÇÃO: Aplica a visibilidade das abas do menu ---
@@ -402,33 +405,14 @@ function showCustomAlert(message, type = 'warning') {
 }
 
 function updateConnectionStatusUI(isConnected, handleName = '') {
-    const dotElements = [dbDot, dbDotSettings];
-    const textElements = [dbStatusText, dbStatusTextSettings];
-    const buttonElements = [btnConnectDir, btnConnectDirSettings];
-
-    if (isConnected) {
-        dotElements.forEach(el => el?.classList.add('connected'));
-        textElements.forEach(el => { if(el) el.textContent = handleName; });
-        
-        if (buttonElements[0]) buttonElements[0].querySelector('.btn-text').textContent = "Trocar Pasta";
-        if (buttonElements[1]) buttonElements[1].textContent = "Trocar Pasta";
-
-        btnAddToStock.disabled = false;
-        btnClearStock.disabled = false;
-        btnSaveTermo.disabled = false;
-
-    } else {
-        dotElements.forEach(el => el?.classList.remove('connected')); // Fix for reported syntax error
-        textElements.forEach(el => { if(el) el.textContent = 'Pasta Desconectada'; });
-
-        if (buttonElements[0]) buttonElements[0].querySelector('.btn-text').textContent = "Vincular Pasta";
-        if (buttonElements[1]) buttonElements[1].textContent = "Vincular Pasta";
-
-        // Disable buttons that depend on the connection
-        btnAddToStock.disabled = true;
-        btnClearStock.disabled = true;
-        btnSaveTermo.disabled = true;
-    }
+    const localMode=isConnected&&!dirHandle,dots=[dbDot,dbDotSettings],texts=[dbStatusText,dbStatusTextSettings],buttons=[btnConnectDir,btnConnectDirSettings];
+    if(isConnected){dots.forEach(el=>el?.classList.add('connected'));texts.forEach(el=>{if(el)el.textContent=localMode?'Dados neste celular':handleName;});
+        if(buttons[0])buttons[0].querySelector('.btn-text').textContent=localMode?'Vincular Pasta':'Trocar Pasta';
+        if(buttons[1])buttons[1].textContent=localMode?'Vincular Pasta':'Trocar Pasta';
+        btnAddToStock.disabled=false;btnClearStock.disabled=false;btnSaveTermo.disabled=false;
+    }else{dots.forEach(el=>el?.classList.remove('connected'));texts.forEach(el=>{if(el)el.textContent='Pasta Desconectada';});
+        if(buttons[0])buttons[0].querySelector('.btn-text').textContent='Vincular Pasta';if(buttons[1])buttons[1].textContent='Vincular Pasta';
+        btnAddToStock.disabled=true;btnClearStock.disabled=true;btnSaveTermo.disabled=true;}
 }
 
 
@@ -693,7 +677,7 @@ async function saveFiltersToJSONFile() {
 
 
 async function saveStockData() {
-    if (!dirHandle) return;
+    if (!dirHandle) { await idb.set('mobileStockData',stockData); return; }
     try {
         // O nome do arquivo agora é banco.json
         const fileHandle = await dirHandle.getFileHandle('banco.json', { create: true });
@@ -804,8 +788,10 @@ async function getPhotoDirHandle() {
 }
 
 async function saveImageToFolder(filename, blob) {
+    if (!blob) return;
+    if (!dirHandle) { await idb.putPhoto(filename,blob); return; }
     const photoDir = await getPhotoDirHandle();
-    if (!photoDir || !blob) return;
+    if (!photoDir) return;
     try {
         const fileHandle = await photoDir.getFileHandle(filename, { create: true });
         const writable = await fileHandle.createWritable();
@@ -819,9 +805,11 @@ async function saveImageToFolder(filename, blob) {
 }
 
 async function getImageUrl(filename) {
-    const photoDir = await getPhotoDirHandle();
-    if (!filename || !photoDir) return null;
+    if (!filename) return null;
     if (imageCache.has(filename)) return imageCache.get(filename);
+    if (!dirHandle) { const blob=await idb.getPhoto(filename);if(!blob)return null;const url=URL.createObjectURL(blob);imageCache.set(filename,url);return url; }
+    const photoDir = await getPhotoDirHandle();
+    if (!photoDir) return null;
 
     try {
         const fileHandle = await photoDir.getFileHandle(filename);
@@ -835,8 +823,10 @@ async function getImageUrl(filename) {
 }
 
 async function deleteImageFromFolder(filename) {
+    if (!filename) return;
+    if (!dirHandle) { await idb.deletePhoto(filename);const url=imageCache.get(filename);if(url)URL.revokeObjectURL(url);imageCache.delete(filename);return; }
     const photoDir = await getPhotoDirHandle();
-    if (!photoDir || !filename) return;
+    if (!photoDir) return;
     try {
         await photoDir.removeEntry(filename);
         imageCache.delete(filename);
@@ -2525,14 +2515,10 @@ async function loadInitialState() {
     } else {
         savedHandle = await idb.get('dirHandle');
     }
-    if (savedHandle) {
-        console.log("Tentando reconectar à pasta salva...");
-        if (await connectToDirectory(savedHandle)) {
-            showCustomAlert('Reconectado à pasta anterior.', 'success');
-        }
-    }
-    // --- NOVO: Renderiza o dashboard no carregamento inicial ---
-    renderDashboard();
+    let connected=false;
+    if(savedHandle){console.log("Tentando reconectar à pasta salva...");connected=await connectToDirectory(savedHandle);if(connected)showCustomAlert('Reconectado à pasta anterior.','success');}
+    if(!connected){const localStock=await idb.get('mobileStockData');if(Array.isArray(localStock)){stockData=localStock;imageCache.clear();updateConnectionStatusUI(true,'Dados neste celular');}}
+    renderAllUI();
 }
 
 // --- NOVA FUNÇÃO: Renderiza os dados do Dashboard ---
@@ -3623,7 +3609,29 @@ function initializeDockPreview() {
     });
 }
 
+
+async function importCollectorZip(file){
+ if(!file||typeof JSZip==='undefined')return showCustomAlert('Leitor ZIP indisponível. Verifique a internet.','error');
+ try{
+  const zip=await JSZip.loadAsync(file),mf=zip.file('manifest.json');if(!mf)throw new Error('ZIP sem manifest.json. Exporte novamente pelo Coletor.');
+  const manifest=JSON.parse(await mf.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
+  const digits=v=>String(v||'').replace(/\D/g,''),norm=v=>String(v||'').trim().toLowerCase(),additions=[],seen=[];let duplicates=0,invalid=0;
+  const duplicate=r=>stockData.some(old=>{const ids=[digits(old.imei1),digits(old.imei2)].filter(Boolean);return [digits(r.imei),digits(r.imei2)].filter(Boolean).some(id=>ids.includes(id))||(!!norm(r.sn)&&norm(r.sn)===norm(old.sn));});
+  for(const r of manifest.items){const photo=r.photo&&zip.file(r.photo),imei1=digits(r.imei).slice(0,15),imei2=digits(r.imei2).slice(0,15),sn=String(r.sn||'').trim();
+   if(!photo||(!imei1&&!sn)||(imei1&&imei1.length!==15)||(imei2&&imei2.length!==15)){invalid++;continue;}
+   if(duplicate({imei:imei1,imei2,sn})||seen.some(x=>{const ids=[x.imei1,x.imei2].filter(Boolean);return [imei1,imei2].filter(Boolean).some(id=>ids.includes(id))||(!!norm(sn)&&norm(sn)===norm(x.sn));})){duplicates++;continue;}
+   const blob=await photo.async('blob'),photoName='coleta_'+(imei1||sn).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,28)+'_'+Math.random().toString(36).slice(2,7)+'.jpg';await saveImageToFolder(photoName,blob);
+   const item={id:Date.now()+Math.random(),imei1,imei2,sn,modelo:String(r.model||'Não informado'),localidade:String(r.locality||appSettings.primaryLocation||'Canoas'),dataEntrada:r.createdAt||new Date().toISOString(),photoName,status:'Disponível',entrega:{nome:'',cc:'',matricula:'',localidade:'',ticket:''},history:[]};additions.push(item);seen.push(item);
+  }
+  if(!additions.length)return showCustomAlert('Nenhum aparelho novo. Duplicados: '+duplicates+'; inválidos: '+invalid+'.','warning');
+  stockData.unshift(...additions);await saveStockData();if(!dirHandle)updateConnectionStatusUI(true,'Dados neste celular');currentStockPage=1;renderAllUI();
+  showCustomAlert(additions.length+' aparelho(s) importado(s). Duplicados ignorados: '+duplicates+'; inválidos: '+invalid+'.','success');
+ }catch(e){console.error(e);showCustomAlert('Falha ao importar ZIP: '+(e.message||'erro inesperado'),'error');}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    const zipBtn=document.getElementById('btnImportCollectorZip'),zipInput=document.getElementById('collectorZipImport');
+    if(zipBtn&&zipInput){zipBtn.addEventListener('click',()=>zipInput.click());zipInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(f)await importCollectorZip(f);e.target.value='';});}
     const now = new Date();
     const offset = now.getTimezoneOffset();
     const localDate = new Date(now.getTime() - (offset * 60 * 1000));
