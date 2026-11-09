@@ -9,7 +9,11 @@ const PORT = process.env.API_PORT || 3000;
 
 // --- Middlewares ---
 // Publica os arquivos da interface web (HTML, CSS, JS, imagens e manifest).
-app.use(express.static(__dirname));
+app.use((req, res, next) => {
+    const publicFiles = /^\/(?:celular\.rubertt\.html|coletor-celulares\.html|geradordetermoprojetov1\.html|Gerador_Caixa_Etiqueta\.html|style\.css|app\.js|sw\.js|manifest\.json|icon\.svg|filters\.json|gerados\.json|localities\.json|models\.json|termos\.txt|IMG\/[A-Za-z0-9_.-]+|zebra\/(?:zebra\.html|main\.js))$/i;
+    if (!publicFiles.test(req.path)) return next();
+    return express.static(__dirname, { dotfiles: 'deny', index: false })(req, res, next);
+});
 // Habilita o CORS para que seu arquivo HTML possa fazer requisições para esta API
 app.use(cors()); 
 // Habilita o parsing de JSON no corpo das requisições (para POST, PUT, etc.)
