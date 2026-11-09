@@ -68,7 +68,7 @@ rows.push([it.model,it.imei,it.imei2,it.sn,photoPath,it.createdAt]);}
 zip.file('manifest.json',JSON.stringify(manifest,null,2));
 const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
 zip.file('inventario.csv',csv);
-zip.file('LEIA-ME.txt','Pacote de coleta de celulares. Cada pasta em /aparelhos contém registro.json e foto.jpg. Para importar diretamente, abra o coletor no Chrome/Edge de computador, clique em Importar no estoque e selecione a pasta de dados vinculada ao Inventário. O importador atualiza banco.json e fotofiles sem apagar os registros existentes.');
+zip.file('LEIA-ME.txt','Pacote de coleta de celulares. Cada pasta em /aparelhos contém registro.json e foto.jpg. Para importar pelo celular: abra o Inventário de Celulares, escolha “Importar lote ZIP” no menu lateral e selecione este arquivo. O inventário valida IMEI/SN, ignora duplicados e salva os dados e fotos no armazenamento local do navegador. No computador com a pasta do inventário vinculada, a importação grava em banco.json e fotofiles.');
 say('Preparando ZIP com um pacote individual por aparelho…');
 const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'},m=>progress.style.width=Math.round(m.percent)+'%');
 const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='Inventario_Celulares_'+new Date().toISOString().slice(0,10)+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);say('ZIP gerado: CSV, fotos e pastas individuais com registro + foto.');};
@@ -81,7 +81,7 @@ items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model|
 render();if(manifest.items[0]&&manifest.items[0].locality)$('locality').value=manifest.items[0].locality;
 say('ZIP carregado: '+loaded+' aparelho(s) pronto(s) para importar no estoque; '+skipped+' item(ns) ignorado(s). Agora clique em Importar no estoque.');}catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}finally{e.target.value='';}};
 $('importStock').onclick=async()=>{if(!items.length)return;
-if(!window.showDirectoryPicker){say('Este navegador não permite selecionar a pasta do inventário. Use Chrome ou Edge no computador para importar diretamente.');return;}
+if(!window.showDirectoryPicker){say('No celular: volte ao Inventário de Celulares e toque em “Importar lote ZIP” no menu. Selecione o arquivo ZIP que você acabou de baixar.');return;}
 let dir;try{dir=await window.showDirectoryPicker({id:'inventario-celulares-data',mode:'readwrite'});}catch(e){if(e.name==='AbortError')say('Seleção da pasta cancelada.');else say('Não foi possível acessar a pasta. Verifique a permissão.');return;}
 try{
 const bankHandle=await dir.getFileHandle('banco.json',{create:true});let stock=[];
