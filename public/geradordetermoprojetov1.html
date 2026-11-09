@@ -1757,3 +1757,31 @@ document.addEventListener("DOMContentLoaded", autoDownload);
 </script>
 </body>
 </html>
+
+<style>
+
+/* Ajustes responsivos para celular e tablet */
+@media(max-width:900px){
+ .layout{grid-template-columns:minmax(0,1fr);height:auto;min-height:100vh;align-items:stretch}
+ .panel{height:auto;min-height:0}
+ .sticky{position:static}
+ .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .batch-toolbar{flex-wrap:wrap}
+ .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .preview-area{max-width:100%;overflow-x:auto}
+}
+@media(max-width:600px){
+ .layout{display:flex;flex-direction:column;padding:10px;gap:12px}
+ .panel{padding:12px}
+ .grid2{grid-template-columns:minmax(0,1fr)}
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .header{flex-wrap:wrap;gap:10px}
+ .batch-toolbar{align-items:stretch}
+ .batch-toolbar button,.batch-toolbar .btn{flex:1 1 100%}
+ .table-wrap{width:100%}
+ table{min-width:680px}
+ .logo-preview{max-width:100%}
+ input,select,textarea,button{max-width:100%}
+}
+
+</style>
