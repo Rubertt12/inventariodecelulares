@@ -39,7 +39,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 </section>
 <section class="card">
 <div class="list-head"><div><h2 style="margin:0">2. Lote coletado</h2><div class="counter" id="counter">0 aparelhos</div></div><div class="actions" style="margin:0"><button id="importStock" class="secondary" disabled>Importar no estoque</button><button id="export" disabled>Baixar ZIP do lote</button></div></div>
-<p class="hint">O ZIP contém CSV com IMEI/SN/modelo e uma foto individual por aparelho. Os arquivos são gerados localmente no dispositivo.</p>
+<p class="hint">O ZIP contém CSV, fotos e uma pasta individual por aparelho. Você também pode importar um ZIP gerado anteriormente.</p><label for="importZip">Importar lote de um ZIP salvo</label><input id="importZip" type="file" accept=".zip,application/zip">
 <div id="records" class="empty">Nenhum aparelho adicionado ainda.</div>
 </section></div></main>
 <footer>Privacidade: as fotos e os dados ficam no navegador até a exportação. Não são enviados para um servidor. A leitura OCR pode errar; sempre confira IMEI e SN antes de adicionar.</footer>
@@ -72,6 +72,14 @@ zip.file('LEIA-ME.txt','Pacote de coleta de celulares. Cada pasta em /aparelhos 
 say('Preparando ZIP com um pacote individual por aparelho…');
 const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'},m=>progress.style.width=Math.round(m.percent)+'%');
 const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='Inventario_Celulares_'+new Date().toISOString().slice(0,10)+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);say('ZIP gerado: CSV, fotos e pastas individuais com registro + foto.');};
+
+$('importZip').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!window.JSZip){say('Biblioteca ZIP indisponível.');return;}
+try{say('Lendo pacote ZIP…');const zip=await JSZip.loadAsync(file),manifestFile=zip.file('manifest.json');if(!manifestFile)throw new Error('Este ZIP não possui manifest.json. Gere novamente o pacote pelo coletor atualizado.');
+const manifest=JSON.parse(await manifestFile.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
+let loaded=0,skipped=0;for(const record of manifest.items){const photoFile=record.photo&&zip.file(record.photo);if(!photoFile){skipped++;continue;}const photoBlob=await photoFile.async('blob');const imei=digits(record.imei),imei2=digits(record.imei2),sn=(record.sn||'').trim();if(items.some(x=>(imei&&x.imei===imei)||(imei2&&x.imei2===imei2)||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
+items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model||'',photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:record.createdAt||new Date().toISOString()});loaded++;}
+render();if(manifest.items[0]&&manifest.items[0].locality)$('locality').value=manifest.items[0].locality;
+say('ZIP carregado: '+loaded+' aparelho(s) pronto(s) para importar no estoque; '+skipped+' item(ns) ignorado(s). Agora clique em Importar no estoque.');}catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}finally{e.target.value='';}};
 $('importStock').onclick=async()=>{if(!items.length)return;
 if(!window.showDirectoryPicker){say('Este navegador não permite selecionar a pasta do inventário. Use Chrome ou Edge no computador para importar diretamente.');return;}
 let dir;try{dir=await window.showDirectoryPicker({id:'inventario-celulares-data',mode:'readwrite'});}catch(e){if(e.name==='AbortError')say('Seleção da pasta cancelada.');else say('Não foi possível acessar a pasta. Verifique a permissão.');return;}
