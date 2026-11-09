@@ -150,3 +150,36 @@ function fitLabelText(element){element.classList.remove("compact","very-compact"
 async function savePNG(id,name){if(typeof html2canvas==="undefined"){alert("Não foi possível carregar o gerador de PNG.");return}const element=document.getElementById(id),canvas=await html2canvas(element,{backgroundColor:"#ffffff",scale:2,useCORS:true}),link=document.createElement("a");link.download=`${name}.png`;link.href=canvas.toDataURL("image/png");link.click()}function printLabel(){showPanel("label");setTimeout(()=>window.print(),100)}updateBox();updateLabel();
 </script><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body></html>
+
+<style>
+
+/* Responsividade das ferramentas de caixa e etiqueta */
+@media(max-width:900px){
+ .canvas-grid,.label-grid{grid-template-columns:minmax(0,1fr)}
+ .right-area{border-left:0;border-top:1px dashed #98a2b3;padding:20px 0 0}
+ .spec-table{width:min(100%,560px)}
+ .main-svg{height:auto;max-height:350px}
+ .view-svg{height:auto;max-height:230px}
+ .label-layout{grid-template-columns:minmax(0,1fr)}
+ .label-form{width:100%;max-width:none}
+}
+@media(max-width:600px){
+ .app{padding:8px}
+ .shell{border-radius:10px}
+ .top-tabs{height:auto;min-height:54px;padding:0 8px;overflow-x:auto;white-space:nowrap}
+ .top-tab{height:54px;padding:0 14px;font-size:14px;flex:0 0 auto}
+ .box-layout{padding:14px 12px}
+ .heading{font-size:clamp(22px,6vw,30px)}
+ .weight-line{font-size:18px;flex-wrap:wrap}
+ .canvas-grid{gap:14px}
+ .left-area{padding:0}
+ .right-area{padding:14px 0 0}
+ .spec-row div{padding:9px 10px;font-size:14px}
+ .spec-head{font-size:16px}
+ .label-layout{padding:12px!important;gap:14px}
+ .label-preview-wrap{max-width:100%;overflow:auto}
+ .label-table{width:100%}
+ input,select,textarea,button{max-width:100%}
+}
+
+</style>
