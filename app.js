@@ -3630,8 +3630,8 @@ async function importCollectorZip(file){
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    const zipBtn=document.getElementById('btnImportCollectorZip'),zipInput=document.getElementById('collectorZipImport');
-    if(zipBtn&&zipInput){zipBtn.addEventListener('click',()=>zipInput.click());zipInput.addEventListener('change',async e=>{const f=e.target.files&&e.target.files[0];if(f)await importCollectorZip(f);e.target.value='';});}
+    const zipInput=document.getElementById('collectorZipImport');
+    if(zipInput){zipInput.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCollectorZip(file);e.target.value='';});}
     const now = new Date();
     const offset = now.getTimezoneOffset();
     const localDate = new Date(now.getTime() - (offset * 60 * 1000));
