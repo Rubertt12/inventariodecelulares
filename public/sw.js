@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celular-inventario-v3';
+const CACHE_NAME = 'celular-inventario-v4';
 const urlsToCache = [
   'celular.rubertt.html',
   'style.css',
@@ -6,6 +6,8 @@ const urlsToCache = [
   'manifest.json',
   'icon.svg',
   'geradordetermoprojetov1.html',
+  'Gerador_Caixa_Etiqueta.html',
+  'coletor-celulares.html',
   'zebra/zebra.html',
   // Adicione outros assets críticos aqui, como imagens, fontes, etc.
   // Se você tiver uma cópia local do qz-tray.js, adicione-a aqui:
