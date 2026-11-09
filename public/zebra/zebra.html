@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta charset="UTF-8">
     <title>VOKE | Gestor ZPL Completo + Excel</title>
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
@@ -474,3 +475,26 @@
 </script>
 </body>
 </html>
+<style>
+
+/* Layout responsivo do editor Zebra */
+@media(max-width:900px){
+ body{flex-direction:column;align-items:stretch;padding:12px;gap:14px}
+ .editor-panel{width:100%;max-width:none;flex:1 1 auto}
+ .preview-panel{position:static;width:100%;max-width:100%;overflow:auto}
+ #labelPreview{max-width:100%;height:auto}
+}
+@media(max-width:600px){
+ body{padding:8px;gap:10px}
+ .editor-panel{padding:14px}
+ .row{flex-wrap:wrap}
+ .row>*{flex:1 1 100%;min-width:0}
+ .field-controls-container{flex-wrap:wrap;gap:8px}
+ .font-controls{flex-wrap:wrap}
+ .pos-controls-grid{max-width:150px}
+ button{min-height:42px}
+ #zplCode{width:100%;min-height:180px}
+ .preview-panel{padding:8px}
+}
+
+</style>
