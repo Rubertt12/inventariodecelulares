@@ -22,7 +22,8 @@
       "icon.svg",
       "geradordetermoprojetov1.html",
       "Gerador_Caixa_Etiqueta.html",
-      "zebra/zebra.html"
+      "zebra/zebra.html",
+      "coletor-celulares.html"
     ],
     "directories": {
       "output": "release"
