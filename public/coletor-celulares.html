@@ -292,6 +292,7 @@ if(!added){say('Nenhum aparelho novo importado. '+skipped+' duplicado(s) ignorad
 const writer=await bankHandle.createWritable();await writer.write(JSON.stringify(stock,null,2));await writer.close();
 say('Importação concluída: '+added+' aparelho(s) incluído(s) no estoque; '+skipped+' duplicado(s) ignorado(s). Use a mesma pasta de dados vinculada ao Inventário.');
 }catch(e){console.error(e);say('Falha na importação: '+(e.message||'erro inesperado')+'. Confira a pasta e o banco.json.');}};
+if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Service Worker indisponível',e));}
 ['model','locality','imei','imei2','sn'].forEach(id=>$(id).addEventListener('input',persistDraft));window.addEventListener('beforeunload',stop);restoreLocalData();render();
 })();
 </script></body></html>
