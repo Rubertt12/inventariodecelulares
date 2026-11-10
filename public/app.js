@@ -3713,6 +3713,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const results = document.getElementById('spotlightResults');
   const count = document.getElementById('spotlightResultCount');
   const goStock = document.getElementById('spotlightGoStock');
+  const filterButtons = [...document.querySelectorAll('.spotlight-filter')];
+  let activeField = 'all';
   if (!overlay || !search || !results || !goStock) return;
 
   const close = () => {
@@ -3726,6 +3728,9 @@ document.addEventListener('DOMContentLoaded', () => {
     overlay.setAttribute('aria-hidden', 'false');
     document.body.classList.add('spotlight-open');
     search.value = '';
+    activeField = 'all';
+    filterButtons.forEach(button => button.classList.toggle('active', button.dataset.field === activeField));
+    search.placeholder = 'Buscar modelo, IMEI 1, IMEI 2 ou número de série...';
     renderResults();
     requestAnimationFrame(() => search.focus());
   };
@@ -3750,8 +3755,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderResults() {
     const term = normalizeText(search.value);
+    const fields = activeField === 'all' ? ['modelo', 'imei1', 'imei2', 'sn'] : [activeField];
     const matches = stockData.filter(item => item.status !== 'Devolvido' && (
-      !term || [item.modelo, item.imei1, item.imei2, item.sn].some(value => normalizeText(value || '').includes(term))
+      !term || fields.some(field => normalizeText(item[field] || '').includes(term))
     )).slice(0, 30);
 
     results.replaceChildren();
@@ -3785,6 +3791,20 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  filterButtons.forEach(button => button.addEventListener('click', () => {
+    activeField = button.dataset.field;
+    filterButtons.forEach(item => item.classList.toggle('active', item === button));
+    const placeholders = {
+      all: 'Buscar modelo, IMEI 1, IMEI 2 ou número de série...',
+      modelo: 'Buscar pelo modelo do celular...',
+      imei1: 'Buscar pelo IMEI 1...',
+      imei2: 'Buscar pelo IMEI 2...',
+      sn: 'Buscar pelo número de série (SN)...'
+    };
+    search.placeholder = placeholders[activeField] || placeholders.all;
+    renderResults();
+    search.focus();
+  }));
   search.addEventListener('input', renderResults);
   goStock.addEventListener('click', () => openInStock(search.value.trim()));
   overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
