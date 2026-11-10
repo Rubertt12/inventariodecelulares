@@ -956,6 +956,13 @@
       <input id="spotlightSearchInput" type="search" autocomplete="off" placeholder="Buscar modelo, IMEI 1, IMEI 2 ou número de série..." aria-label="Buscar celulares no inventário">
       <kbd>ESC</kbd>
     </div>
+    <div class="spotlight-filter-row" role="group" aria-label="Filtrar por tipo de dado">
+      <button type="button" class="spotlight-filter active" data-field="all">Tudo</button>
+      <button type="button" class="spotlight-filter" data-field="modelo">Modelo</button>
+      <button type="button" class="spotlight-filter" data-field="imei1">IMEI 1</button>
+      <button type="button" class="spotlight-filter" data-field="imei2">IMEI 2</button>
+      <button type="button" class="spotlight-filter" data-field="sn">Número de série</button>
+    </div>
     <div class="spotlight-content">
       <div class="spotlight-heading"><span id="spotlightTitle">Busca no inventário</span><span id="spotlightResultCount">Digite para pesquisar</span></div>
       <div id="spotlightResults" class="spotlight-results">
