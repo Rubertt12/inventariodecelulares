@@ -149,20 +149,20 @@ else if(all[0])$('imei').value=all[0];
 if(labeled2)$('imei2').value=labeled2.value;
 else {const second=unique.find(v=>v!==$('imei').value);if(second)$('imei2').value=second;}
 // Extrai o número de série mesmo quando o OCR coloca o valor na linha seguinte.
-const serialLabels=/(?:S\\s*\\/?\\s*N|SERIAL(?:\\s*(?:NO\\.?|NUMBER))?|SER\\.?\\s*NO\\.?|SN)\\b/i;
-const cleanSerial=value=>String(value||'').toUpperCase().replace(/^[\\s:#=\\-]+|[\\s,;]+$/g,'').replace(/[^A-Z0-9-]/g,'');
+const serialLabels=/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\b/i;
+const cleanSerial=value=>String(value||'').toUpperCase().replace(/^[\s:#=\-]+|[\s,;]+$/g,'').replace(/[^A-Z0-9-]/g,'');
 let serialCandidate='';
 for(let i=0;i<lines.length;i++){
  const line=lines[i];
- const match=line.match(/(?:S\\s*\\/?\\s*N|SERIAL(?:\\s*(?:NO\\.?|NUMBER))?|SER\\.?\\s*NO\\.?|SN)\\s*[:#=\\-]?\\s*(.*)$/i);
+ const match=line.match(/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\s*[:#=\-]?\s*(.*)$/i);
  if(!match)continue;
  let value=cleanSerial(match[1]);
- if(!value || /^(?:IMEI|MODEL|MODEL\\s*NAME)$/i.test(value)){
+ if(!value || /^(?:IMEI|MODEL|MODEL\s*NAME)$/i.test(value)){
   const next=(lines[i+1]||'').trim();
   if(next && !serialLabels.test(next) && !/IMEI/i.test(next))value=cleanSerial(next);
  }
- value=value.replace(/^(?:NO\\.?|NUMBER)[:#=\\-]?/i,'');
- if(value.length>=4 && value.length<=40 && !/^\\d{15}$/.test(value)){serialCandidate=value;break;}
+ value=value.replace(/^(?:NO\.?|NUMBER)[:#=\-]?/i,'');
+ if(value.length>=4 && value.length<=40 && !/^\d{15}$/.test(value)){serialCandidate=value;break;}
 }
 if(serialCandidate && !$('sn').value.trim())$('sn').value=serialCandidate.slice(0,40);progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();const hasCandidate=foundImei.length===15||foundImei2.length===15||foundSn.length>=5;say('Leitura concluída: OCR + códigos de barras ('+barcodeValues.length+' código(s) detectado(s), '+barcodeAdded+' campo(s) preenchido(s) pelo código). Revise IMEI 1, IMEI 2 e SN; nada será adicionado ao lote até você confirmar.')}catch(e){say('Falha no OCR. Tente outra foto mais nítida ou preencha manualmente.')}};
 function render(){const root=$('records');$('counter').textContent=items.length+' aparelho(s)';$('export').disabled=!items.length;$('importStock').disabled=!items.length;if(!items.length){root.className='empty';root.textContent='Nenhum aparelho adicionado ainda.';return}root.className='records';root.innerHTML='';items.forEach((it,i)=>{const row=document.createElement('div');row.className='record';const img=document.createElement('img');img.src=it.photoUrl;img.alt='Foto '+(i+1);const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=it.model||'Aparelho '+(i+1);const detail=document.createElement('small');detail.textContent='IMEI: '+(it.imei||'—')+' · SN: '+(it.sn||'—');info.append(strong,detail);const del=document.createElement('button');del.className='danger remove';del.textContent='Remover';del.onclick=()=>{URL.revokeObjectURL(it.photoUrl);items.splice(i,1);render();persistItems()};row.append(img,info,del);root.append(row)})}
