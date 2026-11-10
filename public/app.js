@@ -3704,3 +3704,100 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+// Spotlight de busca rápida: pesquisa modelo, IMEI 1/2 e número de série.
+(() => {
+  const overlay = document.getElementById('stockSpotlight');
+  const search = document.getElementById('spotlightSearchInput');
+  const results = document.getElementById('spotlightResults');
+  const count = document.getElementById('spotlightResultCount');
+  const goStock = document.getElementById('spotlightGoStock');
+  if (!overlay || !search || !results || !goStock) return;
+
+  const close = () => {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('spotlight-open');
+  };
+
+  window.openStockSpotlight = () => {
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('spotlight-open');
+    search.value = '';
+    renderResults();
+    requestAnimationFrame(() => search.focus());
+  };
+
+  const openInStock = (term = '') => {
+    close();
+    window.switchView('estoque');
+    currentLocationFilter = 'Todos';
+    document.querySelectorAll('#locationFilterGroup .btn-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === 'Todos'));
+    if (inputSearchStock) {
+      inputSearchStock.value = term;
+      inputSearchStock.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  };
+
+  const makeText = (tag, className, value) => {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = value || '';
+    return el;
+  };
+
+  function renderResults() {
+    const term = normalizeText(search.value);
+    const matches = stockData.filter(item => {
+      if (!term) return false;
+      return [item.modelo, item.imei1, item.imei2, item.sn].some(value => normalizeText(value || '').includes(term));
+    }).slice(0, 30);
+
+    results.replaceChildren();
+    count.textContent = term ? `${matches.length} resultado(s)` : 'Digite para pesquisar';
+
+    if (!term) {
+      results.append(makeText('div', 'spotlight-empty', 'Comece digitando um modelo, IMEI ou número de série.'));
+      return;
+    }
+    if (!matches.length) {
+      results.append(makeText('div', 'spotlight-empty', 'Nenhum celular encontrado com esses dados.'));
+      return;
+    }
+
+    matches.forEach(item => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'spotlight-result';
+      row.addEventListener('click', () => openInStock(item.imei1 || item.imei2 || item.sn || item.modelo));
+
+      const main = document.createElement('span');
+      main.className = 'spotlight-result-main';
+      main.append(makeText('strong', '', item.modelo || 'Modelo não informado'));
+      const identifiers = document.createElement('span');
+      identifiers.className = 'spotlight-identifiers';
+      identifiers.textContent = [item.imei1 && `IMEI 1: ${item.imei1}`, item.imei2 && `IMEI 2: ${item.imei2}`, item.sn && `SN: ${item.sn}`].filter(Boolean).join('  •  ');
+      main.append(identifiers);
+
+      const meta = document.createElement('span');
+      meta.className = 'spotlight-result-meta';
+      meta.append(makeText('span', 'spotlight-status', item.status || 'Sem status'));
+      meta.append(makeText('small', '', item.localidade || 'Sem localidade'));
+      row.append(main, meta);
+      results.append(row);
+    });
+  }
+
+  search.addEventListener('input', renderResults);
+  goStock.addEventListener('click', () => openInStock(search.value.trim()));
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && overlay.classList.contains('is-open')) close();
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      window.openStockSpotlight();
+    }
+  });
+})();
