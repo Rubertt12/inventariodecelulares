@@ -115,6 +115,43 @@ html.dark-mode .shipping-label .label-caption { color: #111; }
 html.dark-mode .spec-table { border-color: var(--blue); }
 html.dark-mode .spec-head { color: var(--blue); border-bottom-color: var(--blue); }
 html.dark-mode .spec-row div { border-color: #cfd6df; }
+
+/* Responsividade completa — caixa e etiqueta */
+html,body{width:100%;min-width:320px;max-width:100%;overflow-x:clip}
+.app{width:100%;min-height:100dvh;padding:clamp(6px,2vw,18px)}
+.shell{width:100%;max-width:1500px;margin-inline:auto}
+.box-layout,.label-layout{min-width:0;max-width:100%}
+.canvas-grid{grid-template-columns:minmax(0,1.25fr) minmax(280px,1fr)}
+.canvas-grid>*{min-width:0;max-width:100%}
+.left-area,.right-area{min-width:0;max-width:100%}
+svg,canvas,img{max-width:100%;height:auto}
+.label-preview-wrap{max-width:100%;overflow:auto}
+table{max-width:100%}
+@media(max-width:900px){
+ .canvas-grid{grid-template-columns:minmax(0,1fr)}
+ .right-area{padding:12px 0 0}
+ .box-layout{padding:18px 16px}
+}
+@media(max-width:600px){
+ .app{padding:6px}
+ .shell{border-radius:10px}
+ .back-button{margin:8px;width:calc(100% - 16px)}
+ .top-tabs{height:auto;min-height:54px;padding:0 8px;display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+ .top-tab{height:auto;min-height:54px;padding:8px 6px;justify-content:center;text-align:center;font-size:12px;gap:5px;border-bottom-width:3px}
+ .tab-icon{font-size:18px}
+ .box-layout{padding:14px 10px}
+ .heading{font-size:clamp(21px,6vw,30px);overflow-wrap:anywhere}
+ .weight-line{font-size:18px;flex-wrap:wrap;gap:8px}
+ .canvas-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+ .left-area{padding:0}
+ .right-area{padding:10px 0 0}
+ .spec-row{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .spec-row div{padding:8px;font-size:13px}
+ .label-layout{padding:10px!important;gap:10px}
+ .label-preview-wrap{width:100%;max-width:100%;overflow-x:auto}
+ input,select,textarea,button{max-width:100%;min-width:0;font-size:16px}
+}
+
 </style>
 </head>
 <body>
