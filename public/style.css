@@ -2737,3 +2737,66 @@ table{max-width:100%}
   .settings-tab-btn { padding: 9px 12px; font-size: 13px; }
   .stat-card { min-width: 0; }
 }
+
+
+/* Ações da lista de estoque: ícones legíveis e área de toque confortável */
+.action-cell {
+    min-width: 224px;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+.action-btn-group {
+    display: inline-flex;
+    align-items: stretch;
+    gap: 0;
+    overflow: visible;
+    border-radius: 8px;
+}
+
+.action-btn-group .btn,
+.action-btn-group .btn.btn-sm {
+    width: 48px;
+    min-width: 48px;
+    height: 46px;
+    min-height: 46px;
+    padding: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 48px;
+}
+
+.action-btn-group .btn svg {
+    display: block;
+    width: 23px !important;
+    height: 23px !important;
+    min-width: 23px;
+    min-height: 23px;
+    flex: 0 0 23px;
+    stroke-width: 2.2;
+}
+
+@media (max-width: 768px) {
+    .action-cell {
+        min-width: 216px;
+        padding: 8px 10px;
+    }
+
+    .action-btn-group .btn,
+    .action-btn-group .btn.btn-sm {
+        width: 46px;
+        min-width: 46px;
+        height: 46px;
+        min-height: 46px;
+        flex-basis: 46px;
+    }
+
+    .action-btn-group .btn svg {
+        width: 24px !important;
+        height: 24px !important;
+        min-width: 24px;
+        min-height: 24px;
+        flex-basis: 24px;
+    }
+}
