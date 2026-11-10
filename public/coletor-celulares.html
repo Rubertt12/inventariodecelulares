@@ -92,7 +92,28 @@ $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada
 function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
 $('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto da etiqueta carregada. Clique em Ler texto da etiqueta (OCR).')};
-$('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Preencha IMEI e SN manualmente.');return}try{say('Lendo etiqueta com OCR…');progress.style.width='5%';const result=await Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*90+5)+'%'}});const text=result.data.text||'';
+$('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Preencha IMEI e SN manualmente.');return}try{say('Analisando a foto inteira: texto, etiquetas e números…');progress.style.width='3%';
+const firstPass=await Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*38+5)+'%'}});
+let fullText=firstPass.data.text||'';
+let enhancedCanvas=null;
+try{
+ const bitmap=await createImageBitmap(source);
+ const scale=Math.min(2.5,Math.max(1,2200/Math.max(bitmap.width,bitmap.height)));
+ enhancedCanvas=document.createElement('canvas');
+ enhancedCanvas.width=Math.round(bitmap.width*scale);enhancedCanvas.height=Math.round(bitmap.height*scale);
+ const ectx=enhancedCanvas.getContext('2d',{willReadFrequently:true});
+ ectx.drawImage(bitmap,0,0,enhancedCanvas.width,enhancedCanvas.height);bitmap.close();
+ const imageData=ectx.getImageData(0,0,enhancedCanvas.width,enhancedCanvas.height),px=imageData.data;
+ for(let p=0;p<px.length;p+=4){
+  const gray=0.299*px[p]+0.587*px[p+1]+0.114*px[p+2];
+  const contrast=Math.max(0,Math.min(255,(gray-128)*1.35+128));
+  px[p]=px[p+1]=px[p+2]=contrast;
+ }
+ ectx.putImageData(imageData,0,0);
+ const secondPass=await Tesseract.recognize(enhancedCanvas,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*42+48)+'%'}});
+ fullText+='\\n'+(secondPass.data.text||'');
+}catch(preprocessError){console.warn('OCR aprimorado indisponível; usando leitura original da foto',preprocessError)}
+const text=fullText;
 let barcodeValues=[];
 try{
  if(window.ZXing&&window.createImageBitmap){
