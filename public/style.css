@@ -2838,3 +2838,42 @@ table{max-width:100%}
   stroke: currentColor !important;
   stroke-width: 2.2 !important;
 }
+
+
+/* Refinamento visual das ações do estoque: proporção compacta e equilibrada */
+#stockTableBody .action-btn-group > button {
+  width: 40px !important;
+  min-width: 40px !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  padding: 8px !important;
+  flex: 0 0 40px !important;
+}
+#stockTableBody .action-btn-group > button > svg {
+  width: 19px !important;
+  height: 19px !important;
+  min-width: 19px !important;
+  min-height: 19px !important;
+  max-width: 19px !important;
+  max-height: 19px !important;
+  flex: 0 0 19px !important;
+  stroke-width: 2 !important;
+}
+@media (max-width: 768px) {
+  #stockTableBody .action-btn-group > button {
+    width: 40px !important;
+    min-width: 40px !important;
+    height: 40px !important;
+    min-height: 40px !important;
+    flex-basis: 40px !important;
+  }
+  #stockTableBody .action-btn-group > button > svg {
+    width: 19px !important;
+    height: 19px !important;
+    min-width: 19px !important;
+    min-height: 19px !important;
+    max-width: 19px !important;
+    max-height: 19px !important;
+    flex-basis: 19px !important;
+  }
+}
