@@ -28,7 +28,7 @@
   </defs>
 </svg>
 
-<nav class="sidebar">
+<nav class="sidebar" id="appSidebar" aria-label="Menu principal">
 
     <div class="sidebar-brand">
         <div class="sidebar-logo-wrapper">
@@ -84,6 +84,12 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M2.5 14.4V6.8L12 2l9.5 4.8v7.6L12 22l-9.5-4.8Z"></path><path d="M12 22V12"></path><path d="M2.5 14.4L12 19.2L21.5 14.4"></path><path d="M2.5 6.8L12 11.6L21.5 6.8"></path></svg><span class="menu-item-text">Caixas</span>
         </li>
         <li class="menu-divider"></li>
+        <li class="menu-item" id="menu-importar-zip" onclick="document.getElementById('collectorZipImport').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v3h16v-3"/></svg><span class="menu-item-text">Importar lote ZIP</span>
+        </li>
+        <li class="menu-item" id="menu-coletor" onclick="window.location.href='coletor-celulares.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h3l2-2h6l2 2h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"/><circle cx="12" cy="12" r="3"/></svg><span class="menu-item-text">Coletor de celulares</span>
+        </li>
         <li class="menu-item" id="menu-configuracoes" onclick="switchView('configuracoes')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <span class="menu-item-text">Configurações</span>
@@ -94,10 +100,19 @@
         <button id="sidebarToggle" class="sidebar-toggle-btn menu-item" style="justify-content: center;">
             <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
             <svg class="icon-expand" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
     </div>
 </nav>
+<div class="sidebar-backdrop" id="sidebarBackdrop" aria-hidden="true"></div>
 
 <main class="main-content">
+    <div class="mobile-topbar">
+        <button type="button" id="mobileMenuToggle" class="mobile-menu-toggle" aria-label="Abrir menu" aria-expanded="false" aria-controls="appSidebar">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+        <strong>Inventário de Celulares</strong>
+        <span class="mobile-topbar-spacer"></span>
+    </div>
 
     <!-- SEÇÃO 0: DASHBOARD -->
     <div id="view-dashboard" class="view-section active">
@@ -134,7 +149,7 @@
                 <div class="quick-actions-grid">
                     <button class="quick-action-btn" onclick="switchView('cadastro')" title="Adicionar Aparelho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14m-7-7h14"></path></svg></button>
                     <button class="quick-action-btn" onclick="switchView('termos')" title="Vincular Termo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg></button>
-                    <button class="quick-action-btn" onclick="switchView('estoque'); setTimeout(() => document.getElementById('inputSearchStock').focus(), 100);" title="Buscar no Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                    <button class="quick-action-btn" onclick="openStockSpotlight()" title="Buscar no Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
                     <button class="quick-action-btn" onclick="switchView('configuracoes')" title="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
                 </div>
             </div>
@@ -415,7 +430,10 @@
                 
                 <div class="form-group">
                     <label>Aparelho Disponível (digite para buscar)</label>
-                    <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace;" placeholder="-- Escolha ou digite para buscar --">
+                    <div class="termo-device-select-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace; flex:1; min-width:220px;" placeholder="-- Escolha ou digite para buscar --">
+                        <button type="button" id="btnRemoveSelectedDevice" class="btn btn-secondary" disabled title="Remover telefone selecionado" style="white-space:nowrap;">✕ Remover telefone</button>
+                    </div>
                     <datalist id="devicesDataList">
                         <!-- Opções preenchidas via JS -->
                     </datalist>
@@ -932,6 +950,36 @@
         </div>
     </div>
 </div>
+
+<!-- Spotlight de busca rápida no inventário -->
+<div id="stockSpotlight" class="spotlight-overlay" aria-hidden="true">
+  <section class="spotlight-panel" role="dialog" aria-modal="true" aria-labelledby="spotlightTitle">
+    <div class="spotlight-search-row">
+      <svg class="spotlight-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg>
+      <input id="spotlightSearchInput" type="search" autocomplete="off" placeholder="Buscar modelo, IMEI 1, IMEI 2 ou número de série..." aria-label="Buscar celulares no inventário">
+      <kbd>ESC</kbd>
+    </div>
+    <div class="spotlight-filter-row" role="group" aria-label="Filtrar por tipo de dado">
+      <button type="button" class="spotlight-filter active" data-field="all">Tudo</button>
+      <button type="button" class="spotlight-filter" data-field="status:Disponível">Disponível</button>
+      <button type="button" class="spotlight-filter" data-field="status:Entregue">Entregue</button>
+    </div>
+    <div class="spotlight-content">
+      <div class="spotlight-heading"><span id="spotlightTitle">Busca no inventário</span><span id="spotlightResultCount">Digite para pesquisar</span></div>
+      <div id="spotlightResults" class="spotlight-results">
+        <div class="spotlight-empty">Comece digitando um modelo, IMEI ou número de série.</div>
+      </div>
+    </div>
+    <div class="spotlight-footer">
+      <span>Pesquise em todos os celulares cadastrados</span>
+      <button type="button" id="spotlightGoStock" class="spotlight-stock-button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.73Z"></path><path d="m3.27 6.96 8.73 5.05 8.73-5.05M12 22V12"></path></svg>
+        Ir para o Estoque
+      </button>
+    </div>
+  </section>
+</div>
+
 <!-- Registro do Service Worker para PWA -->
 <script>
     if ('serviceWorker' in navigator) {
@@ -943,6 +991,8 @@
     }
 </script>
 
+<input type="file" id="collectorZipImport" accept=".zip,application/zip" hidden>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 </body>

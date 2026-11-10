@@ -52,6 +52,7 @@ const modalDisplayDataEntrada = document.getElementById('modalDisplayDataEntrada
 
 const btnSaveTermo = document.getElementById('btnSaveTermo');
 const selectDeviceStock = document.getElementById('selectDeviceStock');
+const btnRemoveSelectedDevice = document.getElementById('btnRemoveSelectedDevice');
 const devicesDataList = document.getElementById('devicesDataList');
 const termosTableBody = document.getElementById('termosTableBody');
 const inputSearchTermos = document.getElementById('inputSearchTermos'); // NOVO
@@ -305,14 +306,14 @@ const idb = {
     async getDb() {
         if (this.db) return this.db;
         return new Promise((resolve, reject) => {
-            const request = indexedDB.open('inventario-db', 1);
+            const request = indexedDB.open('inventario-db', 2);
             request.onerror = () => reject(request.error);
             request.onsuccess = () => {
                 this.db = request.result;
                 resolve(this.db);
             };
             request.onupgradeneeded = (e) => {
-                e.target.result.createObjectStore('keyval');
+                const db=e.target.result;if(!db.objectStoreNames.contains('keyval'))db.createObjectStore('keyval');if(!db.objectStoreNames.contains('photos'))db.createObjectStore('photos');
             };
         });
     },
@@ -333,6 +334,9 @@ const idb = {
             tx.onerror = () => reject(tx.error);
         });
     },
+    async putPhoto(key,blob){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').put(blob,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});},
+    async getPhoto(key){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readonly');const q=tx.objectStore('photos').get(key);q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error);});},
+    async deletePhoto(key){const db=await this.getDb();return new Promise((resolve,reject)=>{const tx=db.transaction('photos','readwrite');tx.objectStore('photos').delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error);});}
 };
 
 // --- NOVA FUNÇÃO: Aplica a visibilidade das abas do menu ---
@@ -402,33 +406,14 @@ function showCustomAlert(message, type = 'warning') {
 }
 
 function updateConnectionStatusUI(isConnected, handleName = '') {
-    const dotElements = [dbDot, dbDotSettings];
-    const textElements = [dbStatusText, dbStatusTextSettings];
-    const buttonElements = [btnConnectDir, btnConnectDirSettings];
-
-    if (isConnected) {
-        dotElements.forEach(el => el?.classList.add('connected'));
-        textElements.forEach(el => { if(el) el.textContent = handleName; });
-        
-        if (buttonElements[0]) buttonElements[0].querySelector('.btn-text').textContent = "Trocar Pasta";
-        if (buttonElements[1]) buttonElements[1].textContent = "Trocar Pasta";
-
-        btnAddToStock.disabled = false;
-        btnClearStock.disabled = false;
-        btnSaveTermo.disabled = false;
-
-    } else {
-        dotElements.forEach(el => el?.classList.remove('connected')); // Fix for reported syntax error
-        textElements.forEach(el => { if(el) el.textContent = 'Pasta Desconectada'; });
-
-        if (buttonElements[0]) buttonElements[0].querySelector('.btn-text').textContent = "Vincular Pasta";
-        if (buttonElements[1]) buttonElements[1].textContent = "Vincular Pasta";
-
-        // Disable buttons that depend on the connection
-        btnAddToStock.disabled = true;
-        btnClearStock.disabled = true;
-        btnSaveTermo.disabled = true;
-    }
+    const localMode=isConnected&&!dirHandle,dots=[dbDot,dbDotSettings],texts=[dbStatusText,dbStatusTextSettings],buttons=[btnConnectDir,btnConnectDirSettings];
+    if(isConnected){dots.forEach(el=>el?.classList.add('connected'));texts.forEach(el=>{if(el)el.textContent=localMode?'Dados neste celular':handleName;});
+        if(buttons[0])buttons[0].querySelector('.btn-text').textContent=localMode?'Vincular Pasta':'Trocar Pasta';
+        if(buttons[1])buttons[1].textContent=localMode?'Vincular Pasta':'Trocar Pasta';
+        btnAddToStock.disabled=false;btnClearStock.disabled=false;btnSaveTermo.disabled=false;
+    }else{dots.forEach(el=>el?.classList.remove('connected'));texts.forEach(el=>{if(el)el.textContent='Pasta Desconectada';});
+        if(buttons[0])buttons[0].querySelector('.btn-text').textContent='Vincular Pasta';if(buttons[1])buttons[1].textContent='Vincular Pasta';
+        btnAddToStock.disabled=true;btnClearStock.disabled=true;btnSaveTermo.disabled=true;}
 }
 
 
@@ -476,6 +461,14 @@ window.switchView = function(viewName) {
     }
     
     document.getElementById(`view-${viewName}`).classList.add('active');
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        document.body.classList.remove('mobile-sidebar-open');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        if (mobileToggle) {
+            mobileToggle.setAttribute('aria-expanded', 'false');
+            mobileToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+    }
 
     // --- NOVO: Renderiza o dashboard se for a view selecionada ---
     if (viewName === 'dashboard') {
@@ -693,7 +686,7 @@ async function saveFiltersToJSONFile() {
 
 
 async function saveStockData() {
-    if (!dirHandle) return;
+    if (!dirHandle) { await idb.set('mobileStockData',stockData); return; }
     try {
         // O nome do arquivo agora é banco.json
         const fileHandle = await dirHandle.getFileHandle('banco.json', { create: true });
@@ -804,8 +797,10 @@ async function getPhotoDirHandle() {
 }
 
 async function saveImageToFolder(filename, blob) {
+    if (!blob) return;
+    if (!dirHandle) { await idb.putPhoto(filename,blob); return; }
     const photoDir = await getPhotoDirHandle();
-    if (!photoDir || !blob) return;
+    if (!photoDir) return;
     try {
         const fileHandle = await photoDir.getFileHandle(filename, { create: true });
         const writable = await fileHandle.createWritable();
@@ -819,9 +814,11 @@ async function saveImageToFolder(filename, blob) {
 }
 
 async function getImageUrl(filename) {
-    const photoDir = await getPhotoDirHandle();
-    if (!filename || !photoDir) return null;
+    if (!filename) return null;
     if (imageCache.has(filename)) return imageCache.get(filename);
+    if (!dirHandle) { const blob=await idb.getPhoto(filename);if(!blob)return null;const url=URL.createObjectURL(blob);imageCache.set(filename,url);return url; }
+    const photoDir = await getPhotoDirHandle();
+    if (!photoDir) return null;
 
     try {
         const fileHandle = await photoDir.getFileHandle(filename);
@@ -835,8 +832,10 @@ async function getImageUrl(filename) {
 }
 
 async function deleteImageFromFolder(filename) {
+    if (!filename) return;
+    if (!dirHandle) { await idb.deletePhoto(filename);const url=imageCache.get(filename);if(url)URL.revokeObjectURL(url);imageCache.delete(filename);return; }
     const photoDir = await getPhotoDirHandle();
-    if (!photoDir || !filename) return;
+    if (!photoDir) return;
     try {
         await photoDir.removeEntry(filename);
         imageCache.delete(filename);
@@ -1713,6 +1712,14 @@ function updateTermoFormForDevice(item) {
     }
 }
 
+btnRemoveSelectedDevice.addEventListener('click', () => {
+    selectDeviceStock.value = '';
+    updateTermoFormForDevice(null);
+    termoHistoryList.innerHTML = '';
+    btnRemoveSelectedDevice.disabled = true;
+    selectDeviceStock.focus();
+});
+
 selectDeviceStock.addEventListener('change', () => {
     const selectedValue = selectDeviceStock.value;
     let selectedId = null;
@@ -1723,11 +1730,13 @@ selectDeviceStock.addEventListener('change', () => {
     if (option) {
         selectedId = parseFloat(option.dataset.id);
     } else {
-        updateTermoFormForDevice(null); // Limpa o formulário se não encontrar correspondência
+        updateTermoFormForDevice(null); // Limpa os dados automáticos se não encontrar correspondência
+        btnRemoveSelectedDevice.disabled = true;
         return;
     }
-    const item = stockData.find(i => i.id === selectedId);    
+    const item = stockData.find(i => i.id === selectedId);
     updateTermoFormForDevice(item);
+    btnRemoveSelectedDevice.disabled = !item;
 });
 
 btnSaveTermo.addEventListener('click', async (event) => {
@@ -2096,6 +2105,9 @@ function clearTermoForm() {
     inputTermoLocal.value = ''; inputTermoTecnico.value = ''; inputTermoCC.value = ''; inputTermoChip.value = '';
     selectDeviceStock.value = ''; displayTermoMarcaModelo.value = '';
     displayTermoImei1.value = ''; displayTermoImei2.value = ''; displayTermoSN.value = '';
+    if (btnRemoveSelectedDevice) btnRemoveSelectedDevice.disabled = true;
+    if (termoHistoryList) termoHistoryList.innerHTML = '';
+    if (displayTermoHistory) displayTermoHistory.style.display = 'none';
 }
 
 // --- LIGHTBOX MODAL ---
@@ -2525,14 +2537,10 @@ async function loadInitialState() {
     } else {
         savedHandle = await idb.get('dirHandle');
     }
-    if (savedHandle) {
-        console.log("Tentando reconectar à pasta salva...");
-        if (await connectToDirectory(savedHandle)) {
-            showCustomAlert('Reconectado à pasta anterior.', 'success');
-        }
-    }
-    // --- NOVO: Renderiza o dashboard no carregamento inicial ---
-    renderDashboard();
+    let connected=false;
+    if(savedHandle){console.log("Tentando reconectar à pasta salva...");connected=await connectToDirectory(savedHandle);if(connected)showCustomAlert('Reconectado à pasta anterior.','success');}
+    if(!connected){const localStock=await idb.get('mobileStockData');if(Array.isArray(localStock)){stockData=localStock;imageCache.clear();updateConnectionStatusUI(true,'Dados neste celular');}}
+    renderAllUI();
 }
 
 // --- NOVA FUNÇÃO: Renderiza os dados do Dashboard ---
@@ -3259,16 +3267,52 @@ window.selectDeviceAndSwitchToTermo = function(id) {
     selectDeviceStock.dispatchEvent(new Event('change'));
 };
 
-// --- Lógica da Sidebar ---
-sidebarToggle.addEventListener('click', () => {
-    document.body.classList.toggle('sidebar-collapsed');
-    // Salva o estado no localStorage
-    if (document.body.classList.contains('sidebar-collapsed')) {
-        localStorage.setItem('sidebarState', 'collapsed');
-    } else {
-        localStorage.setItem('sidebarState', 'expanded');
+// --- Navegação responsiva da Sidebar ---
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+const mobileSidebarQuery = window.matchMedia('(max-width: 768px)');
+
+function setMobileSidebar(open) {
+    document.body.classList.toggle('mobile-sidebar-open', !!open && mobileSidebarQuery.matches);
+    if (mobileMenuToggle) {
+        mobileMenuToggle.setAttribute('aria-expanded', String(!!open && mobileSidebarQuery.matches));
+        mobileMenuToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
     }
+}
+if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => {
+    setMobileSidebar(!document.body.classList.contains('mobile-sidebar-open'));
 });
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', () => setMobileSidebar(false));
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') setMobileSidebar(false);
+});
+const sidebarMenuElement = document.querySelector('.sidebar-menu');
+if (sidebarMenuElement) sidebarMenuElement.addEventListener('click', event => {
+    if (event.target.closest('.menu-item') && mobileSidebarQuery.matches) setMobileSidebar(false);
+});
+if (mobileSidebarQuery.addEventListener) {
+    mobileSidebarQuery.addEventListener('change', event => {
+        setMobileSidebar(false);
+        if (!event.matches) {
+            const saved = localStorage.getItem('sidebarState');
+            document.body.classList.toggle('sidebar-collapsed', saved === 'collapsed');
+        }
+    });
+} else if (mobileSidebarQuery.addListener) {
+    mobileSidebarQuery.addListener(() => setMobileSidebar(false));
+}
+if (sidebarToggle) sidebarToggle.addEventListener('click', () => {
+    if (mobileSidebarQuery.matches) {
+        setMobileSidebar(!document.body.classList.contains('mobile-sidebar-open'));
+        return;
+    }
+    document.body.classList.toggle('sidebar-collapsed');
+    localStorage.setItem('sidebarState', document.body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'expanded');
+});
+// Restaura o recolhimento apenas no desktop; no celular o menu começa fechado.
+if (!mobileSidebarQuery.matches && localStorage.getItem('sidebarState') === 'collapsed') {
+    document.body.classList.add('sidebar-collapsed');
+}
 
 // --- NOVA LÓGICA DE FILTRO COM ANIMAÇÃO DE DESLIZE E ARRASTE ---
 const filterGroup = document.getElementById('locationFilterGroup');
@@ -3623,7 +3667,29 @@ function initializeDockPreview() {
     });
 }
 
+
+async function importCollectorZip(file){
+ if(!file||typeof JSZip==='undefined')return showCustomAlert('Leitor ZIP indisponível. Verifique a internet.','error');
+ try{
+  const zip=await JSZip.loadAsync(file),mf=zip.file('manifest.json');if(!mf)throw new Error('ZIP sem manifest.json. Exporte novamente pelo Coletor.');
+  const manifest=JSON.parse(await mf.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
+  const digits=v=>String(v||'').replace(/\D/g,''),norm=v=>String(v||'').trim().toLowerCase(),additions=[],seen=[];let duplicates=0,invalid=0;
+  const duplicate=r=>stockData.some(old=>{const ids=[digits(old.imei1),digits(old.imei2)].filter(Boolean);return [digits(r.imei),digits(r.imei2)].filter(Boolean).some(id=>ids.includes(id))||(!!norm(r.sn)&&norm(r.sn)===norm(old.sn));});
+  for(const r of manifest.items){const photo=r.photo&&zip.file(r.photo),imei1=digits(r.imei).slice(0,15),imei2=digits(r.imei2).slice(0,15),sn=String(r.sn||'').trim();
+   if(!photo||(!imei1&&!sn)||(imei1&&imei1.length!==15)||(imei2&&imei2.length!==15)){invalid++;continue;}
+   if(duplicate({imei:imei1,imei2,sn})||seen.some(x=>{const ids=[x.imei1,x.imei2].filter(Boolean);return [imei1,imei2].filter(Boolean).some(id=>ids.includes(id))||(!!norm(sn)&&norm(sn)===norm(x.sn));})){duplicates++;continue;}
+   const blob=await photo.async('blob'),photoName='coleta_'+(imei1||sn).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,28)+'_'+Math.random().toString(36).slice(2,7)+'.jpg';await saveImageToFolder(photoName,blob);
+   const item={id:Date.now()+Math.random(),imei1,imei2,sn,modelo:String(r.model||'Não informado'),localidade:String(r.locality||appSettings.primaryLocation||'Canoas'),dataEntrada:r.createdAt||new Date().toISOString(),photoName,status:'Disponível',entrega:{nome:'',cc:'',matricula:'',localidade:'',ticket:''},history:[]};additions.push(item);seen.push(item);
+  }
+  if(!additions.length)return showCustomAlert('Nenhum aparelho novo. Duplicados: '+duplicates+'; inválidos: '+invalid+'.','warning');
+  stockData.unshift(...additions);await saveStockData();if(!dirHandle)updateConnectionStatusUI(true,'Dados neste celular');currentStockPage=1;renderAllUI();
+  showCustomAlert(additions.length+' aparelho(s) importado(s). Duplicados ignorados: '+duplicates+'; inválidos: '+invalid+'.','success');
+ }catch(e){console.error(e);showCustomAlert('Falha ao importar ZIP: '+(e.message||'erro inesperado'),'error');}
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+    const zipInput=document.getElementById('collectorZipImport');
+    if(zipInput){zipInput.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCollectorZip(file);e.target.value='';});}
     const now = new Date();
     const offset = now.getTimezoneOffset();
     const localDate = new Date(now.getTime() - (offset * 60 * 1000));
@@ -3652,3 +3718,120 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+
+// Spotlight de busca rápida: pesquisa modelo, IMEI 1/2 e número de série.
+(() => {
+  const overlay = document.getElementById('stockSpotlight');
+  const search = document.getElementById('spotlightSearchInput');
+  const results = document.getElementById('spotlightResults');
+  const count = document.getElementById('spotlightResultCount');
+  const goStock = document.getElementById('spotlightGoStock');
+  const filterButtons = [...document.querySelectorAll('.spotlight-filter')];
+  let activeField = 'all';
+  if (!overlay || !search || !results || !goStock) return;
+
+  const close = () => {
+    overlay.classList.remove('is-open');
+    overlay.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('spotlight-open');
+  };
+
+  window.openStockSpotlight = () => {
+    overlay.classList.add('is-open');
+    overlay.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('spotlight-open');
+    search.value = '';
+    activeField = 'all';
+    filterButtons.forEach(button => button.classList.toggle('active', button.dataset.field === activeField));
+    search.placeholder = 'Buscar modelo, IMEI 1, IMEI 2 ou número de série...';
+    renderResults();
+    requestAnimationFrame(() => search.focus());
+  };
+
+  const openInStock = (term = '') => {
+    close();
+    window.switchView('estoque');
+    currentLocationFilter = 'Todos';
+    document.querySelectorAll('#locationFilterGroup .btn-filter').forEach(btn => btn.classList.toggle('active', btn.dataset.filter === 'Todos'));
+    if (inputSearchStock) {
+      inputSearchStock.value = term;
+      inputSearchStock.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+  };
+
+  const makeText = (tag, className, value) => {
+    const el = document.createElement(tag);
+    if (className) el.className = className;
+    el.textContent = value || '';
+    return el;
+  };
+
+  function renderResults() {
+    const term = normalizeText(search.value);
+    const statusFilter = activeField.startsWith('status:') ? activeField.slice(7) : null;
+    const fields = activeField === 'all' ? ['modelo', 'imei1', 'imei2', 'sn'] : [activeField];
+    const matches = stockData.filter(item => {
+      if (statusFilter) return item.status === statusFilter;
+      if (item.status === 'Devolvido') return false;
+      return !term || fields.some(field => normalizeText(item[field] || '').includes(term));
+    }).slice(0, 30);
+
+    results.replaceChildren();
+    count.textContent = term ? `${matches.length} resultado(s)` : `${matches.length} celulares`;
+
+    if (!matches.length) {
+      results.append(makeText('div', 'spotlight-empty', 'Nenhum celular encontrado com esses dados.'));
+      return;
+    }
+
+    matches.forEach(item => {
+      const row = document.createElement('button');
+      row.type = 'button';
+      row.className = 'spotlight-result';
+      row.addEventListener('click', () => openInStock(item.imei1 || item.imei2 || item.sn || item.modelo));
+
+      const main = document.createElement('span');
+      main.className = 'spotlight-result-main';
+      main.append(makeText('strong', '', item.modelo || 'Modelo não informado'));
+      const identifiers = document.createElement('span');
+      identifiers.className = 'spotlight-identifiers';
+      identifiers.textContent = [item.imei1 && `IMEI 1: ${item.imei1}`, item.imei2 && `IMEI 2: ${item.imei2}`, item.sn && `SN: ${item.sn}`].filter(Boolean).join('  •  ');
+      main.append(identifiers);
+
+      const meta = document.createElement('span');
+      meta.className = 'spotlight-result-meta';
+      meta.append(makeText('span', 'spotlight-status', item.status || 'Sem status'));
+      meta.append(makeText('small', '', item.localidade || 'Sem localidade'));
+      row.append(main, meta);
+      results.append(row);
+    });
+  }
+
+  filterButtons.forEach(button => button.addEventListener('click', () => {
+    activeField = button.dataset.field;
+    filterButtons.forEach(item => item.classList.toggle('active', item === button));
+    const placeholders = {
+      all: 'Buscar modelo, IMEI 1, IMEI 2 ou número de série...',
+      modelo: 'Buscar pelo modelo do celular...',
+      imei1: 'Buscar pelo IMEI 1...',
+      imei2: 'Buscar pelo IMEI 2...',
+      sn: 'Buscar pelo número de série (SN)...',
+      'status:Disponível': 'Exibindo celulares disponíveis...',
+      'status:Entregue': 'Exibindo celulares entregues...'
+    };
+    search.placeholder = placeholders[activeField] || placeholders.all;
+    renderResults();
+    search.focus();
+  }));
+  search.addEventListener('input', renderResults);
+  goStock.addEventListener('click', () => openInStock(search.value.trim()));
+  overlay.addEventListener('click', event => { if (event.target === overlay) close(); });
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && overlay.classList.contains('is-open')) close();
+    if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      window.openStockSpotlight();
+    }
+  });
+})();

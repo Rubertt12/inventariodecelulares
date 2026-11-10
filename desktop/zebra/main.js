@@ -12,7 +12,7 @@ function createWindow() {
     }
   });
 
-  win.loadFile("zebra.html");
+  win.loadFile(path.join(__dirname, "..", "..", "public", "zebra", "zebra.html"));
 }
 
 app.whenReady().then(createWindow);
