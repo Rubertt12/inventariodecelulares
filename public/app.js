@@ -1713,9 +1713,13 @@ function updateTermoFormForDevice(item) {
 }
 
 btnRemoveSelectedDevice.addEventListener('click', () => {
+    // Remove somente o aparelho vinculado e os campos preenchidos automaticamente.
+    // O histórico de uso e os demais dados do termo permanecem intactos.
     selectDeviceStock.value = '';
-    updateTermoFormForDevice(null);
-    termoHistoryList.innerHTML = '';
+    displayTermoMarcaModelo.value = '';
+    displayTermoImei1.value = '';
+    displayTermoImei2.value = '';
+    displayTermoSN.value = '';
     btnRemoveSelectedDevice.disabled = true;
     selectDeviceStock.focus();
 });
