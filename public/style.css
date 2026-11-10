@@ -2739,141 +2739,43 @@ table{max-width:100%}
 }
 
 
-/* Ações da lista de estoque: ícones legíveis e área de toque confortável */
-.action-cell {
-    min-width: 224px;
-    white-space: nowrap;
-    vertical-align: middle;
+
+/* Ações da tabela de estoque: manter botões compactos, sem afetar outras listas */
+#stockTableBody .action-cell {
+  min-width: 150px;
+  white-space: nowrap;
+  vertical-align: middle;
 }
-
-.action-btn-group {
-    display: inline-flex;
-    align-items: stretch;
-    gap: 0;
-    overflow: visible;
-    border-radius: 8px;
-}
-
-.action-btn-group .btn,
-.action-btn-group .btn.btn-sm {
-    width: 48px;
-    min-width: 48px;
-    height: 46px;
-    min-height: 46px;
-    padding: 8px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 48px;
-}
-
-.action-btn-group .btn svg {
-    display: block;
-    width: 23px !important;
-    height: 23px !important;
-    min-width: 23px;
-    min-height: 23px;
-    flex: 0 0 23px;
-    stroke-width: 2.2;
-}
-
-@media (max-width: 768px) {
-    .action-cell {
-        min-width: 216px;
-        padding: 8px 10px;
-    }
-
-    .action-btn-group .btn,
-    .action-btn-group .btn.btn-sm {
-        width: 46px;
-        min-width: 46px;
-        height: 46px;
-        min-height: 46px;
-        flex-basis: 46px;
-    }
-
-    .action-btn-group .btn svg {
-        width: 24px !important;
-        height: 24px !important;
-        min-width: 24px;
-        min-height: 24px;
-        flex-basis: 24px;
-    }
-}
-
-
-/* Correção definitiva: força a renderização dos SVGs das ações do estoque */
 #stockTableBody .action-btn-group {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0 !important;
-  min-width: max-content !important;
-  overflow: visible !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
 }
-#stockTableBody .action-btn-group > button {
-  width: 48px !important;
-  min-width: 48px !important;
-  height: 48px !important;
-  min-height: 48px !important;
-  padding: 10px !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  flex: 0 0 48px !important;
-  line-height: 1 !important;
-}
-#stockTableBody .action-btn-group > button > svg {
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-  width: 26px !important;
-  height: 26px !important;
-  min-width: 26px !important;
-  min-height: 26px !important;
-  max-width: 26px !important;
-  max-height: 26px !important;
-  overflow: visible !important;
-  flex: 0 0 26px !important;
-  fill: none !important;
-  stroke: currentColor !important;
-  stroke-width: 2.2 !important;
-}
-
-
-/* Refinamento visual das ações do estoque: proporção compacta e equilibrada */
-#stockTableBody .action-btn-group > button {
-  width: 40px !important;
-  min-width: 40px !important;
-  height: 40px !important;
-  min-height: 40px !important;
-  padding: 8px !important;
-  flex: 0 0 40px !important;
+#stockTableBody .action-btn-group > button,
+#stockTableBody .action-btn-group > button.btn,
+#stockTableBody .action-btn-group > button.btn-sm {
+  box-sizing: border-box;
+  width: 30px !important;
+  min-width: 30px !important;
+  max-width: 30px !important;
+  height: 30px !important;
+  min-height: 30px !important;
+  max-height: 30px !important;
+  padding: 6px !important;
+  flex: 0 0 30px !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 #stockTableBody .action-btn-group > button > svg {
-  width: 19px !important;
-  height: 19px !important;
-  min-width: 19px !important;
-  min-height: 19px !important;
-  max-width: 19px !important;
-  max-height: 19px !important;
-  flex: 0 0 19px !important;
+  display: block;
+  width: 14px !important;
+  height: 14px !important;
+  min-width: 14px !important;
+  min-height: 14px !important;
+  max-width: 14px !important;
+  max-height: 14px !important;
+  flex: 0 0 14px !important;
   stroke-width: 2 !important;
-}
-@media (max-width: 768px) {
-  #stockTableBody .action-btn-group > button {
-    width: 40px !important;
-    min-width: 40px !important;
-    height: 40px !important;
-    min-height: 40px !important;
-    flex-basis: 40px !important;
-  }
-  #stockTableBody .action-btn-group > button > svg {
-    width: 19px !important;
-    height: 19px !important;
-    min-width: 19px !important;
-    min-height: 19px !important;
-    max-width: 19px !important;
-    max-height: 19px !important;
-    flex-basis: 19px !important;
-  }
 }
