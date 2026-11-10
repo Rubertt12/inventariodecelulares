@@ -27,9 +27,9 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 html{width:100%;min-width:320px;min-height:100%;-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-padding-top:12px}
 body{width:100%;min-width:320px;min-height:100vh;min-height:100dvh;overflow-x:hidden}
 button,.back,input{min-width:0;max-width:100%}
-button,.back{min-height:44px;white-space:normal;line-height:1.25;font:600 14px/1.25 inherit;touch-action:manipulation}
+button,.back{min-height:44px;white-space:normal;line-height:1.25;font-family:inherit;font-size:14px;font-weight:600;line-height:1.25;touch-action:manipulation}
 input{min-height:var(--control-height);font-size:16px;line-height:1.35}
-.wrap{width:min(100% - 2*var(--page-gutter),1180px);padding:0;margin-inline:auto}
+.wrap{width:calc(100% - 2 * var(--page-gutter));max-width:1180px;padding:0;margin-inline:auto}
 .layout{grid-template-columns:minmax(0,0.9fr) minmax(0,1.1fr);align-items:start}
 .card{min-width:0;overflow-wrap:anywhere}
 .card>*{min-width:0}
@@ -45,7 +45,7 @@ input{min-height:var(--control-height);font-size:16px;line-height:1.35}
 .record small{display:block;overflow-wrap:anywhere;word-break:break-word}
 .list-head{min-width:0}
 .list-head>.actions{display:flex;flex-wrap:wrap}
-footer{width:min(100% - 2*var(--page-gutter),1180px);padding:0 0 max(24px,env(safe-area-inset-bottom));margin-inline:auto}
+footer{width:calc(100% - 2 * var(--page-gutter));max-width:1180px;padding:0 0 max(24px,env(safe-area-inset-bottom));margin-inline:auto}
 @media(max-width:900px){
  .layout{grid-template-columns:minmax(0,1fr)}
  header{padding:18px var(--page-gutter)}
@@ -104,7 +104,7 @@ footer{width:min(100% - 2*var(--page-gutter),1180px);padding:0 0 max(24px,env(sa
 }
 @supports(padding:max(0px)){
  header{padding-left:max(var(--page-gutter),env(safe-area-inset-left));padding-right:max(var(--page-gutter),env(safe-area-inset-right))}
- .wrap{width:calc(100% - 2*max(var(--page-gutter),env(safe-area-inset-left)))}
+ .wrap{width:calc(100% - 2 * max(var(--page-gutter),env(safe-area-inset-left)))}
 }
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
