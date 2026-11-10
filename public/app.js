@@ -52,6 +52,7 @@ const modalDisplayDataEntrada = document.getElementById('modalDisplayDataEntrada
 
 const btnSaveTermo = document.getElementById('btnSaveTermo');
 const selectDeviceStock = document.getElementById('selectDeviceStock');
+const btnRemoveSelectedDevice = document.getElementById('btnRemoveSelectedDevice');
 const devicesDataList = document.getElementById('devicesDataList');
 const termosTableBody = document.getElementById('termosTableBody');
 const inputSearchTermos = document.getElementById('inputSearchTermos'); // NOVO
@@ -1711,6 +1712,14 @@ function updateTermoFormForDevice(item) {
     }
 }
 
+btnRemoveSelectedDevice.addEventListener('click', () => {
+    selectDeviceStock.value = '';
+    updateTermoFormForDevice(null);
+    termoHistoryList.innerHTML = '';
+    btnRemoveSelectedDevice.disabled = true;
+    selectDeviceStock.focus();
+});
+
 selectDeviceStock.addEventListener('change', () => {
     const selectedValue = selectDeviceStock.value;
     let selectedId = null;
@@ -1721,11 +1730,13 @@ selectDeviceStock.addEventListener('change', () => {
     if (option) {
         selectedId = parseFloat(option.dataset.id);
     } else {
-        updateTermoFormForDevice(null); // Limpa o formulário se não encontrar correspondência
+        updateTermoFormForDevice(null); // Limpa os dados automáticos se não encontrar correspondência
+        btnRemoveSelectedDevice.disabled = true;
         return;
     }
-    const item = stockData.find(i => i.id === selectedId);    
+    const item = stockData.find(i => i.id === selectedId);
     updateTermoFormForDevice(item);
+    btnRemoveSelectedDevice.disabled = !item;
 });
 
 btnSaveTermo.addEventListener('click', async (event) => {
@@ -2094,6 +2105,9 @@ function clearTermoForm() {
     inputTermoLocal.value = ''; inputTermoTecnico.value = ''; inputTermoCC.value = ''; inputTermoChip.value = '';
     selectDeviceStock.value = ''; displayTermoMarcaModelo.value = '';
     displayTermoImei1.value = ''; displayTermoImei2.value = ''; displayTermoSN.value = '';
+    if (btnRemoveSelectedDevice) btnRemoveSelectedDevice.disabled = true;
+    if (termoHistoryList) termoHistoryList.innerHTML = '';
+    if (displayTermoHistory) displayTermoHistory.style.display = 'none';
 }
 
 // --- LIGHTBOX MODAL ---
