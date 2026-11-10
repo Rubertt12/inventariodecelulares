@@ -52,8 +52,7 @@ const modalDisplayDataEntrada = document.getElementById('modalDisplayDataEntrada
 
 const btnSaveTermo = document.getElementById('btnSaveTermo');
 const selectDeviceStock = document.getElementById('selectDeviceStock');
-const btnRemoveSelectedDevice = document.getElementById('btnRemoveSelectedDevice');
-const devicesDataList = document.getElementById('devicesDataList');
+const devicesDataList = document.getElementById('selectDeviceStock');
 const termosTableBody = document.getElementById('termosTableBody');
 const inputSearchTermos = document.getElementById('inputSearchTermos'); // NOVO
 const btnExportTermosHistory = document.getElementById('btnExportTermosHistory');
@@ -1668,13 +1667,14 @@ btnClearStock.addEventListener('click', () => {
 
 // --- TERMOS ---
 function renderSelectStockOptions() {
-    devicesDataList.innerHTML = ''; // Limpa a datalist
+    devicesDataList.innerHTML = '<option value="">-- Escolha um telefone disponível --</option>'; // Limpa a lista
     stockData.forEach(item => {
         // Exibe itens "Disponível" ou "Devolvido" para vinculação
         if (item.status === 'Disponível' || item.status === 'Devolvido' || !item.status) {
             const option = document.createElement('option');
             // O texto visível para o usuário (inclui o status se for devolvido)
-            option.value = `[${item.modelo.includes('Galaxy') ? `Galaxy ${item.modelo}` : item.modelo}] SN: ${item.sn || 'Sem S/N'} - Loc: ${item.localidade || appSettings.primaryLocation}`;
+            option.value = String(item.id);
+            option.textContent = `[${item.modelo.includes('Galaxy') ? `Galaxy ${item.modelo}` : item.modelo}] SN: ${item.sn || 'Sem S/N'} - Loc: ${item.localidade || appSettings.primaryLocation}`;
             // Armazena o ID do item em um atributo de dados para referência
             option.dataset.id = item.id;
             devicesDataList.appendChild(option);
@@ -1712,47 +1712,24 @@ function updateTermoFormForDevice(item) {
     }
 }
 
-btnRemoveSelectedDevice.addEventListener('click', () => {
-    // Remove somente o aparelho vinculado e os campos preenchidos automaticamente.
-    // O histórico de uso e os demais dados do termo permanecem intactos.
-    selectDeviceStock.value = '';
-    displayTermoMarcaModelo.value = '';
-    displayTermoImei1.value = '';
-    displayTermoImei2.value = '';
-    displayTermoSN.value = '';
-    btnRemoveSelectedDevice.disabled = true;
-    selectDeviceStock.focus();
-});
-
 selectDeviceStock.addEventListener('change', () => {
-    const selectedValue = selectDeviceStock.value;
-    let selectedId = null;
-
-    // Encontra a opção na datalist que corresponde ao valor digitado/selecionado
-    const option = Array.from(devicesDataList.options).find(opt => opt.value === selectedValue);
-
-    if (option) {
-        selectedId = parseFloat(option.dataset.id);
-    } else {
-        updateTermoFormForDevice(null); // Limpa os dados automáticos se não encontrar correspondência
-        btnRemoveSelectedDevice.disabled = true;
+    const selectedId = selectDeviceStock.value ? Number(selectDeviceStock.value) : null;
+    const item = selectedId === null ? null : stockData.find(i => i.id === selectedId);
+    if (!item) {
+        displayTermoMarcaModelo.value = '';
+        displayTermoImei1.value = '';
+        displayTermoImei2.value = '';
+        displayTermoSN.value = '';
+        inputTermoLocal.value = '';
         return;
     }
-    const item = stockData.find(i => i.id === selectedId);
     updateTermoFormForDevice(item);
-    btnRemoveSelectedDevice.disabled = !item;
 });
 
 btnSaveTermo.addEventListener('click', async (event) => {
     event.preventDefault(); // Garante que o botão não recarregue a página.
     try {
-        const selectedValue = selectDeviceStock.value;
-        let selectedId = null;
-
-        const option = Array.from(devicesDataList.options).find(opt => opt.value === selectedValue);
-        if (option) {
-            selectedId = parseFloat(option.dataset.id);
-        }
+        const selectedId = selectDeviceStock.value ? Number(selectDeviceStock.value) : null;
 
         if (!selectedId) { showCustomAlert('Selecione um telefone na lista de disponíveis.', 'warning'); return; }
         if (!inputTermoNome.value.trim() || !inputTermoTicket.value.trim()) { showCustomAlert('Preencha o Ticket/Chamado e o Nome do colaborador.', 'warning'); return; }
@@ -2109,7 +2086,6 @@ function clearTermoForm() {
     inputTermoLocal.value = ''; inputTermoTecnico.value = ''; inputTermoCC.value = ''; inputTermoChip.value = '';
     selectDeviceStock.value = ''; displayTermoMarcaModelo.value = '';
     displayTermoImei1.value = ''; displayTermoImei2.value = ''; displayTermoSN.value = '';
-    if (btnRemoveSelectedDevice) btnRemoveSelectedDevice.disabled = true;
     if (termoHistoryList) termoHistoryList.innerHTML = '';
     if (displayTermoHistory) displayTermoHistory.style.display = 'none';
 }
