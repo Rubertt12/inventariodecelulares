@@ -460,6 +460,14 @@ window.switchView = function(viewName) {
     }
     
     document.getElementById(`view-${viewName}`).classList.add('active');
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        document.body.classList.remove('mobile-sidebar-open');
+        const mobileToggle = document.getElementById('mobileMenuToggle');
+        if (mobileToggle) {
+            mobileToggle.setAttribute('aria-expanded', 'false');
+            mobileToggle.setAttribute('aria-label', 'Abrir menu');
+        }
+    }
 
     // --- NOVO: Renderiza o dashboard se for a view selecionada ---
     if (viewName === 'dashboard') {
@@ -3245,16 +3253,52 @@ window.selectDeviceAndSwitchToTermo = function(id) {
     selectDeviceStock.dispatchEvent(new Event('change'));
 };
 
-// --- Lógica da Sidebar ---
-sidebarToggle.addEventListener('click', () => {
-    document.body.classList.toggle('sidebar-collapsed');
-    // Salva o estado no localStorage
-    if (document.body.classList.contains('sidebar-collapsed')) {
-        localStorage.setItem('sidebarState', 'collapsed');
-    } else {
-        localStorage.setItem('sidebarState', 'expanded');
+// --- Navegação responsiva da Sidebar ---
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+const mobileSidebarQuery = window.matchMedia('(max-width: 768px)');
+
+function setMobileSidebar(open) {
+    document.body.classList.toggle('mobile-sidebar-open', !!open && mobileSidebarQuery.matches);
+    if (mobileMenuToggle) {
+        mobileMenuToggle.setAttribute('aria-expanded', String(!!open && mobileSidebarQuery.matches));
+        mobileMenuToggle.setAttribute('aria-label', open ? 'Fechar menu' : 'Abrir menu');
     }
+}
+if (mobileMenuToggle) mobileMenuToggle.addEventListener('click', () => {
+    setMobileSidebar(!document.body.classList.contains('mobile-sidebar-open'));
 });
+if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', () => setMobileSidebar(false));
+document.addEventListener('keydown', event => {
+    if (event.key === 'Escape') setMobileSidebar(false);
+});
+const sidebarMenuElement = document.querySelector('.sidebar-menu');
+if (sidebarMenuElement) sidebarMenuElement.addEventListener('click', event => {
+    if (event.target.closest('.menu-item') && mobileSidebarQuery.matches) setMobileSidebar(false);
+});
+if (mobileSidebarQuery.addEventListener) {
+    mobileSidebarQuery.addEventListener('change', event => {
+        setMobileSidebar(false);
+        if (!event.matches) {
+            const saved = localStorage.getItem('sidebarState');
+            document.body.classList.toggle('sidebar-collapsed', saved === 'collapsed');
+        }
+    });
+} else if (mobileSidebarQuery.addListener) {
+    mobileSidebarQuery.addListener(() => setMobileSidebar(false));
+}
+if (sidebarToggle) sidebarToggle.addEventListener('click', () => {
+    if (mobileSidebarQuery.matches) {
+        setMobileSidebar(!document.body.classList.contains('mobile-sidebar-open'));
+        return;
+    }
+    document.body.classList.toggle('sidebar-collapsed');
+    localStorage.setItem('sidebarState', document.body.classList.contains('sidebar-collapsed') ? 'collapsed' : 'expanded');
+});
+// Restaura o recolhimento apenas no desktop; no celular o menu começa fechado.
+if (!mobileSidebarQuery.matches && localStorage.getItem('sidebarState') === 'collapsed') {
+    document.body.classList.add('sidebar-collapsed');
+}
 
 // --- NOVA LÓGICA DE FILTRO COM ANIMAÇÃO DE DESLIZE E ARRASTE ---
 const filterGroup = document.getElementById('locationFilterGroup');
