@@ -3750,18 +3750,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderResults() {
     const term = normalizeText(search.value);
-    const matches = stockData.filter(item => {
-      if (!term) return false;
-      return [item.modelo, item.imei1, item.imei2, item.sn].some(value => normalizeText(value || '').includes(term));
-    }).slice(0, 30);
+    const matches = stockData.filter(item => item.status !== 'Devolvido' && (
+      !term || [item.modelo, item.imei1, item.imei2, item.sn].some(value => normalizeText(value || '').includes(term))
+    )).slice(0, 30);
 
     results.replaceChildren();
-    count.textContent = term ? `${matches.length} resultado(s)` : 'Digite para pesquisar';
+    count.textContent = term ? `${matches.length} resultado(s)` : `${matches.length} celulares`;
 
-    if (!term) {
-      results.append(makeText('div', 'spotlight-empty', 'Comece digitando um modelo, IMEI ou número de série.'));
-      return;
-    }
     if (!matches.length) {
       results.append(makeText('div', 'spotlight-empty', 'Nenhum celular encontrado com esses dados.'));
       return;
