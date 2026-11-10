@@ -2800,3 +2800,41 @@ table{max-width:100%}
         flex-basis: 24px;
     }
 }
+
+
+/* Correção definitiva: força a renderização dos SVGs das ações do estoque */
+#stockTableBody .action-btn-group {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0 !important;
+  min-width: max-content !important;
+  overflow: visible !important;
+}
+#stockTableBody .action-btn-group > button {
+  width: 48px !important;
+  min-width: 48px !important;
+  height: 48px !important;
+  min-height: 48px !important;
+  padding: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex: 0 0 48px !important;
+  line-height: 1 !important;
+}
+#stockTableBody .action-btn-group > button > svg {
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+  overflow: visible !important;
+  flex: 0 0 26px !important;
+  fill: none !important;
+  stroke: currentColor !important;
+  stroke-width: 2.2 !important;
+}
