@@ -3755,10 +3755,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderResults() {
     const term = normalizeText(search.value);
+    const statusFilter = activeField.startsWith('status:') ? activeField.slice(7) : null;
     const fields = activeField === 'all' ? ['modelo', 'imei1', 'imei2', 'sn'] : [activeField];
-    const matches = stockData.filter(item => item.status !== 'Devolvido' && (
-      !term || fields.some(field => normalizeText(item[field] || '').includes(term))
-    )).slice(0, 30);
+    const matches = stockData.filter(item => {
+      if (statusFilter) return item.status === statusFilter;
+      if (item.status === 'Devolvido') return false;
+      return !term || fields.some(field => normalizeText(item[field] || '').includes(term));
+    }).slice(0, 30);
 
     results.replaceChildren();
     count.textContent = term ? `${matches.length} resultado(s)` : `${matches.length} celulares`;
@@ -3799,7 +3802,9 @@ document.addEventListener('DOMContentLoaded', () => {
       modelo: 'Buscar pelo modelo do celular...',
       imei1: 'Buscar pelo IMEI 1...',
       imei2: 'Buscar pelo IMEI 2...',
-      sn: 'Buscar pelo número de série (SN)...'
+      sn: 'Buscar pelo número de série (SN)...',
+      'status:Disponível': 'Exibindo celulares disponíveis...',
+      'status:Entregue': 'Exibindo celulares entregues...'
     };
     search.placeholder = placeholders[activeField] || placeholders.all;
     renderResults();
