@@ -430,7 +430,10 @@
                 
                 <div class="form-group">
                     <label>Aparelho Disponível (digite para buscar)</label>
-                    <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace;" placeholder="-- Escolha ou digite para buscar --">
+                    <div class="termo-device-select-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                        <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace; flex:1; min-width:220px;" placeholder="-- Escolha ou digite para buscar --">
+                        <button type="button" id="btnRemoveSelectedDevice" class="btn btn-secondary" disabled title="Remover telefone selecionado" style="white-space:nowrap;">✕ Remover telefone</button>
+                    </div>
                     <datalist id="devicesDataList">
                         <!-- Opções preenchidas via JS -->
                     </datalist>
