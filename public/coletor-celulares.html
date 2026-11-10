@@ -4,7 +4,7 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#0b5cab"><title>Coletor de celulares | Inventário</title>
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
 <style>
 :root{color-scheme:light;--bg:#f3f6fb;--panel:#fff;--text:#172033;--muted:#667085;--line:#e3e8f0;--brand:#1266b1;--brand2:#0b4e8a;--good:#12805c;--bad:#b42318}
@@ -34,7 +34,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 <div class="actions"><button id="startCam">Abrir câmera</button><button class="secondary" id="takePhoto" disabled>Fotografar aparelho</button></div>
 <div class="preview" id="preview"><span id="previewText">A câmera/foto aparecerá aqui</span><video id="video" playsinline autoplay></video><img id="photoPreview" alt="Foto capturada" hidden></div>
 <label for="labelPhoto">Ou selecionar foto da etiqueta para leitura</label><input id="labelPhoto" type="file" accept="image/*" capture="environment">
-<div class="actions"><button class="secondary" id="readOcr">Ler texto da etiqueta (OCR)</button><button class="secondary" id="stopCam">Fechar câmera</button></div>
+<div class="actions"><button class="secondary" id="readOcr">Ler texto da etiqueta (OCR)</button><button class="secondary" id="prepareOffline">Preparar OCR offline</button><button class="secondary" id="stopCam">Fechar câmera</button></div>
 <div class="status" id="status" aria-live="polite">Pronto para iniciar.</div><div class="progress"><span id="progress"></span></div>
 <div class="actions"><button id="add">Adicionar ao lote (após revisar)</button><button class="secondary" id="clear">Limpar campos</button></div>
 </section>
@@ -55,6 +55,38 @@ async function persistDraft(){try{await localSet('draft',{model:$('model').value
 async function persistItems(){try{await localSet('items',items.map(({photoUrl,...it})=>it))}catch(e){say('Aviso: não foi possível salvar o lote neste navegador.')}}
 async function restoreLocalData(){try{const saved=await localGet('items');if(Array.isArray(saved))items=saved.map(it=>({...it,photoUrl:URL.createObjectURL(it.photoBlob)}));const draft=await localGet('draft');if(draft){$('model').value=draft.model||'';$('locality').value=draft.locality||'Canoas';$('imei').value=draft.imei||'';$('imei2').value=draft.imei2||'';$('sn').value=draft.sn||'';if(draft.photoBlob){photoBlob=draft.photoBlob;setPhoto(photoBlob);say('Rascunho recuperado: foto e campos restaurados.')}}render()}catch(e){console.warn('Falha ao recuperar dados locais',e)}}
 const video=$('video'),photoPreview=$('photoPreview'),status=$('status'),progress=$('progress');
+const OCR_CACHE='coletor-ocr-offline-v1';
+const OCR_ASSETS=[
+ {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js',key:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js'},
+ {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js',key:'/ocr/vendor/worker.min.js'},
+ ...['tesseract-core.wasm.js','tesseract-core-simd.wasm.js','tesseract-core-lstm.wasm.js','tesseract-core-simd-lstm.wasm.js',
+ 'tesseract-core.wasm','tesseract-core-simd.wasm','tesseract-core-lstm.wasm','tesseract-core-simd-lstm.wasm'].map(name=>({url:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/'+name,key:'/ocr/core/'+name})),
+ ...['por','eng'].map(lang=>({url:'https://tessdata.projectnaptha.com/4.0.0/'+lang+'.traineddata.gz',key:'/ocr/lang/'+lang+'.traineddata.gz'}))
+];
+let offlineOcrReady=false,ocrWorker=null;
+async function hasOfflineOcr(){
+ try{const cache=await caches.open(OCR_CACHE);return (await Promise.all(OCR_ASSETS.map(a=>cache.match(a.key.startsWith('http')?a.key:new URL(a.key,location.origin).href)))).every(Boolean)}catch(e){return false}
+}
+async function prepareOfflineOcr(){
+ if(!('caches'in window)||!('serviceWorker'in navigator)){say('Este navegador não oferece os recursos necessários para preparar o OCR offline.');return}
+ if(!navigator.serviceWorker.controller){say('Ativando o modo offline. Recarregue esta página uma vez e toque novamente em Preparar OCR offline.');return}
+ const cache=await caches.open(OCR_CACHE);let done=0;
+ $('prepareOffline').disabled=true;
+ try{
+  for(const asset of OCR_ASSETS){
+   const key=asset.key.startsWith('http')?asset.key:new URL(asset.key,location.origin).href;
+   if(await cache.match(key)){done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';continue}
+   say('Baixando mecanismo OCR offline ('+(done+1)+'/'+OCR_ASSETS.length+'): '+asset.key.split('/').pop());
+   const response=await fetch(asset.url,{mode:'cors',cache:'no-cache'});
+   if(!response.ok)throw new Error('Não foi possível baixar '+asset.url+' (HTTP '+response.status+')');
+   await cache.put(key,response.clone());done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';
+  }
+  offlineOcrReady=true;say('Pacote OCR offline preparado. Recarregue a página para garantir que todos os arquivos fiquem disponíveis sem internet.');
+ }catch(e){say('Não foi possível preparar o OCR offline: '+e.message+'. Conecte-se à internet e tente novamente.')}
+ finally{$('prepareOffline').disabled=false}
+}
+$('prepareOffline').onclick=prepareOfflineOcr;
+
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
@@ -92,9 +124,24 @@ $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada
 function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
 $('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto da etiqueta carregada. Clique em Ler texto da etiqueta (OCR).')};
-$('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Preencha IMEI e SN manualmente.');return}try{say('Analisando a foto inteira: texto, etiquetas e números…');progress.style.width='3%';
-const firstPass=await Tesseract.recognize(source,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*38+5)+'%'}});
-let fullText=firstPass.data.text||'';
+$('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Conecte-se à internet, recarregue a página e prepare o pacote offline.');return}try{
+ offlineOcrReady=offlineOcrReady||await hasOfflineOcr();
+ say(offlineOcrReady?'Analisando a foto inteira com OCR local (português + inglês)…':'Analisando a foto inteira com OCR. Para usar sem internet, prepare antes o pacote offline.');
+ progress.style.width='3%';
+ const logger=m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*38+5)+'%';else if(m.status==='loading language model')say('Carregando idioma '+(m.progress?Math.round(m.progress*100)+'%':'')+'…')};
+ if(!ocrWorker){
+  const options=offlineOcrReady?{
+   workerPath:new URL('/ocr/vendor/worker.min.js',location.origin).href,
+   corePath:new URL('/ocr/core/',location.origin).href,
+   langPath:new URL('/ocr/lang/',location.origin).href,
+   workerBlobURL:false,gzip:true,cacheMethod:'write',logger
+  }:{logger};
+  ocrWorker=await Tesseract.createWorker(offlineOcrReady?'por+eng':'eng',1,options);
+  await ocrWorker.setParameters({preserve_interword_spaces:'1'});
+ }
+ await ocrWorker.setParameters({tessedit_pageseg_mode:'11',preserve_interword_spaces:'1'});
+ const firstPass=await ocrWorker.recognize(source);
+ let fullText=firstPass.data.text||'';
 let enhancedCanvas=null;
 try{
  const bitmap=await createImageBitmap(source);
@@ -110,8 +157,8 @@ try{
   px[p]=px[p+1]=px[p+2]=contrast;
  }
  ectx.putImageData(imageData,0,0);
- const secondPass=await Tesseract.recognize(enhancedCanvas,'eng',{logger:m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*42+48)+'%'}});
- fullText+='\\n'+(secondPass.data.text||'');
+ const secondPass=await ocrWorker.recognize(enhancedCanvas);
+ fullText+='\n'+(secondPass.data.text||'');
 }catch(preprocessError){console.warn('OCR aprimorado indisponível; usando leitura original da foto',preprocessError)}
 const text=fullText;
 let barcodeValues=[];
