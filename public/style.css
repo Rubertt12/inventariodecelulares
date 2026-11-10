@@ -2603,3 +2603,137 @@ table{max-width:100%}
 @media(min-width:1600px){
  .main-content,.main-content-wrapper,.content-area{max-width:1800px;margin-inline:auto}
 }
+
+
+/* ==========================================================================
+   REVISÃO MOBILE DAS TELAS INTERNAS — cadastro, estoque, usados, termos e ajustes
+   ========================================================================== */
+@media (max-width: 768px) {
+  .main-content { min-height: 100dvh; }
+  .view-section {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: 12px 0 28px !important;
+  }
+  .view-section > * { max-width: 100%; min-width: 0; }
+  .dashboard-header, .page-header, .section-header, .card-header,
+  .view-section .header, .view-section .toolbar, .view-section .actions-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .dashboard-title, .view-section h1 { font-size: clamp(1.35rem, 5vw, 1.8rem); line-height: 1.2; }
+  .view-section h2 { font-size: clamp(1.1rem, 4.2vw, 1.4rem); }
+  .view-section .card, .view-section .panel, .view-section .form-container,
+  .view-section .content-card, .view-section .section-card {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .view-section .card { padding: 14px; }
+  .view-section .form-grid, .view-section .form-row, .view-section .grid,
+  .view-section .form-fields, .view-section .input-grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    width: 100%;
+  }
+  .view-section .form-group, .view-section .form-field, .view-section .input-group {
+    width: 100%;
+    min-width: 0;
+  }
+  .view-section input:not([type=checkbox]):not([type=radio]),
+  .view-section select, .view-section textarea {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    min-height: 44px;
+    font-size: 16px;
+  }
+  .view-section textarea { min-height: 100px; }
+  .view-section .btn, .view-section button { min-height: 42px; }
+  .view-section .btn-group, .view-section .button-group,
+  .view-section .toolbar, .view-section .actions, .view-section .action-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    gap: 8px;
+  }
+  .view-section .btn-group > *, .view-section .button-group > *,
+  .view-section .toolbar > *, .view-section .actions > *,
+  .view-section .action-buttons > * { flex: 1 1 auto; min-width: 0; }
+  .view-section .table-wrapper, .view-section .table-container,
+  .view-section .table-responsive, .view-section .table-wrap {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    -webkit-overflow-scrolling: touch;
+    border-radius: 10px;
+  }
+  .view-section table { width: max-content; min-width: 680px; }
+  .view-section th, .view-section td { white-space: nowrap; }
+  .view-section .stock-grid, .view-section .cards-grid,
+  .view-section .items-grid { grid-template-columns: minmax(0, 1fr) !important; }
+  .view-section .stock-card { width: 100%; min-width: 0; }
+  .view-section .filter-group, .view-section .filters,
+  .view-section .filter-buttons, .view-switch-container {
+    max-width: 100%;
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+  .view-section .filter-group > *, .view-section .filters > *,
+  .view-section .filter-buttons > * { flex: 0 0 auto; }
+  .settings-tabs {
+    display: flex;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    gap: 6px;
+    padding: 4px 2px 10px;
+    white-space: nowrap;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+  }
+  .settings-tab-btn { flex: 0 0 auto; min-height: 42px; white-space: nowrap; }
+  .settings-tab-content { width: 100%; min-width: 0; padding: 12px 0; }
+  .settings-tab-content .card, .settings-tab-content .setting-card {
+    width: 100%; min-width: 0; padding: 14px;
+  }
+  .instructions-container { padding: 8px 0; }
+  .instructions-header { margin-bottom: 20px; }
+  .instructions-header h3 { font-size: 1.4rem; }
+  .instruction-step { padding: 14px; margin-bottom: 14px; }
+  .batch-actions-panel { flex-direction: column; align-items: stretch; }
+  .batch-actions-panel > * { width: 100%; }
+  .custom-modal, .modal, .modal-overlay {
+    padding: 10px;
+    align-items: flex-start;
+    overflow-y: auto;
+  }
+  .modal-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: calc(100dvh - 20px);
+    overflow: auto;
+    margin: auto;
+  }
+}
+@media (max-width: 420px) {
+  .view-section { padding-top: 8px !important; }
+  .view-section .card { padding: 12px; }
+  .view-section .btn-group > *, .view-section .button-group > *,
+  .view-section .toolbar > *, .view-section .actions > *,
+  .view-section .action-buttons > * { flex: 1 1 100%; }
+  .view-section table { min-width: 620px; }
+  .settings-tab-btn { padding: 9px 12px; font-size: 13px; }
+  .stat-card { min-width: 0; }
+}
