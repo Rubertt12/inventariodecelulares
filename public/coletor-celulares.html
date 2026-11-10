@@ -109,6 +109,36 @@ footer{width:calc(100% - 2 * var(--page-gutter));max-width:1180px;padding:0 0 ma
 @media(prefers-reduced-motion:reduce){
  *,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}
 }
+
+/* Ajustes finais de responsividade */
+html,body{width:100%;min-width:320px;max-width:100%;overflow-x:clip}
+.wrap{width:100%;max-width:1180px}
+.layout{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+.layout>*{min-width:0}
+.card,.record,.batch-item{min-width:0;max-width:100%}
+input,select,textarea,button{max-width:100%;min-width:0}
+img,video,canvas{max-width:100%}
+.table-wrap,.table-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){
+ header{padding:14px 12px;gap:10px}
+ header>div{min-width:0;width:100%}
+ header .back{width:100%;text-align:center}
+ .wrap{margin:12px auto;padding:0 10px}
+ .layout{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+ .card{padding:13px;border-radius:12px}
+ .row{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .actions>*{width:100%;min-width:0}
+ .preview{width:100%;max-height:44dvh;aspect-ratio:4/3}
+ .list-head{flex-wrap:wrap;gap:8px}
+ .list-head>*{min-width:0;max-width:100%}
+ .record{grid-template-columns:56px minmax(0,1fr);gap:8px;padding:10px}
+ .record img{width:56px;height:56px}
+ .record .remove{grid-column:1/-1}
+ input,select,textarea,button{font-size:16px;min-height:44px}
+}
+
 </style>
 </head>
 <body>
