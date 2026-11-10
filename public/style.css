@@ -2444,8 +2444,6 @@ kbd {
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--input-border);
 }
-<style>
-
 /* RESPONSIVIDADE GLOBAL — desktop, tablet e celular */
 *,*::before,*::after{min-width:0}
 html{width:100%;max-width:100%;overflow-x:hidden}
