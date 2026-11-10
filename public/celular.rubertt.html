@@ -429,15 +429,10 @@
                 <div class="card-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Telefone Selecionado para Vínculo</div>
                 
                 <div class="form-group">
-                    <label>Aparelho Disponível (digite para buscar)</label>
-                    <div class="termo-device-select-row" style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-                        <input id="selectDeviceStock" list="devicesDataList" class="input-field" style="font-family: monospace; flex:1; min-width:220px;" placeholder="-- Escolha ou digite para buscar --">
-                        <button type="button" id="btnRemoveSelectedDevice" class="btn btn-secondary" disabled title="Remover telefone selecionado" style="white-space:nowrap;">✕ Remover telefone</button>
-                    </div>
-                    <datalist id="devicesDataList">
-                        <!-- Opções preenchidas via JS -->
-                    </datalist>
-                </div>
+                    <label for="selectDeviceStock">Aparelho Disponível</label>
+                    <select id="selectDeviceStock" class="input-field" style="font-family: monospace; width:100%;">
+                        <option value="">-- Escolha um telefone disponível --</option>
+                    </select>
 
                 <div class="form-group">
                     <label>Marca e Modelo</label>
