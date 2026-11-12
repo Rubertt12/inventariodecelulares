@@ -2,6 +2,7 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const crypto = require('crypto');
 const db = require('./queries');
 
@@ -81,14 +82,20 @@ app.post('/api/demo-logout', (_req, res) => {
 });
 
 // A interface principal e as APIs de dados exigem a sessão demonstrativa.
-app.get('/app', (req, res) => {
+function sendInventoryApp(req, res) {
   if (!hasValidSession(req)) return res.redirect('/?login=required');
-  return res.sendFile(path.join(PUBLIC_DIR, 'celular.rubertt.html'));
-});
+  fs.readFile(path.join(PUBLIC_DIR, 'celular.rubertt.html'), 'utf8', (error, html) => {
+    if (error) return res.status(500).send('Não foi possível carregar o inventário.');
+    const onboardingScript = '<script src="/onboarding.js" defer></script>';
+    const page = html.includes('</body>') ? html.replace('</body>', onboardingScript + '\n</body>') : html + onboardingScript;
+    res.type('html').send(page);
+  });
+}
 
-app.get('/celular.rubertt.html', (req, res) => {
-  if (!hasValidSession(req)) return res.redirect('/?login=required');
-  return res.sendFile(path.join(PUBLIC_DIR, 'celular.rubertt.html'));
+app.get('/app', sendInventoryApp);
+app.get('/celular.rubertt.html', sendInventoryApp);
+app.get('/onboarding.js', (_req, res) => {
+  res.type('application/javascript').sendFile(path.join(PUBLIC_DIR, 'onboarding.js'));
 });
 
 // Health check e autenticação demonstrativa são públicos; as rotas de dados são protegidas.
