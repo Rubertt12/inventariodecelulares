@@ -85,6 +85,12 @@
         </li>
     
 
+        <li class="menu-item" id="menu-coletor" onclick="window.location.href='public/coletor-celulares.html'">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"></rect><path d="M9 6h6M9 10h6M9 14h3"></path><path d="m15 17 2 2 4-4"></path></svg><span class="menu-item-text">Coletor de Aparelhos</span>
+        </li>
+        <li class="menu-item" id="menu-importar-lote" onclick="document.getElementById('inputImportarLoteZip').click()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5M12 15V3"></path></svg><span class="menu-item-text">Importar Lote ZIP</span>
+        </li>
         <li class="menu-item" id="menu-geradorcaixa" onclick="window.location.href='Gerador_Caixa_Etiqueta.html'">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M2.5 14.4V6.8L12 2l9.5 4.8v7.6L12 22l-9.5-4.8Z"></path><path d="M12 22V12"></path><path d="M2.5 14.4L12 19.2L21.5 14.4"></path><path d="M2.5 6.8L12 11.6L21.5 6.8"></path></svg><span class="menu-item-text">Caixas</span>
         </li>
@@ -949,6 +955,7 @@
     }
 </script>
 
+<input type="file" id="inputImportarLoteZip" accept=".zip,application/zip" hidden>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
 </body>
