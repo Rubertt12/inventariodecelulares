@@ -2679,3 +2679,46 @@ kbd {
 .extracted-inline-style-107 { padding: 30px; border-left: none; }
 .extracted-inline-style-108 { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
 .extracted-inline-style-109 { width: 100%; margin-top: 15px; }
+
+
+/* Estilos estáticos extraídos dos templates de app.js */
+.extracted-app-style-1 { text-align:center; padding:20px; color:var(--text-muted); }
+.extracted-app-style-2 { grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted); }
+.extracted-app-style-3 { cursor:pointer; }
+.extracted-app-style-4 { cursor:pointer; }
+.extracted-app-style-5 { cursor:pointer; }
+.extracted-app-style-6 { cursor:pointer; }
+.extracted-app-style-7 { color: var(--primary-color); font-weight:700; font-size:1.1rem; margin-bottom:2px; }
+.extracted-app-style-8 { font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:8px; }
+.extracted-app-style-9 { vertical-align: -2px; margin-right: 4px; }
+.extracted-app-style-10 { font-size:0.8rem; opacity:0.8; margin-bottom:10px; }
+.extracted-app-style-11 { margin-bottom:15px; }
+.extracted-app-style-12 { margin-top: 8px; font-weight: 500; color: var(--text-muted); }
+.extracted-app-style-13 { vertical-align: -2px; margin-right: 4px; }
+.extracted-app-style-14 { display: flex; justify-content: space-between; align-items: center; }
+.extracted-app-style-15 { cursor: pointer; }
+.extracted-app-style-16 { cursor: pointer; }
+.extracted-app-style-17 { cursor: pointer; }
+.extracted-app-style-18 { cursor: pointer; }
+.extracted-app-style-19 { color:#bdc3c7; font-size:0.85rem; }
+.extracted-app-style-20 { color: var(--text-muted); }
+.extracted-app-style-21 { text-align:center; color:var(--text-muted); padding:15px; }
+.extracted-app-style-22 { color:var(--text-muted); }
+.extracted-app-style-23 { font-family:monospace; font-size:0.8rem; }
+.extracted-app-style-24 { background:#e0f2fe; color:#0369a1; border-color:#bae6fd; }
+.extracted-app-style-25 { cursor: pointer; }
+.extracted-app-style-26 { cursor: pointer; }
+.extracted-app-style-27 { cursor: pointer; }
+.extracted-app-style-28 { cursor: pointer; }
+.extracted-app-style-29 { max-width: none; }
+.extracted-app-style-30 { background:#fef3c7; color:#d97706; }
+.extracted-app-style-31 { margin-left: 8px; }
+.extracted-app-style-32 { display: flex; flex-grow: 1; gap: 10px; align-items: center; }
+.extracted-app-style-33 { height: 36px; }
+.extracted-app-style-34 { max-width: 180px; height: 36px; }
+.extracted-app-style-35 { padding: 20px 0; }
+.extracted-app-style-36 { flex-grow: 1; height: 36px; }
+.extracted-app-style-37 { color: var(--text-muted); }
+.extracted-app-style-38 { text-align:center; padding:20px; color:var(--text-muted); }
+.extracted-app-style-39 { font-family:monospace; }
+.extracted-app-style-40 { height: 36px; }
