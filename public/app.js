@@ -478,6 +478,9 @@ window.switchView = function(viewName) {
     if (viewName === 'dashboard') {
         renderDashboard();
     }
+    if (viewName === 'ativos' && typeof window.loadUniversalAssets === 'function') {
+        window.loadUniversalAssets();
+    }
 
     // --- NOVO: Inicializa o glider do filtro na primeira vez que a aba de estoque é aberta ---
     // Isso corrige o problema do glider não ter a posição inicial correta, pois
