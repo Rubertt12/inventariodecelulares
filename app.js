@@ -168,11 +168,7 @@ class DesktopFileHandle {
         const contents = result.contents instanceof Uint8Array
             ? result.contents
             : new Uint8Array(result.contents);
-        return {
-            lastModified: result.lastModified,
-            text: async () => new TextDecoder().decode(contents),
-            arrayBuffer: async () => contents.slice().buffer
-        };
+        return new Blob([contents]);
     }
 
     async createWritable() {
@@ -351,7 +347,7 @@ class LocalFileHandle {
         const value = await idb.get('local-file:' + this.path);
         if (value === undefined) { const e = new Error('Arquivo não encontrado.'); e.name = 'NotFoundError'; throw e; }
         const blob = value instanceof Blob ? value : new Blob([value]);
-        return { lastModified: Date.now(), text: () => blob.text(), arrayBuffer: () => blob.arrayBuffer(), slice: (...args) => blob.slice(...args), size: blob.size, type: blob.type };
+        return blob;
     }
     async createWritable() {
         let pending = null;
