@@ -1116,8 +1116,8 @@ async function renderStockTable() {
     const filteredStock = getFilteredStock();
 
     if(filteredStock.length === 0) {
-        stockTableBody.innerHTML = '<tr><td colspan="9" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhum smartphone encontrado.</td></tr>';
-        stockGridContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">Nenhum smartphone encontrado.</div>';
+        stockTableBody.innerHTML = '<tr><td colspan="9" class="extracted-app-style-1">Nenhum smartphone encontrado.</td></tr>';
+        stockGridContainer.innerHTML = '<div class="extracted-app-style-2">Nenhum smartphone encontrado.</div>';
         document.getElementById('stockPagInfo').textContent = 'Mostrando 0-0 de 0';
         document.getElementById('btnStockPrev').disabled = true;
         document.getElementById('btnStockNext').disabled = true;
@@ -1229,28 +1229,28 @@ async function renderStockTable() {
             }
 
             const statusBadge = item.status === 'Entregue' 
-                ? `<span class="user-badge entregue" style="cursor:pointer;" onclick="openEntregaModal(${item.id})">Entregue</span>`
+                ? `<span class="user-badge entregue extracted-app-style-3" onclick="openEntregaModal(${item.id})">Entregue</span>`
                 : item.status === 'Enviado'
-                ? `<span class="user-badge enviado" style="cursor:pointer;" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`
+                ? `<span class="user-badge enviado extracted-app-style-4" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`
                 : item.status === 'Devolvido'
-                ? `<span class="user-badge devolvido" style="cursor:pointer;" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido</span>`
-                : `<span class="user-badge stock" style="cursor:pointer;" onclick="openStockActionModal(${item.id})">Disponível</span>`;
+                ? `<span class="user-badge devolvido extracted-app-style-5" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido</span>`
+                : `<span class="user-badge stock extracted-app-style-6" onclick="openStockActionModal(${item.id})">Disponível</span>`;
 
             const content = document.createElement('div');
             content.className = 'stock-card-content';
             content.innerHTML = `
-                <div id="grid-modelo-txt-${item.id}" class="stock-card-sn" style="color: var(--primary-color); font-weight:700; font-size:1.1rem; margin-bottom:2px;">${item.modelo}</div>
-                <div id="grid-local-txt-${item.id}" style="font-size:0.85rem; font-weight:600; color:var(--text-main); margin-bottom:8px;"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${item.localidade || appSettings.primaryLocation}</div>
-                <div class="stock-card-sn" style="font-size:0.8rem; opacity:0.8; margin-bottom:10px;">SN: ${item.sn || 'SEM S/N'}</div>
-                <div class="stock-card-info" style="margin-bottom:15px;">
+                <div id="grid-modelo-txt-${item.id}" class="stock-card-sn extracted-app-style-7">${item.modelo}</div>
+                <div id="grid-local-txt-${item.id}" class="extracted-app-style-8"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="extracted-app-style-9"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${item.localidade || appSettings.primaryLocation}</div>
+                <div class="stock-card-sn extracted-app-style-10">SN: ${item.sn || 'SEM S/N'}</div>
+                <div class="stock-card-info extracted-app-style-11">
                     <span><strong>IMEI 1:</strong> ${item.imei1 || '-'}</span>
                     <span><strong>IMEI 2:</strong> ${item.imei2 || '-'}</span>
-                    <span id="grid-data-txt-${item.id}" style="margin-top: 8px; font-weight: 500; color: var(--text-muted);">
-                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="vertical-align: -2px; margin-right: 4px;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                    <span id="grid-data-txt-${item.id}" class="extracted-app-style-12">
+                        <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="extracted-app-style-13"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         ${item.dataEntrada ? new Date(item.dataEntrada).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
                     </span>
                 </div>
-                <div class="stock-card-footer" id="grid-actions-${item.id}" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="stock-card-footer extracted-app-style-14" id="grid-actions-${item.id}">
                     ${statusBadge}
                     <div class="action-btn-group">
                         <button class="btn btn-secondary btn-sm" title="Editar" onclick="startEdit(${item.id}, '${item.modelo}', '${item.localidade || ''}')"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg></button>
@@ -1582,13 +1582,13 @@ function createCell(text, monospace = false) {
 function createStatusCell(item) {
     const td = document.createElement('td');
     if (item.status === 'Entregue') {
-        td.innerHTML = `<span class="user-badge entregue" style="cursor: pointer;" onclick="openEntregaModal(${item.id})">Entregue (Ver)</span>`;
+        td.innerHTML = `<span class="user-badge entregue extracted-app-style-15" onclick="openEntregaModal(${item.id})">Entregue (Ver)</span>`;
     } else if (item.status === 'Enviado') {
-        td.innerHTML = `<span class="user-badge enviado" style="cursor: pointer;" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`;
+        td.innerHTML = `<span class="user-badge enviado extracted-app-style-16" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`;
     } else if (item.status === 'Devolvido') {
-        td.innerHTML = `<span class="user-badge devolvido" style="cursor: pointer;" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido (Reatribuir)</span>`;
+        td.innerHTML = `<span class="user-badge devolvido extracted-app-style-17" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido (Reatribuir)</span>`;
     } else {
-        td.innerHTML = `<span class="user-badge stock" style="cursor: pointer;" onclick="openStockActionModal(${item.id})">Disponível</span>`;
+        td.innerHTML = `<span class="user-badge stock extracted-app-style-18" onclick="openStockActionModal(${item.id})">Disponível</span>`;
     }
     return td;
 }
@@ -1604,7 +1604,7 @@ async function createPhotoCell(photoName) {
             if (itemIndex !== -1) openPhotoModal(itemIndex);
         });
         td.appendChild(img);
-    } else { td.innerHTML = '<span style="color:#bdc3c7; font-size:0.85rem;">Sem foto</span>'; }
+    } else { td.innerHTML = '<span class="extracted-app-style-19">Sem foto</span>'; }
     return td;
 }
 
@@ -1642,7 +1642,7 @@ window.removeStock = async function(id) {
     if (!item) return;
 
     const title = "Excluir Smartphone";
-    const message = `Tem certeza que deseja excluir o <strong>${item.modelo}</strong> (SN: ${item.sn || 'N/A'}) do estoque? <br><br><span style="color: var(--text-muted);">Esta ação não pode ser desfeita.</span>`;
+    const message = `Tem certeza que deseja excluir o <strong>${item.modelo}</strong> (SN: ${item.sn || 'N/A'}) do estoque? <br><br><span class="extracted-app-style-20">Esta ação não pode ser desfeita.</span>`;
 
     const deleteAction = async () => {
         stockData = stockData.filter(i => i.id !== id);
@@ -2050,7 +2050,7 @@ function renderTermosTable() {
 
     if (totalItems === 0) {
         const noResultsMessage = searchTerm ? 'Nenhum termo encontrado para sua busca.' : 'Nenhum termo emitido.';
-        termosTableBody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-muted); padding:15px;">${noResultsMessage}</td></tr>`;
+        termosTableBody.innerHTML = `<tr><td colspan="8" class="extracted-app-style-21">${noResultsMessage}</td></tr>`;
         document.getElementById('termosPagInfo').textContent = 'Mostrando 0-0 de 0';
         document.getElementById('btnTermosPrev').disabled = true;
         document.getElementById('btnTermosNext').disabled = true;
@@ -2081,13 +2081,13 @@ function renderTermosTable() {
         // A ordem agora está correta: Ticket é item.ticket, CC é item.cc
         tr.innerHTML = `
             <td><strong>${item.ticket}</strong>${checkIcon}</td>
-            <td>${item.nome}<br><small style="color:var(--text-muted);">Mat.: ${item.matricula || '-'}</small></td>
+            <td>${item.nome}<br><small class="extracted-app-style-22">Mat.: ${item.matricula || '-'}</small></td>
             <td>${item.local || '-'}</td>
             <td><strong>${item.marcaModelo}</strong></td>
             <td>${item.nomeTecnico || '-'}</td>
-            <td style="font-family:monospace; font-size:0.8rem;">SN: ${item.sn}<br>IMEI: ${item.imei1}</td>
+            <td class="extracted-app-style-23">SN: ${item.sn}<br>IMEI: ${item.imei1}</td>
             <td>${item.chip || '-'}</td> 
-            <td>CC: ${item.cc || '-'}<br><span class="user-badge stock" style="background:#e0f2fe; color:#0369a1; border-color:#bae6fd;">${item.modeloTermo}</span></td>
+            <td>CC: ${item.cc || '-'}<br><span class="user-badge stock extracted-app-style-24">${item.modeloTermo}</span></td>
             <td class="action-cell">
                 <div class="action-btn-group">
                     ${actionButtonsHTML}
@@ -2204,14 +2204,14 @@ async function openPhotoModal(index) {
     // --- CORREÇÃO: Lógica de status unificada ---
     // Agora o modal exibe o status correto (Disponível, Enviado, Devolvido) em vez de apenas "Em Estoque".
     if (item.status === 'Entregue') {
-        statusContainer.innerHTML = `<span class="user-badge entregue" style="cursor: pointer;" onclick="openEntregaModal(${item.id})">Entregue (Ver)</span>`;
+        statusContainer.innerHTML = `<span class="user-badge entregue extracted-app-style-25" onclick="openEntregaModal(${item.id})">Entregue (Ver)</span>`;
     } else if (item.status === 'Enviado') {
-        statusContainer.innerHTML = `<span class="user-badge enviado" style="cursor: pointer;" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`;
+        statusContainer.innerHTML = `<span class="user-badge enviado extracted-app-style-26" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`;
     } else if (item.status === 'Devolvido') {
-        statusContainer.innerHTML = `<span class="user-badge devolvido" style="cursor: pointer;" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido (Reatribuir)</span>`;
+        statusContainer.innerHTML = `<span class="user-badge devolvido extracted-app-style-27" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido (Reatribuir)</span>`;
     } else {
         // O padrão é "Disponível", com a ação de abrir o modal de vínculo/envio.
-        statusContainer.innerHTML = `<span class="user-badge stock" style="cursor: pointer;" onclick="openStockActionModal(${item.id})">Disponível</span>`;
+        statusContainer.innerHTML = `<span class="user-badge stock extracted-app-style-28" onclick="openStockActionModal(${item.id})">Disponível</span>`;
     }
 
     // --- NOVO: Lógica para exibir o histórico no modal ---
@@ -2284,13 +2284,13 @@ window.startEdit = function(id, currentModelo, currentLocalidade) {
     `;
 
     if (dataContainer) {
-        dataContainer.innerHTML = `<input type="datetime-local" id="edit-data-input-${id}" class="edit-input" value="${currentData}" style="max-width: none;">`;
+        dataContainer.innerHTML = `<input type="datetime-local" id="edit-data-input-${id}" class="edit-input extracted-app-style-29" value="${currentData}">`;
     }
 
 
     if (isGrid) {
         actionsContainer.innerHTML = `
-            <span class="user-badge stock" style="background:#fef3c7; color:#d97706;">Editando...</span>
+            <span class="user-badge stock extracted-app-style-30">Editando...</span>
             <div class="action-btn-group">
                 <button class="btn btn-success btn-sm" onclick="saveEdit(${id})">✔</button>
                 <button class="btn btn-secondary btn-sm" onclick="renderStockTable()">❌</button>
@@ -2465,7 +2465,7 @@ function renderModelList() {
         li.innerHTML = `
             <span>
                 <strong>${model.name}</strong>
-                <span class="user-badge stock" style="margin-left: 8px;">Base: ${model.base}</span>
+                <span class="user-badge stock extracted-app-style-31">Base: ${model.base}</span>
             </span>
             <div class="action-btn-group">
                 <button class="btn btn-secondary btn-sm" onclick="startEditModel('${model.name}', '${model.base}')">Editar</button>
@@ -2525,9 +2525,9 @@ window.startEditModel = function(oldName, oldBase) {
     if (!li) return;
 
     li.innerHTML = `
-        <div style="display: flex; flex-grow: 1; gap: 10px; align-items: center;">
-            <input type="text" id="edit-model-input-${sanitizedId}" class="input-field" value="${oldName}" style="height: 36px;">
-            <select id="edit-model-base-select-${sanitizedId}" class="edit-select" style="max-width: 180px; height: 36px;">
+        <div class="extracted-app-style-32">
+            <input type="text" id="edit-model-input-${sanitizedId}" class="input-field extracted-app-style-33" value="${oldName}">
+            <select id="edit-model-base-select-${sanitizedId}" class="edit-select extracted-app-style-34">
                 <option value="A07" ${oldBase === 'A07' ? 'selected' : ''}>Base: Modelo 1 (Padrão)</option>
                 <option value="A56" ${oldBase === 'A56' ? 'selected' : ''}>Base: Modelo 2 (Especial)</option>
             </select>
@@ -2657,7 +2657,7 @@ function renderLocationDistributionChart() {
     const totalItems = activeItems.length;
 
     if (totalItems === 0) {
-        container.innerHTML = '<div class="activity-placeholder" style="padding: 20px 0;">Não há dispositivos ativos para exibir no gráfico.</div>';
+        container.innerHTML = '<div class="activity-placeholder extracted-app-style-35">Não há dispositivos ativos para exibir no gráfico.</div>';
         return;
     }
 
@@ -2882,7 +2882,7 @@ window.startEditLocality = function(oldName) {
 
     // Substitui o conteúdo do item da lista por um campo de input e botões de ação
     li.innerHTML = `
-        <input type="text" id="edit-locality-input-${sanitizedId}" class="input-field" value="${oldName}" style="flex-grow: 1; height: 36px;">
+        <input type="text" id="edit-locality-input-${sanitizedId}" class="input-field extracted-app-style-36" value="${oldName}">
         <div class="action-btn-group">
             <button class="btn btn-success btn-sm" onclick="saveLocalityEdit('${oldName}')">Salvar</button>
             <button class="btn btn-secondary btn-sm" onclick="renderLocalityList()">Cancelar</button>
@@ -3083,7 +3083,7 @@ function renderCustomFilterList() {
         li.innerHTML = `
             <span>
                 <strong>${filter.name}</strong>
-                <br><small style="color: var(--text-muted);">Busca por: "${filter.term}"</small>
+                <br><small class="extracted-app-style-37">Busca por: "${filter.term}"</small>
             </span>
             <button class="btn btn-danger btn-sm" onclick="removeFilter('${filter.name}')">Remover</button>
         `;
@@ -3217,7 +3217,7 @@ function renderUsedStockTable() {
     const usedItems = stockData.filter(item => item.status === 'Devolvido');
 
     if (usedItems.length === 0) {
-        usedStockTableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-muted);">Nenhum item no estoque de usados.</td></tr>';
+        usedStockTableBody.innerHTML = '<tr><td colspan="4" class="extracted-app-style-38">Nenhum item no estoque de usados.</td></tr>';
         return;
     }
 
@@ -3232,7 +3232,7 @@ function renderUsedStockTable() {
         const dataDevolucao = item.dataDevolucao ? new Date(item.dataDevolucao).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'N/A';
 
         tr.innerHTML = `
-            <td><strong>${item.modelo}</strong><br><small style="font-family:monospace;">SN: ${item.sn || 'N/A'}</small></td>
+            <td><strong>${item.modelo}</strong><br><small class="extracted-app-style-39">SN: ${item.sn || 'N/A'}</small></td>
             <td id="devolvido-por-${item.id}"><strong>${devolvidoPor}</strong></td>
             <td>${dataDevolucao}</td>
             <td class="action-cell" id="actions-devolvido-${item.id}">
@@ -3258,7 +3258,7 @@ window.startEditDevolvidoPor = function(id) {
     const lastHistoryEntry = item.history && item.history.length > 0 ? item.history[item.history.length - 1] : null;
     const currentName = lastHistoryEntry ? lastHistoryEntry.nome : '';
 
-    devolvidoPorCell.innerHTML = `<input type="text" id="edit-devolvido-input-${id}" class="input-field" value="${currentName}" style="height: 36px;">`;
+    devolvidoPorCell.innerHTML = `<input type="text" id="edit-devolvido-input-${id}" class="input-field extracted-app-style-40" value="${currentName}">`;
 
     actionsCell.innerHTML = `
         <div class="action-btn-group">
