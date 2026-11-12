@@ -252,6 +252,7 @@ let currentStockPage = 1;
 let currentViewMode = 'table'; 
 let currentModalIndex = -1;    
 let currentLocationFilter = 'Canoas';
+let currentBrandFilter = 'Todos';
 let imageCache = new Map();
 
 const TERMOS_PER_PAGE = 5;
@@ -983,6 +984,44 @@ function normalizeText(text = '') {
     return text.toString().trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 }
 
+function getManufacturerForModel(modelName = '') {
+    const normalized = normalizeText(modelName);
+    const configured = phoneModels.find(model => normalizeText(model.name) === normalized);
+    if (configured && configured.brand) return configured.brand;
+    if (normalized.includes('iphone') || normalized.includes('apple')) return 'Apple';
+    if (normalized.includes('samsung') || normalized.includes('galaxy')) return 'Samsung';
+    if (normalized.includes('motorola') || normalized.includes('moto ')) return 'Motorola';
+    if (normalized.includes('xiaomi') || normalized.includes('redmi') || normalized.includes('poco')) return 'Xiaomi';
+    if (normalized.includes('realme')) return 'Realme';
+    if (normalized.includes('lenovo')) return 'Lenovo';
+    if (normalized.includes('nokia')) return 'Nokia';
+    if (normalized.includes('asus')) return 'ASUS';
+    if (normalized.includes('oppo')) return 'OPPO';
+    if (normalized.includes('vivo')) return 'Vivo';
+    return 'Outros';
+}
+
+function renderBrandFilters() {
+    const container = document.getElementById('brandFilterGroup');
+    if (!container) return;
+    const counts = new Map();
+    stockData.filter(item => item.status !== 'Devolvido').forEach(item => {
+        const brand = getManufacturerForModel(item.modelo);
+        counts.set(brand, (counts.get(brand) || 0) + 1);
+    });
+    const filters = ['Todos', ...[...counts.keys()].sort((a, b) => a.localeCompare(b, 'pt-BR'))];
+    container.innerHTML = '';
+    filters.forEach(brand => {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'brand-filter' + (currentBrandFilter === brand ? ' active' : '');
+        button.dataset.brand = brand;
+        const count = brand === 'Todos' ? [...counts.values()].reduce((sum, value) => sum + value, 0) : counts.get(brand);
+        button.innerHTML = '<span>' + brand + '</span><span class="brand-filter-count">' + count + '</span>';
+        container.appendChild(button);
+    });
+}
+
 function getFilteredStock() {
     const searchTerm = normalizeText(inputSearchStock ? inputSearchStock.value : '');
     
@@ -1012,6 +1051,10 @@ function getFilteredStock() {
         }
     }
 
+    if (currentBrandFilter !== 'Todos') {
+        filtered = filtered.filter(item => getManufacturerForModel(item.modelo) === currentBrandFilter);
+    }
+
     // --- ALTERADO: Lógica de busca aprimorada ---
     // Agora, a busca também funciona para os dados de entrega do colaborador.
     return filtered.filter(item => {
@@ -1029,7 +1072,16 @@ function getFilteredStock() {
     });
 }
 
+document.addEventListener('click', event => {
+    const button = event.target.closest('#brandFilterGroup .brand-filter');
+    if (!button) return;
+    currentBrandFilter = button.dataset.brand || 'Todos';
+    currentStockPage = 1;
+    renderStockTable();
+});
+
 async function renderStockTable() {
+    renderBrandFilters();
     stockTableBody.innerHTML = '';
     stockGridContainer.innerHTML = '';
     
