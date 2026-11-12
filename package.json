@@ -10,7 +10,7 @@
   },
   "build": {
     "appId": "br.com.voke.inventariocelulares",
-    "productName": "Inventario de Celulares VOKE",
+    "productName": "Inventário de Celulares",
     "asar": true,
     "files": [
       "desktop/**",
