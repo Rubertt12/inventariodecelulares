@@ -7,17 +7,26 @@ const app = express();
 const PORT = process.env.API_PORT || 3000;
 
 // --- Middlewares ---
-// Habilita o CORS para que seu arquivo HTML possa fazer requisições para esta API
-app.use(cors()); 
-// Habilita o parsing de JSON no corpo das requisições (para POST, PUT, etc.)
+const path = require('path');
+
+// Habilita o CORS para que a interface possa fazer requisições para esta API
+app.use(cors());
 app.use(express.json());
 
-// --- Rotas da API ---
+// Entrega os arquivos da interface web (HTML, CSS, JS e recursos estáticos).
+app.use(express.static(__dirname));
 
-// Rota de verificação para saber se a API está no ar
+// Página inicial do sistema.
 app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'celular.rubertt.html'));
+});
+
+// Rota de verificação da API
+app.get('/api/health', (req, res) => {
     res.json({ info: 'API do Inventário de Celulares no ar!' });
 });
+
+// --- Rotas da API ---
 
 // --- ROTAS DE SMARTPHONES ---
 
