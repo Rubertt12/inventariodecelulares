@@ -31,7 +31,16 @@
     error.textContent='';button.disabled=true;button.textContent='Verificando...';
     try{
       const response=await fetch('/api/demo-login',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({username:document.getElementById('username').value.trim(),password:document.getElementById('password').value})});
-      const data=await response.json();
+      const contentType=response.headers.get('content-type')||'';
+      let data={};
+      if(contentType.includes('application/json')){
+        data=await response.json();
+      }else{
+        const responseText=await response.text();
+        throw new Error(response.status===404
+          ? 'A API de login não foi encontrada. Inicie o servidor com “npm start” e abra http://localhost:3000.'
+          : 'O servidor não retornou JSON válido. Confirme se o backend está rodando em http://localhost:3000.');
+      }
       if(!response.ok)throw new Error(data.message||'Não foi possível entrar.');
       window.location.assign('/app');
     }catch(err){error.textContent=err.message||'Falha ao conectar. Tente novamente.'}
