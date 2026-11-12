@@ -37,7 +37,7 @@ self.addEventListener('fetch', event => {
   if (url.origin !== self.location.origin) return;
 
   const isAppShell = request.mode === 'navigate' ||
-    /\\.(?:html|css|js|json|svg)$/.test(url.pathname);
+    /\.(?:html|css|js|json|svg)$/.test(url.pathname);
 
   if (isAppShell) {
     // HTML, CSS e JavaScript sempre tentam buscar a versão publicada mais recente.
