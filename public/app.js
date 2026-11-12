@@ -3462,6 +3462,7 @@ const accentPalettes = {
 };
 function applyAccentTheme(preset, customColor) {
     const root = document.documentElement;
+    const body = document.body;
     const palette = accentPalettes[preset] || accentPalettes.ocean;
     let accent = palette.accent, hover = palette.hover, active = palette.active, subtle = palette.subtle;
     if (preset === 'custom') {
@@ -3470,12 +3471,21 @@ function applyAccentTheme(preset, customColor) {
         const shade = factor => '#' + [r,g,b].map(v => Math.max(0,Math.min(255,Math.round(v*factor))).toString(16).padStart(2,'0')).join('');
         hover = shade(.88); active = shade(.72); subtle = `rgba(${r},${g},${b},.13)`;
     }
-    root.style.setProperty('--accent-color', accent);
-    root.style.setProperty('--accent-hover', hover);
-    root.style.setProperty('--accent-active', active);
-    root.style.setProperty('--accent-color-subtle', subtle);
-    root.style.setProperty('--menu-item-active-text', accent);
-    root.style.setProperty('--input-border-focus', accent);
+    // As variáveis do modo escuro são declaradas no próprio body e têm
+    // precedência sobre as herdadas do :root. Aplicamos nos dois níveis
+    // para manter a paleta consistente em modo claro e escuro.
+    const themeVars = {
+        '--accent-color': accent,
+        '--accent-hover': hover,
+        '--accent-active': active,
+        '--accent-color-subtle': subtle,
+        '--menu-item-active-text': accent,
+        '--input-border-focus': accent
+    };
+    Object.entries(themeVars).forEach(([name, value]) => {
+        root.style.setProperty(name, value);
+        body.style.setProperty(name, value);
+    });
     appSettings.themePreset = preset;
     appSettings.customAccent = customColor || appSettings.customAccent || '#0078d4';
 }
