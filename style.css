@@ -2565,3 +2565,117 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
     .sidebar, .sidebar-backdrop, .mobile-menu-toggle { transition:none !important; }
 }
+
+
+/* Classes extraídas do HTML principal */
+/* CSS extraído de style.css. */
+/* Estilos inline convertidos para classes durante a refatoração. */
+.extracted-inline-style-1 { display:none; position: absolute; }
+.extracted-inline-style-2 { justify-content: center; }
+.extracted-inline-style-3 { background-color: #e5f1ff; color: #0078d4; }
+.extracted-inline-style-4 { background-color: #dff9f0; color: #107c41; }
+.extracted-inline-style-5 { background-color: #fff4d8; color: #a16207; }
+.extracted-inline-style-6 { background-color: #f5f3ff; color: #6d28d9; }
+.extracted-inline-style-7 { margin-top: 0; margin-bottom: 18px; }
+.extracted-inline-style-8 { font-weight: 500; margin-top: 8px; }
+.extracted-inline-style-9 { display: none; }
+.extracted-inline-style-10 { display: none; }
+.extracted-inline-style-11 { display: flex; justify-content: space-between; align-items: center; }
+.extracted-inline-style-12 { font-weight: 600; }
+.extracted-inline-style-13 { font-weight: 600; }
+.extracted-inline-style-14 { width: 100%; }
+.extracted-inline-style-15 { height: 100%; }
+.extracted-inline-style-16 { display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px;padding:14px 16px;border:1px solid var(--border-color);border-radius:12px;background:var(--card-bg); }
+.extracted-inline-style-17 { min-width:0; }
+.extracted-inline-style-18 { display:block;color:var(--text-main); }
+.extracted-inline-style-19 { display:block;color:var(--text-muted);font-size:.86rem; }
+.extracted-inline-style-20 { margin-bottom:18px;border:1px solid var(--border-color);border-radius:14px;overflow:hidden;background:var(--card-bg); }
+.extracted-inline-style-21 { display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid var(--border-color); }
+.extracted-inline-style-22 { color:var(--text-main); }
+.extracted-inline-style-23 { display:block;width:100%;height:900px;border:0;background:var(--main-content-bg); }
+.extracted-inline-style-24 { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
+.extracted-inline-style-25 { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; width: 100%; }
+.extracted-inline-style-26 { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.extracted-inline-style-27 { display: flex; flex-wrap: wrap; gap: 8px; }
+.extracted-inline-style-28 { display: contents; }
+.extracted-inline-style-29 { font-weight: 700; color: var(--accent-color); }
+.extracted-inline-style-30 { display: flex; align-items: center; gap: 12px; }
+.extracted-inline-style-31 { font-weight: 600; margin: 0; }
+.extracted-inline-style-32 { max-width: 120px; }
+.extracted-inline-style-33 { font-weight: 600; margin: 0; margin-left: 5px; }
+.extracted-inline-style-34 { width: 40px; text-align: center; }
+.extracted-inline-style-35 { width: 140px; }
+.extracted-inline-style-36 { width: 160px; }
+.extracted-inline-style-37 { display: none; }
+.extracted-inline-style-38 { display: flex; gap: 6px; }
+.extracted-inline-style-39 { height: 100%; }
+.extracted-inline-style-40 { margin-bottom: 20px; }
+.extracted-inline-style-41 { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+.extracted-inline-style-42 { width: 120px; }
+.extracted-inline-style-43 { display: flex; gap: 10px; margin-top: 5px; }
+.extracted-inline-style-44 { width: 100%; }
+.extracted-inline-style-45 { font-family: monospace; }
+.extracted-inline-style-46 { display: none; margin-top: 10px; }
+.extracted-inline-style-47 { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+.extracted-inline-style-48 { margin-top: 24px; }
+.extracted-inline-style-49 { display: flex; justify-content: space-between; align-items: center; }
+.extracted-inline-style-50 { margin-bottom: 20px; }
+.extracted-inline-style-51 { margin-top: 18px; padding-top: 18px; border-top: 1px solid var(--border-color); }
+.extracted-inline-style-52 { display: flex; gap: 6px; }
+.extracted-inline-style-53 { width: 180px; }
+.extracted-inline-style-54 { font-size: 0.9rem; color: var(--text-muted); margin-top: 0; margin-bottom: 15px; }
+.extracted-inline-style-55 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; }
+.extracted-inline-style-56 { width: 100%; }
+.extracted-inline-style-57 { font-weight: 600; font-size: 1rem; margin-bottom: 10px; }
+.extracted-inline-style-58 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; }
+.extracted-inline-style-59 { width: 100%; }
+.extracted-inline-style-60 { font-weight: 600; font-size: 1rem; margin-bottom: 10px; }
+.extracted-inline-style-61 { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 15px; }
+.extracted-inline-style-62 { width: 100%; }
+.extracted-inline-style-63 { font-weight: 600; font-size: 1rem; margin-bottom: 10px; }
+.extracted-inline-style-64 { padding: 24px; }
+.extracted-inline-style-65 { vertical-align: -2px; margin-right: 4px; }
+.extracted-inline-style-66 { vertical-align: -2px; }
+.extracted-inline-style-67 { border: 0; border-top: 1px solid var(--border-color); margin-bottom: 20px; }
+.extracted-inline-style-68 { display: none; }
+.extracted-inline-style-69 { max-width: 450px; }
+.extracted-inline-style-70 { padding: 30px; border-left: none; display: flex; flex-direction: column; }
+.extracted-inline-style-71 { margin-bottom: 15px; }
+.extracted-inline-style-72 { border: 0; border-top: 1px solid var(--border-color); margin-bottom: 20px; }
+.extracted-inline-style-73 { font-weight: 600; }
+.extracted-inline-style-74 { font-family: monospace; }
+.extracted-inline-style-75 { font-weight: 600; }
+.extracted-inline-style-76 { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; display: flex; flex-direction: column; gap: 10px; }
+.extracted-inline-style-77 { width: 100%; justify-content: center; }
+.extracted-inline-style-78 { width: 100%; justify-content: center; }
+.extracted-inline-style-79 { max-width: 450px; }
+.extracted-inline-style-80 { padding: 30px; border-left: none; display: flex; flex-direction: column; }
+.extracted-inline-style-81 { margin-bottom: 20px; }
+.extracted-inline-style-82 { vertical-align: -4px; margin-right: 8px; }
+.extracted-inline-style-83 { display: flex; flex-direction: column; gap: 12px; }
+.extracted-inline-style-84 { justify-content: center; }
+.extracted-inline-style-85 { justify-content: center; }
+.extracted-inline-style-86 { justify-content: center; }
+.extracted-inline-style-87 { max-width: 400px; padding: 25px; }
+.extracted-inline-style-88 { font-size: 0.95rem; color: var(--text-muted); margin-top: 5px; }
+.extracted-inline-style-89 { width: 100%; margin-top: 20px; }
+.extracted-inline-style-90 { max-width: 400px; }
+.extracted-inline-style-91 { padding: 30px; border-left: none; }
+.extracted-inline-style-92 { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
+.extracted-inline-style-93 { display: flex; gap: 10px; margin-top: 20px; }
+.extracted-inline-style-94 { width: 100%; }
+.extracted-inline-style-95 { width: 100%; }
+.extracted-inline-style-96 { max-width: 400px; }
+.extracted-inline-style-97 { padding: 30px; border-left: none; }
+.extracted-inline-style-98 { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
+.extracted-inline-style-99 { display: flex; gap: 10px; margin-top: 20px; }
+.extracted-inline-style-100 { width: 100%; }
+.extracted-inline-style-101 { width: 100%; }
+.extracted-inline-style-102 { max-width: 480px; }
+.extracted-inline-style-103 { padding: 30px; border-left: none; }
+.extracted-inline-style-104 { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
+.extracted-inline-style-105 { width: 100%; margin-top: 15px; }
+.extracted-inline-style-106 { max-width: 400px; }
+.extracted-inline-style-107 { padding: 30px; border-left: none; }
+.extracted-inline-style-108 { font-size: 0.9rem; color: var(--text-muted); margin: 15px 0; }
+.extracted-inline-style-109 { width: 100%; margin-top: 15px; }
