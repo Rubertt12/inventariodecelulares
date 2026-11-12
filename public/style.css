@@ -3203,3 +3203,15 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
   .dashboard-stats-caption { font-size: .76rem; }
   .dashboard-stats-toggle { min-height: 34px; padding: 6px 9px; font-size: .78rem; }
 }
+
+
+/* Seletor de paleta de cores nas Configurações */
+.theme-controls{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex-wrap:wrap}
+.theme-controls .setting-select{min-width:150px}
+.theme-color-control{display:inline-flex;align-items:center;gap:8px;color:var(--text-muted);font-size:.85rem;white-space:nowrap}
+.theme-color-control input[type="color"]{width:42px;height:36px;padding:3px;border:1px solid var(--border-color);border-radius:9px;background:var(--card-bg);cursor:pointer}
+@media(max-width:640px){
+ .theme-preset-setting{align-items:flex-start;flex-direction:column;gap:14px}
+ .theme-controls{width:100%;justify-content:flex-start}
+ .theme-controls .setting-select{flex:1 1 160px;min-width:0}
+}
