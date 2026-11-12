@@ -3340,3 +3340,43 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 .account-profile-status{color:#16834a;}
 .account-profile-note{margin:14px 0 0;color:var(--text-muted);font-size:.76rem;line-height:1.5;}
 @media(max-width:480px){.account-profile-card{padding:24px 18px;}}
+
+
+/* Sidebar: perfil compacto para manter o botão de recolher sempre visível */
+@media (min-width:769px){
+  .sidebar-account-area{
+    min-height:0!important;
+    height:48px!important;
+    flex:0 0 48px!important;
+    margin:0 8px!important;
+    padding:4px 0 0!important;
+    border-top:1px solid var(--border-color);
+  }
+  .sidebar-account-trigger{
+    width:38px!important;
+    height:38px!important;
+    min-width:38px!important;
+    padding:2px!important;
+    border-radius:10px!important;
+  }
+  .sidebar-account-trigger .account-avatar{
+    width:30px!important;
+    height:30px!important;
+    flex-basis:30px!important;
+    font-size:.8rem!important;
+  }
+  .sidebar-toggle-wrapper{
+    flex:0 0 auto!important;
+    margin-top:0!important;
+    padding-top:8px!important;
+  }
+  body.sidebar-collapsed .sidebar-account-area{
+    height:46px!important;
+    flex-basis:46px!important;
+    margin:0 5px!important;
+    padding-top:4px!important;
+  }
+  body.sidebar-collapsed .sidebar-toggle-wrapper{
+    padding-top:8px!important;
+  }
+}
