@@ -121,7 +121,16 @@
             <p class="dashboard-subtitle">Acompanhe as principais métricas e atividades do seu inventário.</p>
         </div>
 
-        <div class="stats-grid">
+        <div class="dashboard-stats-toolbar">
+            <span class="dashboard-stats-caption">Indicadores do inventário</span>
+            <button type="button" class="dashboard-stats-toggle" id="dashboardStatsToggle"
+                    aria-expanded="true" aria-controls="dashboardStatsGrid">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                <span>Recolher indicadores</span>
+            </button>
+        </div>
+
+        <div class="stats-grid" id="dashboardStatsGrid">
             <div class="stat-card" onclick="switchView('estoque')">
                 <div class="stat-card-icon" style="background-color: #e5f1ff; color: #0078d4;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
                 <span class="stat-card-value" id="statDisponiveis">0</span>
