@@ -3226,3 +3226,23 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 .brand-filter.active{background:var(--accent-color);border-color:var(--accent-color);color:var(--text-on-accent)}
 .brand-filter-count{font-size:.7rem;opacity:.78;font-variant-numeric:tabular-nums}
 @media(max-width:640px){.brand-filter-section{align-items:flex-start;flex-direction:column;gap:7px}.brand-filter-group{width:100%;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 6px;scrollbar-width:thin}.brand-filter{flex:0 0 auto}}
+
+
+/* Menu de conta demonstrativa */
+.mobile-topbar{position:relative;}
+.account-trigger{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:4px 9px 4px 5px;border:1px solid var(--border-color);border-radius:999px;background:var(--card-bg);color:var(--text-main);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;flex:0 0 auto;}
+.account-trigger>svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.account-avatar{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent-color);color:#fff;font-size:.85rem;font-weight:800;}
+.account-menu{position:absolute;z-index:1500;right:10px;top:calc(100% + 7px);width:min(280px,calc(100vw - 24px));padding:10px;border:1px solid var(--border-color);border-radius:15px;background:var(--card-bg);color:var(--text-main);box-shadow:0 14px 38px rgba(0,0,0,.2);}
+.account-menu[hidden]{display:none!important;}
+.account-menu-head{display:flex;align-items:center;gap:11px;padding:8px 7px 12px;}
+.account-avatar-large{width:42px;height:42px;font-size:1.1rem;}
+.account-menu-head div{display:flex;flex-direction:column;gap:3px;min-width:0;}
+.account-menu-head strong{font-size:.9rem;}
+.account-menu-head small{font-size:.74rem;color:var(--text-muted);}
+.account-menu-divider{height:1px;background:var(--border-color);margin:2px 0 7px;}
+.account-menu>button{display:flex;width:100%;align-items:center;min-height:40px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-main);font:inherit;text-align:left;cursor:pointer;}
+.account-menu>button:hover{background:var(--accent-color-subtle);}
+.account-menu>button.account-logout{color:#dc3545;}
+.account-menu>button:disabled{opacity:.6;cursor:wait;}
+@media(max-width:420px){.account-trigger-name{display:none}.account-trigger{padding-right:5px}.mobile-topbar>strong{font-size:.86rem;}}
