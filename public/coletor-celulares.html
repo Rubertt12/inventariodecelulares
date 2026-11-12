@@ -30,7 +30,8 @@ body.embed-mode #importStock{display:none!important}
 @media(max-width:800px){body.embed-mode .wrap{padding:10px}body.embed-mode .layout{grid-template-columns:1fr}}
 </style>
 </head>
-<body class="embed-mode">
+<body>
+<script>if(new URLSearchParams(location.search).get('embed')==='1')document.body.classList.add('embed-mode');</script>
 <header><div><h1>Coletor de celulares</h1><p>Leia IMEI e número de série, fotografe e exporte o lote.</p></div><a class="back" href="celular.rubertt.html">← Voltar ao inventário</a></header>
 <main class="wrap"><div class="layout">
 <section class="card">
