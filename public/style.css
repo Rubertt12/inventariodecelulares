@@ -3380,3 +3380,20 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
     padding-top:8px!important;
   }
 }
+
+
+/* MOBILE DOCK CLEARANCE: keeps form actions above the fixed dock */
+@media (max-width: 768px) {
+  body.dock-layout .main-content {
+    /* Dock (68px) + afastamento inferior + folga de toque + safe area */
+    padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px)) !important;
+    scroll-padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Mantém a última ação dos formulários acessível ao rolar até o fim. */
+  body.dock-layout .main-content .view-section,
+  body.dock-layout .main-content .view-section > :last-child {
+    scroll-margin-bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+  }
+}
