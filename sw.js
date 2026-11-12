@@ -1,8 +1,7 @@
-const CACHE_NAME = 'celular-inventario-v6';
+const CACHE_NAME = 'celular-inventario-v7';
 const APP_SHELL = [
   'celular.rubertt.html',
   'style.css',
-  'app.js',
   'manifest.json',
   'icon.svg',
   'geradordetermoprojetov1.html',
