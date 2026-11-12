@@ -18,6 +18,8 @@ INSERT INTO companies (id, slug, name)
 VALUES (1, 'demo', 'Empresa de demonstração')
 ON CONFLICT (id) DO NOTHING;
 
+SELECT setval(pg_get_serial_sequence('companies', 'id'), GREATEST((SELECT COALESCE(MAX(id), 1) FROM companies), 1), TRUE);
+
 CREATE TABLE IF NOT EXISTS asset_categories (
   id BIGSERIAL PRIMARY KEY,
   company_id BIGINT NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
