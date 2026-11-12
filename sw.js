@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celular-inventario-v3';
+const CACHE_NAME = 'celular-inventario-v4';
 const APP_SHELL = [
   'celular.rubertt.html',
   'style.css',
@@ -8,7 +8,10 @@ const APP_SHELL = [
   'geradordetermoprojetov1.html',
   'Gerador_Caixa_Etiqueta.html',
   'zebra/zebra.html',
-  'public/coletor-celulares.html'
+  'public/coletor-celulares.html',
+  'public/coletor.css',
+  'public/coletor.js',
+  'js/page-init.js'
 ];
 
 self.addEventListener('install', event => {
