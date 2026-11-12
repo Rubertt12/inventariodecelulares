@@ -685,7 +685,15 @@ async function handleConnectClick() {
             if (!directory) return;
             handle = new DesktopDirectoryHandle('', directory.name);
         } else if (window.showDirectoryPicker) {
-            handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            try {
+                handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+            } catch (pickerError) {
+                // Some mobile browsers expose the API but block it in embedded or restricted contexts.
+                if (pickerError.name === 'AbortError') throw pickerError;
+                if (!['NotAllowedError', 'SecurityError', 'NotSupportedError'].includes(pickerError.name)) throw pickerError;
+                console.warn('Seletor de pastas indisponível neste contexto. Usando armazenamento local.', pickerError);
+                handle = new LocalDirectoryHandle();
+            }
         } else {
             handle = new LocalDirectoryHandle();
         }
