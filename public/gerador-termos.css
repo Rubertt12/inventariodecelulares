@@ -1,0 +1,629 @@
+/* Estilos externos de Gerador de termos — extraídos do HTML para manter a estrutura separada. */
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #edf1f5;
+  color: #1f2933;
+}
+
+/* ALTERADO: Layout principal para se assemelhar à aplicação */
+.layout {
+  display: grid;
+  grid-template-columns: 450px 1fr; /* Coluna de controle um pouco maior */
+  gap: 18px;
+  padding: 15px;
+  height: 100vh;
+  align-items: start;
+}
+
+/* ALTERADO: Painel agora usa o estilo de 'card' da aplicação */
+.panel {
+  background: #fff;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sticky {
+  position: sticky;
+  top: 15px;
+}
+
+.tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 15px;
+}
+
+/* ALTERADO: Abas agora usam o estilo de botão secundário */
+.tab {
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #d9e0e7;
+  background: #f8f9fa;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.tab.active {
+  background: #176b9d;
+  color: white;
+  border-color: #176b9d;
+}
+
+h2 {
+  margin: 0 0 7px;
+  font-size: 19px;
+}
+
+.help {
+  margin: 0 0 14px;
+  color: #5f6e7e;
+  font-size: 0.85rem;
+  line-height: 1.4;
+}
+
+.field {
+  margin-bottom: 10px;
+}
+
+.field label {
+  display: block;
+  margin-bottom: 4px;
+  color: #3d4a57;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* ALTERADO: Inputs e Selects usam o estilo padrão da aplicação */
+.field input,
+.field select,
+.field textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #d9e0e7;
+  border-radius: 5px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.field textarea {
+  min-height: 72px;
+  resize: vertical;
+  font: inherit;
+  line-height: 1.4;
+}
+
+.grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px;
+}
+
+.checks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin: 8px 0 14px;
+  font-size: 13px;
+}
+
+.actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* ALTERADO: Botões usam o estilo padrão da aplicação */
+button {
+  padding: 10px 15px;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.primary {
+  background: #176b9d;
+  color: white;
+  border-color: #176b9d;
+}
+
+.success {
+  background: #107c41;
+  color: white;
+  border-color: #107c41;
+}
+
+.secondary {
+  background: #e9ecef;
+  color: #343a40;
+  border-color: #d9e0e7;
+}
+
+.danger {
+  background: #d92136;
+  color: white;
+}
+
+button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.status {
+  min-height: 20px;
+  margin-top: 15px;
+  color: #176b9d;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ALTERADO: Área de preview com rolagem e fundo da aplicação */
+.preview-area {
+  overflow: auto;
+  background-color: #e9ecef;
+  border-radius: 8px;
+  padding: 20px;
+  height: 100%;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 12mm 13mm 12mm;
+  background-color: white;
+  position: relative;
+  box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  font-size: 10.6pt;
+  line-height: 1.18;
+}
+
+.header {
+  height: 23mm;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1mm;
+}
+
+.header img {
+  width: 73mm;
+  max-height: 22mm;
+  object-fit: contain;
+}
+
+.title {
+  text-align: center;
+  font-size: 13.5pt;
+  font-weight: 700;
+  margin-bottom: 5mm;
+}
+
+.ticket {
+  margin-bottom: 5mm;
+  font-weight: 700;
+}
+
+.intro {
+  text-align: justify;
+  margin-bottom: 5mm;
+}
+
+.section-title {
+  margin: 4mm 0 3mm;
+  font-weight: 700;
+}
+
+.data-list {
+  margin: 0 0 4mm 8mm;
+  padding-left: 7mm;
+}
+
+.data-list li {
+  margin-bottom: 1.3mm;
+}
+
+.separator {
+  margin: 5mm 0;
+  border: 0;
+  border-top: 1px dashed #555;
+}
+
+.accessories {
+  margin: 3mm 0 5mm;
+}
+
+.rules {
+  margin: 0;
+  padding-left: 12mm;
+  text-align: justify;
+}
+
+.rules li {
+  margin-bottom: 1.6mm;
+}
+
+.date-line {
+  margin-top: 12mm;
+  text-align: right;
+}
+
+.signature {
+  margin-top: 7mm;
+  margin-left: 38mm;
+}
+
+.footer {
+  position: absolute;
+  bottom: 7mm;
+  left: 0;
+  right: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1mm;
+}
+
+.footer img {
+  width: 116mm;
+  max-height: 14mm;
+  object-fit: contain;
+}
+
+.template-copy {
+  max-width: 100%;
+  font-size: 8.5pt;
+  line-height: 1.2;
+}
+
+.template-copy:empty,
+.header img[hidden],
+.footer img[hidden] {
+  display: none;
+}
+
+.template-editor {
+  max-height: calc(100vh - 230px);
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.template-editor details {
+  border-bottom: 1px solid #d9e0e7;
+  padding: 9px 0;
+}
+
+.template-editor summary {
+  cursor: pointer;
+  font-weight: 700;
+  color: #34495e;
+}
+
+.logo-editor {
+  display: grid;
+  grid-template-columns: 74px 1fr;
+  gap: 10px;
+  align-items: center;
+  margin: 10px 0;
+}
+
+.logo-preview {
+  width: 74px;
+  height: 54px;
+  object-fit: contain;
+  border: 1px solid #d9e0e7;
+  border-radius: 4px;
+  background: #fff;
+}
+
+.template-save-status {
+  min-height: 20px;
+  color: #107c41;
+  font-size: 12px;
+  margin-top: 8px;
+}
+
+.batch-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 10px;
+  justify-content: space-between;
+}
+
+.table-wrap {
+  max-height: 430px;
+  overflow: auto;
+  border: 1px solid #d9e0e7;
+  border-radius: 7px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+th, td {
+  padding: 8px;
+  border-bottom: 1px solid #e5e9ee;
+  text-align: left;
+  white-space: nowrap;
+}
+
+th {
+  position: sticky;
+  top: 0;
+  background: #f8f9fa;
+  z-index: 2;
+}
+
+tr.selected {
+  background: #eef7ff;
+}
+
+.badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: #e7f0f8;
+  color: #176b9d;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+@page {
+  size: A4;
+  margin: 0;
+}
+
+@media print {
+  .panel {
+    display: none !important;
+  }
+
+  body {
+    background: white;
+  }
+
+  .layout {
+    display: block;
+    padding: 0;
+  }
+
+  .preview-area {
+    overflow: visible;
+  }
+
+  .page {
+    margin: 0;
+    box-shadow: none;
+    width: 100%;
+    min-height: auto;
+    border: none;
+  }
+}
+
+@media (max-width: 1200px) {
+  .layout {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+
+  .sticky {
+    position: static;
+  }
+}
+
+/* ALTERADO: Botão de voltar com estilo da aplicação */
+.back-button {
+  text-decoration: none;
+  color: white;
+  background: #176b9d;
+  margin-bottom: 15px;
+}
+
+/* ==========================================================================
+   NOVO: Estilos para o Modo Escuro
+   ========================================================================== */
+
+html.dark-mode body {
+  background: #1a1a1a;
+  color: #e0e0e0;
+}
+
+html.dark-mode .panel {
+  background: #2d2d2d;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  border: 1px solid #424242;
+}
+
+html.dark-mode .preview-area {
+  background-color: #1a1a1a;
+}
+
+html.dark-mode .page {
+  /* No modo escuro, a página (o "papel") continua branca, mas a sombra ao redor se ajusta. */
+  /* NOVO: Garante que o texto dentro da página seja escuro para contraste com o fundo branco. */
+  color: #1f2933;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.35);
+}
+
+html.dark-mode h2,
+html.dark-mode .field label {
+  color: #e0e0e0;
+}
+
+html.dark-mode .help {
+  color: #9e9e93;
+}
+
+html.dark-mode .field input,
+html.dark-mode .field select {
+  background: #3a3a3a;
+  color: #e0e0e0;
+  border-color: #545458;
+}
+
+html.dark-mode .tab {
+  background: #3a3a3c;
+  color: #e0e0e0;
+  border-color: #545458;
+}
+
+html.dark-mode .tab.active {
+  background: #0a84ff;
+  color: white;
+  border-color: #0a84ff;
+}
+
+html.dark-mode .primary,
+html.dark-mode .back-button {
+  background: #0a84ff;
+  border-color: #0a84ff;
+  color: white;
+}
+
+html.dark-mode .success { background: #18a957; border-color: #18a957; color: white; }
+html.dark-mode .secondary { background: #3a3a3c; color: #e0e0e0; border-color: #545458; }
+html.dark-mode .danger { background: #da3b3b; border-color: #da3b3b; color: white; }
+
+html.dark-mode table { color: #e0e0e0; }
+html.dark-mode th { background: #3a3a3a; border-bottom-color: #424242; }
+html.dark-mode td { border-bottom-color: #424242; }
+html.dark-mode tr.selected { background: #253245; }
+html.dark-mode .status { color: #0a84ff; }
+html.dark-mode .badge { background: #253245; color: #0a84ff; }
+
+.back-button:hover {
+  opacity: 0.8;
+}
+
+/* Responsividade completa do gerador de termos */
+html,body{width:100%;min-width:320px;max-width:100%;overflow-x:clip}
+.layout{width:100%;min-height:100dvh;height:auto;grid-template-columns:minmax(300px,450px) minmax(0,1fr);align-items:start}
+.layout>*{min-width:0;max-width:100%}
+.panel{min-width:0;max-width:100%;height:auto}
+.sticky{position:static}
+input,select,textarea,button{max-width:100%;min-width:0}
+img,svg,canvas{max-width:100%}
+.table-wrap,.table-container,.table-responsive{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+@media(max-width:1050px){.layout{grid-template-columns:minmax(280px,380px) minmax(0,1fr)}}
+@media(max-width:800px){
+ .layout{display:flex;flex-direction:column;height:auto;min-height:100dvh;padding:10px;gap:12px}
+ .layout>.panel{width:100%;height:auto}
+ .sticky{position:static}
+ .panel{padding:12px}
+ .grid2{grid-template-columns:minmax(0,1fr)}
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .header{flex-wrap:wrap;gap:10px}
+ .batch-toolbar{align-items:stretch;flex-wrap:wrap}
+ .batch-toolbar button,.batch-toolbar .btn{flex:1 1 100%}
+ .table-wrap{width:100%;overflow-x:auto}
+ table{min-width:650px}
+}
+@media(max-width:480px){
+ .layout{padding:8px;gap:10px}
+ .panel{padding:10px;border-radius:10px}
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ .tabs button{padding:9px 6px;font-size:13px;min-width:0}
+ .grid2,.field-row{grid-template-columns:minmax(0,1fr)!important}
+ .batch-toolbar{gap:8px}
+ input,select,textarea,button{width:100%;max-width:100%;min-height:44px;font-size:16px}
+ .table-wrap{margin-inline:-4px;width:calc(100% + 8px)}
+}
+
+/* Próximo bloco de estilos originalmente declarado na página */
+
+/* Ajustes responsivos para celular e tablet */
+@media(max-width:900px){
+ .layout{grid-template-columns:minmax(0,1fr);height:auto;min-height:100vh;align-items:stretch}
+ .panel{height:auto;min-height:0}
+ .sticky{position:static}
+ .grid2{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .batch-toolbar{flex-wrap:wrap}
+ .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .preview-area{max-width:100%;overflow-x:auto}
+}
+@media(max-width:600px){
+ .layout{display:flex;flex-direction:column;padding:10px;gap:12px}
+ .panel{padding:12px}
+ .grid2{grid-template-columns:minmax(0,1fr)}
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .header{flex-wrap:wrap;gap:10px}
+ .batch-toolbar{align-items:stretch}
+ .batch-toolbar button,.batch-toolbar .btn{flex:1 1 100%}
+ .table-wrap{width:100%}
+ table{min-width:680px}
+ .logo-preview{max-width:100%}
+ input,select,textarea,button{max-width:100%}
+}
+
+/* Próximo bloco de estilos originalmente declarado na página */
+
+/* Responsividade complementar do gerador de termos */
+html,body{width:100%;min-width:320px;max-width:100%;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;min-width:0}
+.layout{width:100%;max-width:100%;grid-template-columns:minmax(290px, min(38vw,460px)) minmax(0,1fr);gap:clamp(12px,2vw,24px)}
+.panel,.preview-area,.page{min-width:0;max-width:100%}
+input,select,textarea,button{max-width:100%;min-width:0}
+.table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{width:max-content;min-width:100%}
+.preview-area{overflow-x:auto;overscroll-behavior-inline:contain}
+.page{width:min(100%,210mm);margin-inline:auto}
+@media(max-width:1050px){
+ .layout{grid-template-columns:minmax(0,1fr);height:auto;min-height:100dvh;padding:12px}
+ .panel{height:auto;min-height:0}
+ .sticky{position:static}
+ .preview-area{width:100%;padding:0;overflow-x:auto}
+ .page{width:min(100%,210mm)}
+}
+@media(max-width:650px){
+ .layout{display:flex;flex-direction:column;padding:8px;gap:10px}
+ .panel{width:100%;padding:12px;border-radius:12px}
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .tab{min-width:0;padding:9px 5px;font-size:13px}
+ .grid2{grid-template-columns:minmax(0,1fr)!important}
+ .batch-toolbar,.actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .batch-toolbar button,.actions button{width:100%;min-height:44px}
+ .field input,.field select,.field textarea{width:100%;min-height:44px;font-size:16px}
+ .checks{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .preview-area{overflow-x:auto;padding:0}
+ .page{width:100%;min-width:0;padding:clamp(12px,4vw,22px);font-size:clamp(10px,2.7vw,13px);overflow-wrap:anywhere}
+ .page .header img,.page .footer img{max-width:100%;height:auto}
+ .table-wrap{width:100%}
+ .table-wrap table{min-width:640px}
+ .logo-editor{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ .logo-preview{max-width:100%;height:auto}
+}
+@media(max-width:380px){
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page{padding:10px;font-size:10px}
+ .page .title{font-size:15px}
+}
+@media(orientation:landscape) and (max-height:560px) and (max-width:900px){
+ .layout{padding:8px}
+ .panel{padding:10px}
+ .preview-area{max-height:none}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
