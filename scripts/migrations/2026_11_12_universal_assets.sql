@@ -76,7 +76,8 @@ CREATE TABLE IF NOT EXISTS assets (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   FOREIGN KEY (category_id, company_id)
-    REFERENCES asset_categories(id, company_id) ON DELETE RESTRICT
+    REFERENCES asset_categories(id, company_id) ON DELETE RESTRICT,
+  UNIQUE (id, company_id)
 );
 
 CREATE UNIQUE INDEX IF NOT EXISTS assets_company_asset_tag_uq
@@ -148,7 +149,6 @@ VALUES
   (1, 'other', 'Outros ativos', 'Outros equipamentos cadastrados pela empresa', 'package', TRUE, 70)
 ON CONFLICT (company_id, category_key) DO NOTHING;
 
--- Campos específicos iniciais: as empresas poderão adicionar outros pelo configurador.
 INSERT INTO asset_field_definitions
   (company_id, category_id, field_key, label, data_type, is_required, show_in_list, is_filterable, is_system, sort_order)
 SELECT 1, c.id, f.field_key, f.label, f.data_type, f.is_required, f.show_in_list, f.is_filterable, TRUE, f.sort_order
