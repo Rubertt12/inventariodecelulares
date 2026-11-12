@@ -2444,3 +2444,32 @@ kbd {
 ::-webkit-scrollbar-thumb:hover {
     background-color: var(--input-border);
 }
+
+/* Indicador discreto de reconexão ao lado do nome do sistema */
+.sidebar-brand-text { min-width: 0; }
+.brand-connection-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 16px;
+    margin-top: 5px;
+    color: var(--text-muted);
+    font-size: 0.68rem;
+    font-weight: 600;
+    line-height: 1;
+    white-space: nowrap;
+}
+.brand-connection-status:empty { display: none; }
+.brand-connection-status svg { width: 13px; height: 13px; flex: 0 0 auto; }
+.brand-connection-status.is-connected { color: #16a34a; }
+.brand-connection-status.is-error { color: #dc2626; }
+.brand-status-spinner {
+    width: 11px;
+    height: 11px;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    animation: brandStatusSpin 0.7s linear infinite;
+}
+@keyframes brandStatusSpin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .brand-status-spinner { animation: none; } }
