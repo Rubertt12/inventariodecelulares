@@ -12,19 +12,24 @@
     renderDynamicFields();
   }
   function renderDynamicFields() {
-    const category=state.categories.find(c=>String(c.id)===$('uaCategory').value); const host=$('uaDynamicFields');
+    const category=state.categories.find(c=>String(c.id)===$('uaCategory').value);
+    const host=$('uaDynamicFields');
     if(!category){host.innerHTML='';return;}
     host.innerHTML=category.fields.map(field=>{
-      const label=escapeHtml(field.label)+(field.is_required?' *':''); const name=escapeHtml(field.field_key); let control='';
+      const label=escapeHtml(field.label)+(field.is_required?' *':'');
+      const name=escapeHtml(field.field_key);
+      let control='';
       if(field.data_type==='boolean') control='<label class="ua-checkbox-field"><input type="checkbox" name="custom_'+name+'"> Sim</label>';
-      else if(field.data_type==='select'||field.data_type==='multiselect'){const opts=Array.isArray(field.options)?field.options:[];control='<select name="custom_'+name+'" '+(field.is_required?'required':'')+' '+(field.data_type==='multiselect'?'multiple class="ua-multiselect"':'')+'><option value="">Selecione</option>'+opts.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>').join('')+'</select>';}
-      else {const type=({number:'number',date:'date',url:'url'})[field.data_type]||'text';control='<input type="'+type+'" name="custom_'+name+'" '+(field.is_required?'required':'')+'>'}
+      else if(field.data_type==='select'||field.data_type==='multiselect'){
+        const opts=Array.isArray(field.options)?field.options:[];
+        if(opts.length) control='<select name="custom_'+name+'" '+(field.is_required?'required':'')+' '+(field.data_type==='multiselect'?'multiple class="ua-multiselect"':'')+'><option value="">Selecione</option>'+opts.map(v=>'<option value="'+escapeHtml(v)+'">'+escapeHtml(v)+'</option>').join('')+'</select>';
+        else control='<input type="text" name="custom_'+name+'" '+(field.is_required?'required':'')+' placeholder="Informe '+escapeHtml(field.label.toLowerCase())+'">';
+      } else {
+        const type=({number:'number',date:'date',url:'url'})[field.data_type]||'text';
+        control='<input type="'+type+'" name="custom_'+name+'" '+(field.is_required?'required':'')+'>';
+      }
       return '<label class="ua-field">'+label+control+'</label>';
     }).join('');
-  }
-  function renderAssets() {
-    const rows=state.assets; $('uaTotal').textContent=rows.length; $('uaAvailable').textContent=rows.filter(a=>a.status==='available').length; $('uaInUse').textContent=rows.filter(a=>a.status==='in_use').length; $('uaMaintenance').textContent=rows.filter(a=>a.status==='maintenance').length;
-    $('uaAssetsBody').innerHTML=rows.length?rows.map(a=>'<tr><td><strong>'+escapeHtml(a.asset_tag||'—')+'</strong><span class="ua-asset-sub">'+escapeHtml(a.serial_number||'Sem número de série')+'</span></td><td><span class="ua-asset-name">'+escapeHtml([a.manufacturer,a.model].filter(Boolean).join(' ')||'Ativo sem modelo')+'</span></td><td>'+escapeHtml(a.category_name)+'</td><td>'+escapeHtml(a.location||'—')+'</td><td>'+escapeHtml(a.assigned_to_name||'—')+'</td><td><span class="ua-status">'+escapeHtml(labels[a.status]||a.status)+'</span></td></tr>').join(''):'<tr><td colspan="6" class="ua-empty">Nenhum ativo encontrado. Cadastre o primeiro equipamento ao lado.</td></tr>';
   }
   async function loadCategories() { state.categories=await request('/api/universal/categories'); renderCategories(); }
   async function loadAssets() { const params=new URLSearchParams(); if($('uaCategoryFilter').value)params.set('category',$('uaCategoryFilter').value); if($('uaSearch').value.trim())params.set('search',$('uaSearch').value.trim()); state.assets=await request('/api/universal/assets?'+params.toString()); renderAssets(); }
@@ -34,7 +39,7 @@
     $('uaCategoryFilter').addEventListener('change',()=>{state.loaded=false;window.loadUniversalAssets(true);});
     $('uaSearch').addEventListener('input',()=>{clearTimeout(window.uaSearchDelay);window.uaSearchDelay=setTimeout(()=>{state.loaded=false;window.loadUniversalAssets(true);},250);});
     $('uaRefreshBtn').addEventListener('click',()=>{state.loaded=false;window.loadUniversalAssets(true);});
-    $('uaAssetForm').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;const data=new FormData(form);const payload={};for(const key of ['category_id','asset_tag','serial_number','manufacturer','model','status','location','assigned_to_name','assigned_to_identifier','purchase_date','warranty_until','notes'])payload[key]=data.get(key)||null;payload.custom_values={};for(const category of state.categories){for(const field of category.fields){const key='custom_'+field.field_key;const value=data.get(key);if(value!==null&&value!=='')payload.custom_values[field.field_key]=field.data_type==='number'?Number(value):value;else if(field.data_type==='boolean'&&form.elements[key])payload.custom_values[field.field_key]=form.elements[key].checked;}}
+    $('uaAssetForm').addEventListener('submit',async event=>{event.preventDefault();const form=event.currentTarget;const data=new FormData(form);const payload={};for(const key of ['category_id','asset_tag','serial_number','manufacturer','model','status','location','assigned_to_name','assigned_to_identifier','purchase_date','warranty_until','notes'])payload[key]=data.get(key)||null;payload.custom_values={};const selectedCategory=state.categories.find(c=>String(c.id)===String(payload.category_id));for(const field of (selectedCategory?.fields||[])){const key='custom_'+field.field_key;const control=form.elements[key];if(field.data_type==='boolean'){payload.custom_values[field.field_key]=Boolean(control&&control.checked);continue;}if(field.data_type==='multiselect'&&control){payload.custom_values[field.field_key]=Array.from(control.selectedOptions).map(option=>option.value);continue;}const value=data.get(key);if(value!==null&&value!=='')payload.custom_values[field.field_key]=field.data_type==='number'?Number(value):value;}
       const button=$('uaSubmitBtn');button.disabled=true;button.textContent='Salvando...';try{await request('/api/universal/assets',{method:'POST',body:JSON.stringify(payload)});form.reset();renderDynamicFields();state.loaded=false;await window.loadUniversalAssets(true);feedback('Ativo cadastrado com sucesso.');}catch(error){feedback(error.message,true);}finally{button.disabled=false;button.textContent='Cadastrar ativo';}
     });
   });
