@@ -22,7 +22,9 @@
       "icon.svg",
       "geradordetermoprojetov1.html",
       "Gerador_Caixa_Etiqueta.html",
-      "zebra/zebra.html"
+      "zebra/zebra.html",
+      "js/**",
+      "public/**"
     ],
     "directories": {
       "output": "release"
