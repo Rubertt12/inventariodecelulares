@@ -11,27 +11,27 @@
 <body>
 
 <div class="editor-panel">
-    <button class="back-button" onclick="window.location.href='../celular.rubertt.html'">← Voltar</button>
+    <button class="back-button" data-inline-click="handler46">← Voltar</button>
     
     <div class="row extracted-inline-style-1">
-        <button class="btn-save" onclick="salvarConfiguracao()">Salvar Ajustes</button>
-        <button class="btn-reset" onclick="restaurarPadrao()">Restaurar</button>
+        <button class="btn-save" data-inline-click="handler47">Salvar Ajustes</button>
+        <button class="btn-reset" data-inline-click="handler48">Restaurar</button>
     </div>
 
     <!-- MÓDULO EXCEL -->
     <div class="excel-box">
         <label class="extracted-inline-style-2">📊 Importar Lote via Excel</label>
         <p class="extracted-inline-style-3">Colunas: <b>Patrimonio</b>, <b>Serial</b>, <b>Qtd</b> (ou <b>IMEI1</b>, <b>IMEI2</b>, <b>SN</b>)</p>
-        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" onchange="processarExcel(event)" class="extracted-inline-style-4">
+        <input type="file" id="excelFile" accept=".xlsx, .xls, .csv" data-inline-change="handler49" class="extracted-inline-style-4">
         <div class="row">
-            <button class="btn-excel" onclick="document.getElementById('excelFile').click()">Subir Excel (.xlsx)</button>
-            <button id="btnClearExcel" class="btn-reset extracted-inline-style-5" onclick="limparExcel()">Limpar Lote</button>
+            <button class="btn-excel" data-inline-click="handler50">Subir Excel (.xlsx)</button>
+            <button id="btnClearExcel" class="btn-reset extracted-inline-style-5" data-inline-click="handler51">Limpar Lote</button>
         </div>
-        <button onclick="baixarModeloExcel()" class="extracted-inline-style-6">Baixar Modelo Planilha</button>
+        <button data-inline-click="handler52" class="extracted-inline-style-6">Baixar Modelo Planilha</button>
     </div>
 
     <h3>Modelo & Posições</h3>
-    <select id="templateSelector" onchange="carregarModelo()">
+    <select id="templateSelector" data-inline-change="handler53">
         <option value="padrao">Modelo Padrão VOKE</option>
         <option value="celular">Modelo Celular</option>
         <option value="minimal">Modelo Minimalista</option>
@@ -40,54 +40,54 @@
     <!-- CONTROLES MODELO PADRÃO -->
     <div id="controlsPadrao" class="extracted-inline-style-7">
         <div class="row extracted-inline-style-8">
-            <label>PW: <input type="number" id="pw_padrao" value="560" oninput="gerar()"></label>
-            <label>LL: <input type="number" id="ll_padrao" value="300" oninput="gerar()"></label>
+            <label>PW: <input type="number" id="pw_padrao" value="560" data-inline-input="handler54"></label>
+            <label>LL: <input type="number" id="ll_padrao" value="300" data-inline-input="handler55"></label>
         </div>
         <div class="control-group extracted-inline-style-9">
             <label>Título:</label>
-            <input type="text" id="val_t" value="DEVOLUCAO VOKE" oninput="gerar()">
+            <input type="text" id="val_t" value="DEVOLUCAO VOKE" data-inline-input="handler56">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('t', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('t', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler57">+</button>
+                    <button class="font-control-btn" data-inline-click="handler58">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('t', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('t', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('t', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('t', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler59">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler60">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler61">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler62">▼</button>
                 </div>
             </div>
         </div>
         <div class="control-group">
             <label>Patrimônio:</label>
-            <input type="text" id="val_p" value="AM005473" oninput="gerar()">
+            <input type="text" id="val_p" value="AM005473" data-inline-input="handler63">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('p', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('p', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler64">+</button>
+                    <button class="font-control-btn" data-inline-click="handler65">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('p', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('p', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('p', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('p', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler66">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler67">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler68">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler69">▼</button>
                 </div>
             </div>
         </div>
         <div class="control-group">
             <label>Serial / Barcode:</label>
-            <input type="text" id="val_s" value="3X0D6R3" oninput="sincronizarSerial(this.value)">
+            <input type="text" id="val_s" value="3X0D6R3" data-inline-input="handler70">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('s', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('s', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler71">+</button>
+                    <button class="font-control-btn" data-inline-click="handler72">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('s', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('s', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('s', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('s', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler73">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler74">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler75">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler76">▼</button>
                 </div>
             </div>
         </div>
@@ -96,10 +96,10 @@
             <div class="field-controls-container">
                 <div class="font-controls"></div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('b', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('b', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('b', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('b', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler77">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler78">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler79">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler80">▼</button>
                 </div>
             </div>
         </div>
@@ -110,73 +110,73 @@
     <!-- CONTROLES MODELO CELULAR -->
     <div id="controlsCelular" class="extracted-inline-style-10">
         <div class="row extracted-inline-style-11">
-            <label>PW: <input type="number" id="pw_cel" value="560" oninput="gerar()"></label>
-            <label>LL: <input type="number" id="ll_cel" value="300" oninput="gerar()"></label>
+            <label>PW: <input type="number" id="pw_cel" value="560" data-inline-input="handler81"></label>
+            <label>LL: <input type="number" id="ll_cel" value="300" data-inline-input="handler82"></label>
         </div>
         <div class="control-group extracted-inline-style-12">
             <label>IMEI 1:</label>
-            <input type="text" id="val_imei1" value="" oninput="gerar()" placeholder="Obrigatório">
+            <input type="text" id="val_imei1" value="" data-inline-input="handler83" placeholder="Obrigatório">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('imei1', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('imei1', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler84">+</button>
+                    <button class="font-control-btn" data-inline-click="handler85">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('imei1', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('imei1', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('imei1', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('imei1', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler86">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler87">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler88">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler89">▼</button>
                 </div>
             </div>
         </div>
         <div class="control-group">
             <label>IMEI 2:</label>
-            <input type="text" id="val_imei2" value="" oninput="gerar()" placeholder="Opcional">
+            <input type="text" id="val_imei2" value="" data-inline-input="handler90" placeholder="Opcional">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('imei2', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('imei2', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler91">+</button>
+                    <button class="font-control-btn" data-inline-click="handler92">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('imei2', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('imei2', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('imei2', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('imei2', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler93">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler94">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler95">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler96">▼</button>
                 </div>
             </div>
         </div>
         <div class="control-group">
             <label>SN:</label>
-            <input type="text" id="val_sn" value="" oninput="gerar()" placeholder="Obrigatório">
+            <input type="text" id="val_sn" value="" data-inline-input="handler97" placeholder="Obrigatório">
             <div class="field-controls-container">
                 <div class="font-controls">
-                    <button class="font-control-btn" onclick="ajustarFonte('sn', 5)">+</button>
-                    <button class="font-control-btn" onclick="ajustarFonte('sn', -5)">-</button>
+                    <button class="font-control-btn" data-inline-click="handler98">+</button>
+                    <button class="font-control-btn" data-inline-click="handler99">-</button>
                 </div>
                 <div class="pos-controls-grid">
-                    <button class="pos-control-btn pos-up" onclick="ajustarPosicao('sn', 'y', -5)">▲</button>
-                    <button class="pos-control-btn pos-left" onclick="ajustarPosicao('sn', 'x', -5)">◀</button>
-                    <button class="pos-control-btn pos-right" onclick="ajustarPosicao('sn', 'x', 5)">▶</button>
-                    <button class="pos-control-btn pos-down" onclick="ajustarPosicao('sn', 'y', 5)">▼</button>
+                    <button class="pos-control-btn pos-up" data-inline-click="handler100">▲</button>
+                    <button class="pos-control-btn pos-left" data-inline-click="handler101">◀</button>
+                    <button class="pos-control-btn pos-right" data-inline-click="handler102">▶</button>
+                    <button class="pos-control-btn pos-down" data-inline-click="handler103">▼</button>
                 </div>
             </div>
         </div>
         <div class="control-group">
             <label>Nome (Reserva):</label>
-            <input type="text" id="val_nome" value="" oninput="gerar()" placeholder="Opcional">
+            <input type="text" id="val_nome" value="" data-inline-input="handler104" placeholder="Opcional">
         </div>
     </div>
 
     <!-- CAMPO QTD MANUAL (USADO QUANDO NÃO HÁ EXCEL) -->
     <div class="control-group extracted-inline-style-13" id="boxQtdManual">
         <label for="qtd_etiquetas" class="extracted-inline-style-14">Qtd. de Etiquetas (Manual):</label>
-        <input type="number" id="qtd_etiquetas" value="1" min="1" max="999" oninput="gerar()">
+        <input type="number" id="qtd_etiquetas" value="1" min="1" max="999" data-inline-input="handler105">
     </div>
 
     <p class="extracted-inline-style-15">Código ZPL (Edite Livremente):</p>
-    <textarea id="zplCode" oninput="atualizarPreview(this.value)"></textarea>
+    <textarea id="zplCode" data-inline-input="handler106"></textarea>
     
-    <button class="btn-print" onclick="enviarParaImpressora()">Imprimir via QZ Tray</button>
+    <button class="btn-print" data-inline-click="handler107">Imprimir via QZ Tray</button>
 </div>
 
 <div class="preview-panel">
