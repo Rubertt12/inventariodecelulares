@@ -3215,3 +3215,14 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
  .theme-controls{width:100%;justify-content:flex-start}
  .theme-controls .setting-select{flex:1 1 160px;min-width:0}
 }
+
+
+/* Filtro de estoque por fabricante */
+.brand-filter-section{display:flex;align-items:center;gap:9px;flex-wrap:wrap;width:100%;padding:2px 0}
+.brand-filter-label{font-size:.78rem;font-weight:700;color:var(--text-muted);letter-spacing:.02em}
+.brand-filter-group{display:flex;align-items:center;gap:7px;flex-wrap:wrap;min-width:0}
+.brand-filter{display:inline-flex;align-items:center;gap:7px;min-height:32px;padding:5px 11px;border:1px solid var(--border-color);border-radius:999px;background:var(--card-bg);color:var(--text-muted);font:inherit;font-size:.78rem;font-weight:650;cursor:pointer;transition:background .18s ease,border-color .18s ease,color .18s ease}
+.brand-filter:hover{border-color:var(--accent-color);color:var(--text-main)}
+.brand-filter.active{background:var(--accent-color);border-color:var(--accent-color);color:var(--text-on-accent)}
+.brand-filter-count{font-size:.7rem;opacity:.78;font-variant-numeric:tabular-nums}
+@media(max-width:640px){.brand-filter-section{align-items:flex-start;flex-direction:column;gap:7px}.brand-filter-group{width:100%;flex-wrap:nowrap;overflow-x:auto;padding:2px 0 6px;scrollbar-width:thin}.brand-filter{flex:0 0 auto}}
