@@ -4000,3 +4000,39 @@ document.addEventListener('DOMContentLoaded', () => {
 
   applyState();
 })();
+
+
+/* Perfil demonstrativo e encerramento de sessão */
+(() => {
+  const toggle = document.getElementById('accountMenuToggle');
+  const menu = document.getElementById('accountMenu');
+  const logout = document.getElementById('accountLogoutBtn');
+  const profile = document.getElementById('accountProfileBtn');
+  if (!toggle || !menu) return;
+  const close = () => { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); };
+  toggle.addEventListener('click', event => {
+    event.stopPropagation();
+    menu.hidden = !menu.hidden;
+    toggle.setAttribute('aria-expanded', String(!menu.hidden));
+  });
+  menu.addEventListener('click', event => event.stopPropagation());
+  document.addEventListener('click', close);
+  document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
+  profile?.addEventListener('click', () => {
+    close();
+    window.alert('Perfil demonstrativo\\n\\nUsuário: admin\\nTipo de acesso: Administrador\\nConta compartilhada de demonstração.');
+  });
+  logout?.addEventListener('click', async () => {
+    logout.disabled = true;
+    logout.textContent = 'Saindo...';
+    try {
+      const response = await fetch('/api/demo-logout', { method: 'POST', credentials: 'same-origin' });
+      if (!response.ok) throw new Error('Não foi possível encerrar a sessão.');
+      window.location.replace('/?logout=1');
+    } catch (error) {
+      logout.disabled = false;
+      logout.textContent = 'Sair da conta';
+      window.alert(error.message || 'Erro ao sair da conta.');
+    }
+  });
+})();
