@@ -98,6 +98,8 @@ const sidebarToggle = document.getElementById('sidebarToggle');
 
 // --- NOVO: Elementos de Configurações ---
 const darkModeToggle = document.getElementById('darkModeToggle');
+const themePresetSetting = document.getElementById('themePresetSetting');
+const customAccentColor = document.getElementById('customAccentColor');
 const itemsPerPageSetting = document.getElementById('itemsPerPageSetting');
 const defaultViewModeSetting = document.getElementById('defaultViewModeSetting');
 const layoutModeSetting = document.getElementById('layoutModeSetting');
@@ -265,6 +267,8 @@ let appSettings = {
     itemsPerPage: 12,
     defaultView: 'table',
     theme: window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : 'light',
+    themePreset: 'ocean',
+    customAccent: '#0078d4',
     layout: 'vertical',
     primaryLocation: 'Canoas',
     tabVisibility: {
@@ -3410,8 +3414,11 @@ function applyAppSettings() {
     }
     currentLocationFilter = appSettings.primaryLocation; // Define o filtro padrão
 
-    // Aplica o tema
+    // Aplica o tema claro/escuro e a paleta de cores
     applyTheme(appSettings.theme);
+    applyAccentTheme(appSettings.themePreset || 'ocean', appSettings.customAccent || '#0078d4');
+    if (themePresetSetting) themePresetSetting.value = appSettings.themePreset || 'ocean';
+    if (customAccentColor) customAccentColor.value = appSettings.customAccent || '#0078d4';
 
     // Aplica o layout (vertical ou dock)
     applyLayout(appSettings.layout);
@@ -3445,6 +3452,34 @@ function applyTheme(theme) {
     appSettings.theme = theme;
 }
 
+const accentPalettes = {
+    ocean: { accent: '#0078d4', hover: '#106ebe', active: '#005a9e', subtle: 'rgba(0,120,212,.12)' },
+    emerald: { accent: '#0b8f68', hover: '#087653', active: '#066044', subtle: 'rgba(11,143,104,.13)' },
+    purple: { accent: '#7955c8', hover: '#6542b2', active: '#503397', subtle: 'rgba(121,85,200,.14)' },
+    graphite: { accent: '#596579', hover: '#465265', active: '#354052', subtle: 'rgba(89,101,121,.15)' },
+    sunset: { accent: '#d96b32', hover: '#bd5524', active: '#9f431b', subtle: 'rgba(217,107,50,.14)' },
+    rose: { accent: '#c94f78', hover: '#b33e67', active: '#963253', subtle: 'rgba(201,79,120,.14)' }
+};
+function applyAccentTheme(preset, customColor) {
+    const root = document.documentElement;
+    const palette = accentPalettes[preset] || accentPalettes.ocean;
+    let accent = palette.accent, hover = palette.hover, active = palette.active, subtle = palette.subtle;
+    if (preset === 'custom') {
+        accent = /^#[0-9a-f]{6}$/i.test(customColor || '') ? customColor : '#0078d4';
+        const hex = accent.slice(1), r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
+        const shade = factor => '#' + [r,g,b].map(v => Math.max(0,Math.min(255,Math.round(v*factor))).toString(16).padStart(2,'0')).join('');
+        hover = shade(.88); active = shade(.72); subtle = `rgba(${r},${g},${b},.13)`;
+    }
+    root.style.setProperty('--accent-color', accent);
+    root.style.setProperty('--accent-hover', hover);
+    root.style.setProperty('--accent-active', active);
+    root.style.setProperty('--accent-color-subtle', subtle);
+    root.style.setProperty('--menu-item-active-text', accent);
+    root.style.setProperty('--input-border-focus', accent);
+    appSettings.themePreset = preset;
+    appSettings.customAccent = customColor || appSettings.customAccent || '#0078d4';
+}
+
 function applyLayout(layout) {
     const body = document.body;
     if (layout === 'dock') {
@@ -3462,6 +3497,23 @@ if (darkModeToggle) {
         appSettings.theme = theme;
         saveAppSettings();
         applyTheme(theme);
+    });
+}
+
+if (themePresetSetting) {
+    themePresetSetting.addEventListener('change', () => {
+        appSettings.themePreset = themePresetSetting.value;
+        applyAccentTheme(appSettings.themePreset, appSettings.customAccent);
+        saveAppSettings();
+    });
+}
+if (customAccentColor) {
+    customAccentColor.addEventListener('input', () => {
+        appSettings.themePreset = 'custom';
+        appSettings.customAccent = customAccentColor.value;
+        if (themePresetSetting) themePresetSetting.value = 'custom';
+        applyAccentTheme('custom', customAccentColor.value);
+        saveAppSettings();
     });
 }
 
