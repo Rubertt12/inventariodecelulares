@@ -552,6 +552,7 @@
                 <button class="settings-tab-btn" data-tab="general">Geral</button>
                 <button class="settings-tab-btn" data-tab="tabs">Abas</button>
                 <button class="settings-tab-btn" data-tab="models">Modelos</button>
+                <button class="settings-tab-btn" data-tab="categories">Categorias de ativos</button>
                 <button class="settings-tab-btn" data-tab="localities">Localidades</button>
                 <button class="settings-tab-btn" data-tab="filters">Filtros</button>
                 <button class="settings-tab-btn" data-tab="instructions">Instruções</button>
@@ -686,6 +687,24 @@
                     <div>
                         <h4 style="font-weight: 600; font-size: 1rem; margin-bottom: 10px;">Localidades Atuais</h4>
                         <ul id="localityList" class="locality-list"></ul>
+                    </div>
+                </div>
+            </div>
+            <div class="settings-tab-content" id="tab-categories">
+                <div class="grid-cadastro ua-category-settings">
+                    <div>
+                        <p style="font-size:0.9rem;color:var(--text-muted);margin-bottom:15px;">Cadastre os tipos de equipamentos que sua empresa controla. Depois, eles ficam disponíveis no formulário de novo ativo.</p>
+                        <form id="uaCategoryForm">
+                            <div class="form-group"><label for="uaNewCategoryName">Nome da categoria</label><input type="text" id="uaNewCategoryName" class="input-field" maxlength="120" placeholder="Ex.: Nobreaks" required></div>
+                            <div class="form-group"><label for="uaNewCategoryKey">Identificador interno</label><input type="text" id="uaNewCategoryKey" class="input-field" maxlength="80" placeholder="Ex.: nobreaks" required><small>Use letras minúsculas, números e hífen. Não aparece no inventário.</small></div>
+                            <div class="form-group"><label for="uaNewCategoryDescription">Descrição (opcional)</label><textarea id="uaNewCategoryDescription" class="input-field" rows="3" maxlength="500" placeholder="Quais equipamentos entram nesta categoria?"></textarea></div>
+                            <button type="submit" class="btn" id="uaAddCategoryBtn" style="width:100%;">Adicionar categoria</button>
+                            <p id="uaCategorySettingsFeedback" class="ua-feedback" role="status" aria-live="polite"></p>
+                        </form>
+                    </div>
+                    <div>
+                        <h4 style="font-weight:600;font-size:1rem;margin-bottom:10px;">Categorias cadastradas</h4>
+                        <ul id="uaCategorySettingsList" class="ua-category-settings-list"><li>Carregando categorias...</li></ul>
                     </div>
                 </div>
             </div>
