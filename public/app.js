@@ -4132,8 +4132,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.addEventListener('keydown', event => {
     if (event.key === 'Escape' && !menu.hidden) {
+      const triggerToRestore = activeTrigger;
       closeMenu();
-      if (activeTrigger && typeof activeTrigger.focus === 'function') activeTrigger.focus();
+      if (triggerToRestore && typeof triggerToRestore.focus === 'function') triggerToRestore.focus();
     }
   });
 
