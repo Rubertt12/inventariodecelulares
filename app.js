@@ -333,7 +333,58 @@ const idb = {
             tx.onerror = () => reject(tx.error);
         });
     },
+    async delete(key) {
+        const db = await this.getDb();
+        return new Promise((resolve, reject) => {
+            const tx = db.transaction('keyval', 'readwrite');
+            tx.objectStore('keyval').delete(key);
+            tx.oncomplete = () => resolve();
+            tx.onerror = () => reject(tx.error);
+        });
+    },
 };
+
+const LOCAL_STORAGE_SENTINEL = 'local-browser-storage-v1';
+class LocalFileHandle {
+    constructor(path) { this.path = path; }
+    async getFile() {
+        const value = await idb.get('local-file:' + this.path);
+        if (value === undefined) { const e = new Error('Arquivo não encontrado.'); e.name = 'NotFoundError'; throw e; }
+        const blob = value instanceof Blob ? value : new Blob([value]);
+        return { lastModified: Date.now(), text: () => blob.text(), arrayBuffer: () => blob.arrayBuffer(), slice: (...args) => blob.slice(...args), size: blob.size, type: blob.type };
+    }
+    async createWritable() {
+        let pending = null;
+        return {
+            write: async value => {
+                if (value instanceof Blob) pending = value;
+                else if (value instanceof ArrayBuffer || ArrayBuffer.isView(value)) pending = new Blob([value]);
+                else pending = new Blob([String(value)]);
+            },
+            close: async () => idb.set('local-file:' + this.path, pending || new Blob([]))
+        };
+    }
+}
+class LocalDirectoryHandle {
+    constructor(path = '', name = 'Armazenamento local deste navegador') { this.path = path; this.name = name; }
+    async queryPermission() { return 'granted'; }
+    async requestPermission() { return 'granted'; }
+    childPath(name) { return this.path ? this.path + '/' + name : name; }
+    async getFileHandle(name, options = {}) {
+        const path = this.childPath(name), key = 'local-file:' + path, value = await idb.get(key);
+        if (value === undefined && !options.create) { const e = new Error('Arquivo não encontrado.'); e.name = 'NotFoundError'; throw e; }
+        if (value === undefined) await idb.set(key, new Blob([]));
+        return new LocalFileHandle(path);
+    }
+    async getDirectoryHandle(name) { return new LocalDirectoryHandle(this.childPath(name), name); }
+    async removeEntry(name) { await idb.delete('local-file:' + this.childPath(name)); }
+    async move(sourceName, destinationName) {
+        const from = 'local-file:' + this.childPath(sourceName), value = await idb.get(from);
+        if (value === undefined) { const e = new Error('Arquivo não encontrado.'); e.name = 'NotFoundError'; throw e; }
+        await idb.set('local-file:' + this.childPath(destinationName), value);
+        await idb.delete(from);
+    }
+}
 
 // --- NOVA FUNÇÃO: Aplica a visibilidade das abas do menu ---
 function applyTabVisibility() {
@@ -500,6 +551,7 @@ window.switchView = function(viewName) {
     }
     
     document.getElementById(`view-${viewName}`).classList.add('active');
+    if (window.matchMedia('(max-width: 900px)').matches) document.body.classList.remove('mobile-menu-open');
 
     // --- NOVO: Renderiza o dashboard se for a view selecionada ---
     if (viewName === 'dashboard') {
@@ -636,16 +688,17 @@ async function handleConnectClick() {
             const directory = await desktopFiles.chooseDirectory();
             if (!directory) return;
             handle = new DesktopDirectoryHandle('', directory.name);
-        } else {
-            if (!window.showDirectoryPicker) {
-                throw new Error('Este navegador não oferece seleção de pastas.');
-            }
+        } else if (window.showDirectoryPicker) {
             handle = await window.showDirectoryPicker({ mode: 'readwrite' });
+        } else {
+            handle = new LocalDirectoryHandle();
         }
 
         if (await connectToDirectory(handle)) {
-            if (!desktopFiles) await idb.set('dirHandle', handle);
-            showCustomAlert('Pasta vinculada e salva para futuras sessões!', 'success');
+            if (!desktopFiles) await idb.set('dirHandle', handle instanceof LocalDirectoryHandle ? LOCAL_STORAGE_SENTINEL : handle);
+            showCustomAlert(handle instanceof LocalDirectoryHandle
+                ? 'Armazenamento local ativado. Os dados ficam salvos neste navegador e neste dispositivo.'
+                : 'Pasta vinculada e salva para futuras sessões!', 'success');
         }
     } catch (err) {
         if (err.name !== 'AbortError') {
@@ -2548,6 +2601,7 @@ async function loadInitialState() {
         if (savedDirectory) savedHandle = new DesktopDirectoryHandle('', savedDirectory.name);
     } else {
         savedHandle = await idb.get('dirHandle');
+        if (savedHandle === LOCAL_STORAGE_SENTINEL) savedHandle = new LocalDirectoryHandle();
     }
     if (savedHandle) {
         console.log("Tentando reconectar à pasta salva...");
@@ -3285,6 +3339,12 @@ window.selectDeviceAndSwitchToTermo = function(id) {
     // 4. Dispara o evento 'change' para que a lógica de preenchimento seja executada
     selectDeviceStock.dispatchEvent(new Event('change'));
 };
+
+// --- Navegação responsiva para celulares e tablets ---
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const sidebarBackdrop = document.getElementById('sidebarBackdrop');
+mobileMenuToggle?.addEventListener('click', () => document.body.classList.toggle('mobile-menu-open'));
+sidebarBackdrop?.addEventListener('click', () => document.body.classList.remove('mobile-menu-open'));
 
 // --- Lógica da Sidebar ---
 sidebarToggle.addEventListener('click', () => {
