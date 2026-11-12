@@ -14,6 +14,7 @@
   }
   function openModal(tab='login'){setTab(tab);modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden';setTimeout(()=>document.getElementById(tab==='login'?'username':'regName').focus(),80)}
   function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
+  if(new URLSearchParams(window.location.search).get('login')==='required') openModal('login');
   document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>openModal(button.dataset.open)));
   tabs.forEach(button=>button.addEventListener('click',()=>setTab(button.dataset.tab)));
   document.getElementById('closeModal').addEventListener('click',closeModal);
