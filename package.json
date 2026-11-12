@@ -24,7 +24,9 @@
       "Gerador_Caixa_Etiqueta.html",
       "zebra/zebra.html",
       "js/**",
-      "public/**"
+      "public/**",
+      "css/**",
+      "zebra/**"
     ],
     "directories": {
       "output": "release"
