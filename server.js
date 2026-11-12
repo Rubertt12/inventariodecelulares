@@ -107,6 +107,29 @@ app.use('/api', (req, res, next) => {
   return requireDemoAuth(req, res, next);
 });
 
+
+
+// --- API DE GESTÃO UNIVERSAL DE ATIVOS ---
+// O tenant é fixo apenas para o login demonstrativo atual. Não aceitar company_id do navegador.
+const DEMO_COMPANY_ID = 1;
+app.get('/api/universal/categories', async (_req, res) => {
+  try { res.json(await db.getAssetCategories(DEMO_COMPANY_ID)); }
+  catch (error) { res.status(503).json({ message: 'Estrutura de ativos ainda não disponível. A migração do banco precisa ser aplicada no ambiente de desenvolvimento.', detail: process.env.NODE_ENV === 'production' ? undefined : error.message }); }
+});
+app.get('/api/universal/assets', async (req, res) => {
+  try { res.json(await db.getUniversalAssets(DEMO_COMPANY_ID, { categoryId: req.query.category || null, search: String(req.query.search || '').trim().slice(0, 120) })); }
+  catch (error) { res.status(503).json({ message: 'Não foi possível consultar os ativos. Verifique se a migração universal foi aplicada.', detail: process.env.NODE_ENV === 'production' ? undefined : error.message }); }
+});
+app.post('/api/universal/assets', async (req, res) => {
+  try {
+    const body = req.body || {};
+    const allowedStatuses = ['available','in_use','maintenance','reserved','retired','lost'];
+    if (!body.category_id || !allowedStatuses.includes(body.status || 'available')) return res.status(400).json({ message: 'Informe uma categoria e um status válido.' });
+    const result = await db.createUniversalAsset(DEMO_COMPANY_ID, body);
+    res.status(201).json(result);
+  } catch (error) { res.status(error.status || 500).json({ message: error.message || 'Falha ao cadastrar ativo.' }); }
+});
+
 // --- ROTAS DE SMARTPHONES ---
 app.get('/api/smartphones', async (_req, res) => {
   try {
