@@ -988,18 +988,26 @@ function loadTemplateSettings() {
   const defaults = cloneDefaultTemplateSettings();
   try {
     const saved = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "{}");
-    return {
+    const cleaned = {
       ...defaults,
       ...saved,
+      // O termo não deve reaplicar identidade visual ou endereço de uma empresa cliente.
+      headerText: "",
+      headerLogo: "",
+      footerText: "",
+      footerLogo: "",
       rules: Array.isArray(saved.rules) ? saved.rules : defaults.rules
     };
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(cleaned));
+    return cleaned;
   } catch (error) {
     console.error("Não foi possível carregar o modelo salvo:", error);
-    return defaults;
+    return { ...defaults, headerText: "", headerLogo: "", footerText: "", footerLogo: "" };
   }
 }
 
 function setLogoPreview(image, source) {
+  if (!image) return;
   if (source) {
     image.src = source;
     image.hidden = false;
