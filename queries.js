@@ -122,34 +122,11 @@ const getUniversalAssets = async (companyId, filters = {}) => {
   let where = 'a.company_id = $1';
   if (filters.categoryId) {
     values.push(filters.categoryId);
-    where += ' AND a.category_id = 
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-    getAssetCategories,
-    getUniversalAssets,
-    createUniversalAsset,
-}; + values.length;
+    where += ' AND a.category_id = $' + values.length;
   }
   if (filters.search) {
-    values.push('%' + String(filters.search).replace(/[\\%_]/g, '\\module.exports = {') + '%');
-    const p = '
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-}; + values.length;
+    values.push('%' + String(filters.search).replace(/[\\%_]/g, '\\$&') + '%');
+    const p = '$' + values.length;
     where += ' AND (a.asset_tag ILIKE ' + p + ' OR a.serial_number ILIKE ' + p +
       ' OR a.model ILIKE ' + p + ' OR a.manufacturer ILIKE ' + p + ' OR a.assigned_to_name ILIKE ' + p + ')';
   }
@@ -210,4 +187,7 @@ module.exports = {
     addTermo,
     getModels,
     getLocalities,
+    getAssetCategories,
+    getUniversalAssets,
+    createUniversalAsset,
 };
