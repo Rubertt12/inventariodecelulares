@@ -14,7 +14,6 @@
     "asar": true,
     "files": [
       "desktop/**",
-      "app.js",
       "celular.rubertt.html",
       "style.css",
       "sw.js",
