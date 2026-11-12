@@ -2976,3 +2976,173 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 @media (prefers-reduced-motion:reduce) {
   *,*::before,*::after { scroll-behavior:auto!important; animation-duration:.01ms!important; transition-duration:.01ms!important; }
 }
+
+
+/* ==========================================================================
+   DOCK MOBILE — comportamento inspirado na Dock do iOS
+   Mantém a navegação fixa no rodapé, respeita safe areas e gestos de toque.
+   ========================================================================== */
+@media (max-width: 768px) {
+  body.dock-layout {
+    --mobile-dock-height: 68px;
+    --mobile-dock-gap: 7px;
+  }
+
+  body.dock-layout .sidebar {
+    position: fixed !important;
+    inset: auto auto calc(10px + env(safe-area-inset-bottom)) 50% !important;
+    width: max-content !important;
+    max-width: calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)) !important;
+    height: var(--mobile-dock-height) !important;
+    min-height: var(--mobile-dock-height);
+    max-height: var(--mobile-dock-height);
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    padding: 8px 10px !important;
+    gap: 0 !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    border: 1px solid rgba(255,255,255,.42);
+    border-radius: 22px;
+    background: rgba(248,249,252,.76) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+    box-shadow: 0 8px 30px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.55);
+    transform: translateX(-50%) !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+    z-index: 1300 !important;
+  }
+  body.dock-layout .sidebar::-webkit-scrollbar { display: none; }
+  body.dark-mode.dock-layout .sidebar {
+    background: rgba(35,37,43,.78) !important;
+    border-color: rgba(255,255,255,.13);
+    box-shadow: 0 8px 30px rgba(0,0,0,.42), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  body.dock-layout .sidebar-menu {
+    display: flex !important;
+    flex: 0 0 auto;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start !important;
+    gap: var(--mobile-dock-gap) !important;
+    width: max-content !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+  body.dock-layout .sidebar-menu > .menu-divider,
+  body.dock-layout .sidebar-brand,
+  body.dock-layout .db-status-card,
+  body.dock-layout .sidebar-toggle-wrapper { display: none !important; }
+  body.dock-layout .sidebar-menu > .menu-item {
+    position: relative;
+    display: flex !important;
+    flex: 0 0 48px;
+    width: 48px !important;
+    min-width: 48px;
+    max-width: 48px;
+    height: 48px !important;
+    min-height: 48px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 0 !important;
+    border-radius: 15px;
+    background: transparent !important;
+    color: var(--text-muted);
+    transform: none !important;
+    transition: transform .18s ease, background .18s ease, color .18s ease;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  body.dock-layout .sidebar-menu > .menu-item svg {
+    display: block;
+    flex: 0 0 25px;
+    width: 25px;
+    height: 25px;
+    stroke-width: 1.8;
+  }
+  body.dock-layout .sidebar-menu > .menu-item .menu-item-text {
+    display: none !important;
+  }
+  body.dock-layout .sidebar-menu > .menu-item.active {
+    color: var(--accent-color) !important;
+    background: color-mix(in srgb, var(--accent-color) 13%, transparent) !important;
+    transform: translateY(-2px) !important;
+  }
+  body.dock-layout .sidebar-menu > .menu-item.active::before {
+    content: "";
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    left: 50%;
+    bottom: 3px;
+    top: auto;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 1;
+    transform: translateX(-50%);
+  }
+  body.dock-layout .sidebar-menu > .menu-item:active {
+    transform: scale(.90) !important;
+    background: color-mix(in srgb, var(--accent-color) 12%, transparent) !important;
+  }
+  body.dock-layout .mobile-menu-toggle { display: none !important; }
+  body.dock-layout .mobile-topbar { gap: 8px; }
+  body.dock-layout .main-content {
+    height: 100dvh;
+    padding-bottom: calc(104px + env(safe-area-inset-bottom)) !important;
+  }
+  body.dock-layout .dock-preview-container { display: none !important; }
+}
+
+/* Título da Visão Geral: não encolhe nem é cortado por flex/grid */
+#view-dashboard > .dashboard-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  gap: 6px;
+  overflow: visible;
+}
+#view-dashboard .dashboard-title {
+  display: block;
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  line-height: 1.2;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: normal;
+  word-break: normal;
+  text-overflow: clip;
+}
+#view-dashboard .dashboard-subtitle {
+  display: block;
+  width: 100%;
+  max-width: 70ch;
+  min-width: 0;
+  margin: 0;
+  line-height: 1.5;
+  white-space: normal;
+  overflow: visible;
+}
+@media (max-width: 768px) {
+  #view-dashboard > .dashboard-header { padding: 2px 0 4px; }
+  #view-dashboard .dashboard-title { font-size: clamp(1.55rem, 6vw, 2rem); }
+  #view-dashboard .dashboard-subtitle { font-size: 14px; }
+}
