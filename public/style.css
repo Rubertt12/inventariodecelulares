@@ -3146,3 +3146,60 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
   #view-dashboard .dashboard-title { font-size: clamp(1.55rem, 6vw, 2rem); }
   #view-dashboard .dashboard-subtitle { font-size: 14px; }
 }
+
+
+/* Dashboard: controle compacto para recolher os indicadores */
+.dashboard-stats-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  min-width: 0;
+  margin: 4px 0 12px;
+}
+.dashboard-stats-caption {
+  color: var(--text-muted);
+  font-size: .82rem;
+  font-weight: 600;
+  letter-spacing: .02em;
+}
+.dashboard-stats-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--card-bg);
+  color: var(--text-main);
+  font: inherit;
+  font-size: .84rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.dashboard-stats-toggle:hover {
+  background: var(--accent-color-subtle);
+  border-color: var(--accent-color);
+}
+.dashboard-stats-toggle:active { transform: scale(.98); }
+.dashboard-stats-toggle svg {
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform .2s ease;
+}
+#view-dashboard.stats-collapsed .dashboard-stats-toggle svg { transform: rotate(180deg); }
+#view-dashboard.stats-collapsed #dashboardStatsGrid { display: none !important; }
+@media (max-width: 480px) {
+  .dashboard-stats-toolbar { margin: 2px 0 10px; }
+  .dashboard-stats-caption { font-size: .76rem; }
+  .dashboard-stats-toggle { min-height: 34px; padding: 6px 9px; font-size: .78rem; }
+}
