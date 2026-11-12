@@ -12,6 +12,7 @@
 
     <title>Sistema de Inventário de Celulares</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="universal-assets.css">
     
      
 </head>
@@ -54,6 +55,9 @@
     <ul class="sidebar-menu">
         <li class="menu-item active" id="menu-dashboard" onclick="switchView('dashboard')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="menu-item-text">Dashboard</span>
+        </li>
+        <li class="menu-item" id="menu-ativos" onclick="switchView('ativos')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="8" height="8" rx="1.5"/><rect x="13" y="3" width="8" height="5" rx="1.5"/><rect x="13" y="10" width="8" height="11" rx="1.5"/><rect x="3" y="13" width="8" height="8" rx="1.5"/></svg><span class="menu-item-text">Ativos</span>
         </li>
         <li class="menu-item" id="menu-cadastro" onclick="switchView('cadastro')">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg><span class="menu-item-text">Monitor & Cadastro</span>
@@ -777,6 +781,47 @@
             </div>
         </div>
     </div>
+    <!-- GESTÃO UNIVERSAL DE ATIVOS -->
+    <section id="view-ativos" class="view-section universal-assets-view">
+      <div class="universal-assets-heading">
+        <div><span class="universal-eyebrow">GESTÃO PATRIMONIAL</span><h1>Ativos</h1><p>Gerencie equipamentos de diferentes categorias em um só lugar.</p></div>
+        <button type="button" class="btn" id="uaRefreshBtn">Atualizar lista</button>
+      </div>
+      <div class="ua-summary-grid" id="uaSummary">
+        <article class="ua-summary-card"><span>Total de ativos</span><strong id="uaTotal">—</strong></article>
+        <article class="ua-summary-card"><span>Disponíveis</span><strong id="uaAvailable">—</strong></article>
+        <article class="ua-summary-card"><span>Em uso</span><strong id="uaInUse">—</strong></article>
+        <article class="ua-summary-card"><span>Em manutenção</span><strong id="uaMaintenance">—</strong></article>
+      </div>
+      <div class="ua-workspace">
+        <section class="card ua-list-card">
+          <div class="ua-list-toolbar"><div><h2>Inventário</h2><p>Todos os equipamentos cadastrados</p></div><div class="ua-toolbar-actions"><input id="uaSearch" type="search" placeholder="Buscar patrimônio, modelo, série..." aria-label="Buscar ativos"><select id="uaCategoryFilter" aria-label="Filtrar categoria"><option value="">Todas as categorias</option></select></div></div>
+          <div id="uaFeedback" class="ua-feedback" role="status" aria-live="polite">Carregando categorias e ativos...</div>
+          <div class="ua-table-wrap"><table class="ua-table"><thead><tr><th>Patrimônio</th><th>Ativo</th><th>Categoria</th><th>Localização</th><th>Responsável</th><th>Status</th></tr></thead><tbody id="uaAssetsBody"><tr><td colspan="6" class="ua-empty">Carregando...</td></tr></tbody></table></div>
+        </section>
+        <aside class="card ua-form-card">
+          <div class="ua-form-heading"><div><h2>Novo ativo</h2><p>Os campos mudam conforme a categoria.</p></div><span class="ua-form-icon">＋</span></div>
+          <form id="uaAssetForm">
+            <div class="ua-form-grid">
+              <label class="ua-field ua-field-full">Categoria<select name="category_id" id="uaCategory" required><option value="">Selecione</option></select></label>
+              <label class="ua-field">Patrimônio<input name="asset_tag" maxlength="100" placeholder="Ex.: PAT-001"></label>
+              <label class="ua-field">Número de série<input name="serial_number" maxlength="160" placeholder="Serial / S/N"></label>
+              <label class="ua-field">Fabricante<input name="manufacturer" maxlength="120" placeholder="Fabricante"></label>
+              <label class="ua-field">Modelo<input name="model" maxlength="160" placeholder="Modelo"></label>
+              <label class="ua-field">Status<select name="status"><option value="available">Disponível</option><option value="in_use">Em uso</option><option value="maintenance">Em manutenção</option><option value="reserved">Reservado</option><option value="retired">Baixado</option><option value="lost">Extraviado</option></select></label>
+              <label class="ua-field">Localização<input name="location" maxlength="160" placeholder="Unidade / setor"></label>
+              <label class="ua-field">Responsável<input name="assigned_to_name" maxlength="160" placeholder="Nome do responsável"></label>
+              <label class="ua-field">Identificação do responsável<input name="assigned_to_identifier" maxlength="100" placeholder="Matrícula / usuário"></label>
+              <label class="ua-field">Data da compra<input name="purchase_date" type="date"></label>
+              <label class="ua-field">Garantia até<input name="warranty_until" type="date"></label>
+              <div id="uaDynamicFields" class="ua-dynamic-fields ua-field-full"></div>
+              <label class="ua-field ua-field-full">Observações<textarea name="notes" rows="3" placeholder="Informações adicionais"></textarea></label>
+            </div>
+            <button class="btn ua-submit" id="uaSubmitBtn" type="submit">Cadastrar ativo</button>
+          </form>
+        </aside>
+      </div>
+    </section>
 </main>
 
 <!-- MODAL LIGHTBOX -->
@@ -1025,5 +1070,6 @@
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
+<script src="universal-assets.js"></script>
 </body>
 </html>
