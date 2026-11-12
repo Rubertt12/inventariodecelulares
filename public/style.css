@@ -3246,3 +3246,16 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 .account-menu>button.account-logout{color:#dc3545;}
 .account-menu>button:disabled{opacity:.6;cursor:wait;}
 @media(max-width:420px){.account-trigger-name{display:none}.account-trigger{padding-right:5px}.mobile-topbar>strong{font-size:.86rem;}}
+
+.account-profile-overlay{position:fixed;inset:0;z-index:2200;display:grid;place-items:center;padding:20px;background:rgba(12,18,30,.48);backdrop-filter:blur(5px);}
+.account-profile-card{position:relative;width:min(420px,100%);padding:28px;border:1px solid var(--border-color);border-radius:20px;background:var(--card-bg);color:var(--text-main);box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center;}
+.account-profile-card h2{margin:14px 0 4px;font-size:1.35rem;}
+.account-profile-subtitle{margin:0;color:var(--text-muted);font-size:.88rem;}
+.account-profile-close{position:absolute;top:12px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:var(--accent-color-subtle);color:var(--text-main);font-size:1.4rem;cursor:pointer;}
+.account-profile-details{display:grid;gap:10px;margin:22px 0 14px;text-align:left;}
+.account-profile-details>div{display:flex;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border-color);border-radius:10px;}
+.account-profile-details small{color:var(--text-muted);}
+.account-profile-details strong{font-size:.86rem;text-align:right;}
+.account-profile-status{color:#16834a;}
+.account-profile-note{margin:14px 0 0;color:var(--text-muted);font-size:.76rem;line-height:1.5;}
+@media(max-width:480px){.account-profile-card{padding:24px 18px;}}
