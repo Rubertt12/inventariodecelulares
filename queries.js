@@ -177,6 +177,36 @@ const createUniversalAsset = async (companyId, body) => {
   }
 };
 
+
+
+const createAssetCategory = async (companyId, body) => {
+  const key = String(body.category_key || '').trim().toLowerCase();
+  const name = String(body.name || '').trim();
+  if (!/^[a-z0-9][a-z0-9_-]{1,79}$/.test(key)) {
+    const error = new Error('Identificador inválido. Use letras minúsculas, números, hífen ou sublinhado.');
+    error.status = 400;
+    throw error;
+  }
+  if (!name || name.length > 120) {
+    const error = new Error('Informe um nome de categoria com até 120 caracteres.');
+    error.status = 400;
+    throw error;
+  }
+  try {
+    const result = await pool.query(
+      'INSERT INTO asset_categories (company_id, category_key, name, description, icon, is_system, sort_order) VALUES ($1,$2,$3,$4,$5,FALSE,COALESCE((SELECT MAX(sort_order)+10 FROM asset_categories WHERE company_id=$1),10)) RETURNING id, category_key, name, description, icon, is_system, is_active',
+      [companyId, key, name, body.description ? String(body.description).slice(0,500) : null, 'package']
+    );
+    return result.rows[0];
+  } catch (error) {
+    if (error.code === '23505') {
+      error.status = 409;
+      error.message = 'Já existe uma categoria com esse identificador.';
+    }
+    throw error;
+  }
+};
+
 module.exports = {
     getSmartphones,
     addSmartphone,
@@ -188,6 +218,7 @@ module.exports = {
     getModels,
     getLocalities,
     getAssetCategories,
+    createAssetCategory,
     getUniversalAssets,
     createUniversalAsset,
 };
