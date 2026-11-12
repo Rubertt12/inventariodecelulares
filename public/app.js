@@ -4002,45 +4002,29 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 
-/* Perfil demonstrativo e encerramento de sessão */
+/* Perfil demonstrativo: acessível pela topbar, sidebar e dock */
 (() => {
-  const toggle = document.getElementById('accountMenuToggle');
-  const menu = document.getElementById('accountMenu');
-  const logout = document.getElementById('accountLogoutBtn');
-  const profile = document.getElementById('accountProfileBtn');
-  if (!toggle || !menu) return;
-  const close = () => { menu.hidden = true; toggle.setAttribute('aria-expanded', 'false'); };
-  toggle.addEventListener('click', event => {
-    event.stopPropagation();
-    menu.hidden = !menu.hidden;
-    toggle.setAttribute('aria-expanded', String(!menu.hidden));
-  });
-  menu.addEventListener('click', event => event.stopPropagation());
-  document.addEventListener('click', close);
-  document.addEventListener('keydown', event => { if (event.key === 'Escape') close(); });
-  profile?.addEventListener('click', () => {
-    close();
-    const overlay = document.createElement('div');
-    overlay.className = 'account-profile-overlay';
-    overlay.innerHTML = '<section class="account-profile-card" role="dialog" aria-modal="true" aria-labelledby="accountProfileTitle"><button type="button" class="account-profile-close" aria-label="Fechar">×</button><span class="account-avatar account-avatar-large">A</span><h2 id="accountProfileTitle">Meu perfil</h2><p class="account-profile-subtitle">Conta administrativa demonstrativa</p><div class="account-profile-details"><div><small>Nome de usuário</small><strong>admin</strong></div><div><small>Tipo de acesso</small><strong>Administrador</strong></div><div><small>Status da conta</small><strong class="account-profile-status">Sessão ativa</strong></div></div><p class="account-profile-note">Este é um perfil genérico de demonstração. Os dados não representam uma conta pessoal individual.</p></section>';
-    document.body.append(overlay);
-    const dismiss = () => overlay.remove();
-    overlay.querySelector('.account-profile-close').addEventListener('click', dismiss);
-    overlay.addEventListener('click', event => { if (event.target === overlay) dismiss(); });
-    document.addEventListener('keydown', function onEscape(event) { if (event.key === 'Escape') { dismiss(); document.removeEventListener('keydown', onEscape); } });
-    overlay.querySelector('.account-profile-close').focus();
-  });
-  logout?.addEventListener('click', async () => {
-    logout.disabled = true;
-    logout.textContent = 'Saindo...';
-    try {
-      const response = await fetch('/api/demo-logout', { method: 'POST', credentials: 'same-origin' });
-      if (!response.ok) throw new Error('Não foi possível encerrar a sessão.');
-      window.location.replace('/?logout=1');
-    } catch (error) {
-      logout.disabled = false;
-      logout.textContent = 'Sair da conta';
-      window.alert(error.message || 'Erro ao sair da conta.');
-    }
-  });
+ const menu=document.getElementById('accountMenu');
+ const toggles=[document.getElementById('accountMenuToggle'),document.getElementById('sidebarAccountToggle')].filter(Boolean);
+ const logout=document.getElementById('accountLogoutBtn'),profile=document.getElementById('accountProfileBtn');
+ if(!menu||!toggles.length)return;
+ const close=()=>{menu.hidden=true;toggles.forEach(t=>t.setAttribute('aria-expanded','false'));};
+ toggles.forEach(toggle=>toggle.addEventListener('click',event=>{event.stopPropagation();const open=menu.hidden;close();if(open){menu.hidden=false;toggle.setAttribute('aria-expanded','true');}}));
+ menu.addEventListener('click',event=>event.stopPropagation());
+ document.addEventListener('click',close);
+ document.addEventListener('keydown',event=>{if(event.key==='Escape')close();});
+ profile?.addEventListener('click',()=>{
+  close();const overlay=document.createElement('div');overlay.className='account-profile-overlay';
+  overlay.innerHTML='<section class="account-profile-card" role="dialog" aria-modal="true" aria-labelledby="accountProfileTitle"><button type="button" class="account-profile-close" aria-label="Fechar">×</button><span class="account-avatar account-avatar-large">A</span><h2 id="accountProfileTitle">Meu perfil</h2><p class="account-profile-subtitle">Conta administrativa demonstrativa</p><div class="account-profile-details"><div><small>Nome de usuário</small><strong>admin</strong></div><div><small>Tipo de acesso</small><strong>Administrador</strong></div><div><small>Status da conta</small><strong class="account-profile-status">Sessão ativa</strong></div></div><p class="account-profile-note">Este é um perfil genérico de demonstração. Os dados não representam uma conta pessoal individual.</p></section>';
+  document.body.append(overlay);const dismiss=()=>overlay.remove();
+  overlay.querySelector('.account-profile-close').addEventListener('click',dismiss);
+  overlay.addEventListener('click',event=>{if(event.target===overlay)dismiss();});
+  document.addEventListener('keydown',function onEscape(event){if(event.key==='Escape'){dismiss();document.removeEventListener('keydown',onEscape);}});
+  overlay.querySelector('.account-profile-close').focus();
+ });
+ logout?.addEventListener('click',async()=>{
+  logout.disabled=true;logout.textContent='Saindo...';
+  try{const response=await fetch('/api/demo-logout',{method:'POST',credentials:'same-origin'});if(!response.ok)throw new Error('Não foi possível encerrar a sessão.');window.location.replace('/?logout=1');}
+  catch(error){logout.disabled=false;logout.textContent='Sair da conta';window.alert(error.message||'Erro ao sair da conta.');}
+ });
 })();
