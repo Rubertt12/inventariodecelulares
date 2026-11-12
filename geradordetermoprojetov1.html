@@ -23,16 +23,16 @@
   <!-- Coluna de Controles -->
   <div class="panel">
     <div class="sticky">
-      <button class="back-button" onclick="window.location.href='celular.rubertt.html'">
+      <button class="back-button" data-inline-click="handler35">
         ← Voltar para o Início
       </button> 
       
       <h2 class="extracted-inline-style-1">Gerador de Termos</h2>
       
       <div class="tabs">
-        <button id="tabIndividual" class="tab active" onclick="abrirModo('individual')">Individual</button>
-        <button id="tabLote" class="tab" onclick="abrirModo('lote')">Em lote</button>
-        <button id="tabModelo" class="tab" onclick="abrirModo('modelo')">Modelo</button>
+        <button id="tabIndividual" class="tab active" data-inline-click="handler36">Individual</button>
+        <button id="tabLote" class="tab" data-inline-click="handler37">Em lote</button>
+        <button id="tabModelo" class="tab" data-inline-click="handler38">Modelo</button>
       </div>
 
       <section id="modoIndividual">
@@ -84,9 +84,9 @@
         </div>
 
         <div class="actions">
-          <button class="primary" onclick="gerarPdfIndividual()">Gerar PDF</button>
-          <button class="secondary" onclick="limparFormulario()">Limpar</button>
-          <button class="success" onclick="adicionarAtualAoLote()">Adicionar ao Lote</button>
+          <button class="primary" data-inline-click="handler39">Gerar PDF</button>
+          <button class="secondary" data-inline-click="handler40">Limpar</button>
+          <button class="success" data-inline-click="handler41">Adicionar ao Lote</button>
         </div>
       </section>
 
@@ -105,8 +105,8 @@
         </div>
 
         <div class="batch-toolbar">
-          <button class="secondary" onclick="selecionarTodos(true)">Selecionar Todos</button>
-          <button class="secondary" onclick="selecionarTodos(false)">Limpar Seleção</button>
+          <button class="secondary" data-inline-click="handler42">Selecionar Todos</button>
+          <button class="secondary" data-inline-click="handler43">Limpar Seleção</button>
         </div>
 
         <div class="table-wrap">
@@ -127,8 +127,8 @@
         <div id="contadorLote" class="status"></div>
 
         <div class="actions">
-          <button class="secondary" onclick="visualizarSelecionado()">Visualizar</button>
-          <button class="success" onclick="gerarZipLote()">Gerar ZIP com PDFs</button>
+          <button class="secondary" data-inline-click="handler44">Visualizar</button>
+          <button class="success" data-inline-click="handler45">Gerar ZIP com PDFs</button>
         </div>
       </section>
 
