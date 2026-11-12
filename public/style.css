@@ -3314,6 +3314,6 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 }
 @media(max-width:768px){
  .dock-account-item{display:none!important;}
- .sidebar-account-area{display:none!important;}
+ .sidebar-account-area{display:contents!important;}
  .account-menu.profile-floating-menu{position:fixed!important;right:12px!important;left:auto!important;bottom:76px!important;top:auto!important;width:min(280px,calc(100vw - 24px))!important;max-width:calc(100vw - 24px)!important;transform:none!important;}
 }
