@@ -4002,43 +4002,184 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 
-/* Perfil demonstrativo: PC com hover/click contextual; celular preserva topbar */
+/* ===== Perfil do usuário: controlador único ===== */
 (() => {
- const menu=document.getElementById('accountMenu');
- const mobileToggle=document.getElementById('accountMenuToggle');
- const sidebarToggle=document.getElementById('sidebarAccountToggle');
- const dockItem=document.getElementById('menu-account');
- const dockToggle=dockItem;
- const logout=document.getElementById('accountLogoutBtn'),profile=document.getElementById('accountProfileBtn');
- if(!menu)return;
- let hoverTimer=null;
- const desktop=()=>window.matchMedia('(min-width:769px) and (hover:hover)').matches;
- const close=()=>{clearTimeout(hoverTimer);menu.hidden=true;menu.classList.remove('profile-floating-menu');[mobileToggle,sidebarToggle].filter(Boolean).forEach(t=>t.setAttribute('aria-expanded','false'));};
- const placeNear=anchor=>{
-  if(!desktop()||!anchor)return;
-  menu.classList.add('profile-floating-menu');
-  menu.style.visibility='hidden';menu.hidden=false;
-  const r=anchor.getBoundingClientRect(),w=Math.min(280,window.innerWidth-24),h=menu.offsetHeight||190;
-  let left=r.right+10;
-  if(left+w>window.innerWidth-12)left=r.left-w-10;
-  left=Math.max(12,Math.min(left,window.innerWidth-w-12));
-  let top=r.top+(r.height/2)-(h/2);
-  top=Math.max(12,Math.min(top,window.innerHeight-h-12));
-  menu.style.left=left+'px';menu.style.top=top+'px';menu.style.right='auto';menu.style.bottom='auto';menu.style.visibility='';
- };
- const open=anchor=>{clearTimeout(hoverTimer);menu.hidden=false;if(desktop())placeNear(anchor);};
- const scheduleClose=()=>{clearTimeout(hoverTimer);hoverTimer=setTimeout(()=>{if(!menu.matches(':hover')&&!((sidebarToggle||{}).matches?.(':hover'))&&!(dockItem&&dockItem.matches(':hover')))close();},180);};
- if(mobileToggle)mobileToggle.addEventListener('click',event=>{event.stopPropagation();const wasOpen=!menu.hidden;close();if(!wasOpen){menu.hidden=false;mobileToggle.setAttribute('aria-expanded','true');}});
- if(sidebarToggle){sidebarToggle.addEventListener('click',event=>{event.stopPropagation();if(!desktop()){const wasOpen=!menu.hidden;close();if(!wasOpen)open(sidebarToggle);return;}if(!menu.hidden)close();else open(sidebarToggle);});sidebarToggle.addEventListener('mouseenter',()=>{if(desktop())open(sidebarToggle);});sidebarToggle.addEventListener('mouseleave',()=>{if(desktop())scheduleClose();});}
- if(dockItem){dockItem.addEventListener('click',event=>{event.stopPropagation();if(!desktop())return; if(!menu.hidden)close();else open(dockToggle);});dockItem.addEventListener('mouseenter',()=>{if(desktop())open(dockToggle);});dockItem.addEventListener('mouseleave',()=>{if(desktop())scheduleClose();});}
- menu.addEventListener('mouseenter',()=>clearTimeout(hoverTimer));menu.addEventListener('mouseleave',()=>{if(desktop())scheduleClose();});menu.addEventListener('click',event=>event.stopPropagation());
- document.addEventListener('click',event=>{if(!menu.contains(event.target)&&!((sidebarToggle&&sidebarToggle.contains(event.target))||(mobileToggle&&mobileToggle.contains(event.target))||(dockItem&&dockItem.contains(event.target))))close();});
- document.addEventListener('keydown',event=>{if(event.key==='Escape')close();});
- window.addEventListener('resize',()=>{if(!menu.hidden){if(desktop())placeNear(sidebarToggle&&sidebarToggle.matches(':hover')?sidebarToggle:dockItem);else{menu.classList.remove('profile-floating-menu');menu.style.cssText='';}}});
- profile?.addEventListener('click',()=>{
-  close();const overlay=document.createElement('div');overlay.className='account-profile-overlay';
-  overlay.innerHTML='<section class="account-profile-card" role="dialog" aria-modal="true" aria-labelledby="accountProfileTitle"><button type="button" class="account-profile-close" aria-label="Fechar">×</button><span class="account-avatar account-avatar-large">A</span><h2 id="accountProfileTitle">Meu perfil</h2><p class="account-profile-subtitle">Conta administrativa demonstrativa</p><div class="account-profile-details"><div><small>Nome de usuário</small><strong>admin</strong></div><div><small>Tipo de acesso</small><strong>Administrador</strong></div><div><small>Status da conta</small><strong class="account-profile-status">Sessão ativa</strong></div></div><p class="account-profile-note">Este é um perfil genérico de demonstração. Os dados não representam uma conta pessoal individual.</p></section>';
-  document.body.append(overlay);const dismiss=()=>overlay.remove();overlay.querySelector('.account-profile-close').addEventListener('click',dismiss);overlay.addEventListener('click',event=>{if(event.target===overlay)dismiss();});document.addEventListener('keydown',function onEscape(event){if(event.key==='Escape'){dismiss();document.removeEventListener('keydown',onEscape);}});overlay.querySelector('.account-profile-close').focus();
- });
- logout?.addEventListener('click',async()=>{logout.disabled=true;logout.textContent='Saindo...';try{const response=await fetch('/api/demo-logout',{method:'POST',credentials:'same-origin'});if(!response.ok)throw new Error('Não foi possível encerrar a sessão.');window.location.replace('/?logout=1');}catch(error){logout.disabled=false;logout.textContent='Sair da conta';window.alert(error.message||'Erro ao sair da conta.');}});
+  const menu = document.getElementById('accountMenu');
+  const mobileTrigger = document.getElementById('accountMenuToggle');
+  const sidebarTrigger = document.getElementById('sidebarAccountToggle');
+  const dockTrigger = document.getElementById('menu-account');
+  const profileButton = document.getElementById('accountProfileBtn');
+  const logoutButton = document.getElementById('accountLogoutBtn');
+
+  if (!menu) return;
+
+  const desktop = () => window.matchMedia('(min-width: 769px)').matches;
+  const hoverCapable = () => window.matchMedia('(min-width: 769px) and (hover: hover)').matches;
+  let activeTrigger = null;
+  let closeTimer = null;
+
+  const triggers = [mobileTrigger, sidebarTrigger, dockTrigger].filter(Boolean);
+
+  function setExpanded(trigger, expanded) {
+    if (trigger) trigger.setAttribute('aria-expanded', String(expanded));
+  }
+
+  function closeMenu() {
+    window.clearTimeout(closeTimer);
+    menu.hidden = true;
+    menu.style.cssText = '';
+    activeTrigger = null;
+    triggers.forEach(trigger => setExpanded(trigger, false));
+  }
+
+  function positionMenu(trigger) {
+    if (!trigger) return;
+    menu.hidden = false;
+    menu.style.visibility = 'hidden';
+    menu.style.left = '0px';
+    menu.style.top = '0px';
+
+    const anchor = trigger.getBoundingClientRect();
+    const menuRect = menu.getBoundingClientRect();
+    const width = menuRect.width || Math.min(290, window.innerWidth - 24);
+    const height = menuRect.height || 170;
+    const gap = 9;
+    let left;
+    let top;
+
+    if (!desktop()) {
+      left = anchor.right - width;
+      left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+      top = anchor.bottom + gap;
+      if (top + height > window.innerHeight - 12) top = anchor.top - height - gap;
+    } else {
+      left = anchor.right + gap;
+      if (left + width > window.innerWidth - 12) left = anchor.left - width - gap;
+      left = Math.max(12, Math.min(left, window.innerWidth - width - 12));
+      top = anchor.top + (anchor.height - height) / 2;
+      top = Math.max(12, Math.min(top, window.innerHeight - height - 12));
+    }
+
+    menu.style.left = left + 'px';
+    menu.style.top = top + 'px';
+    menu.style.visibility = '';
+  }
+
+  function openMenu(trigger) {
+    if (!trigger) return;
+    window.clearTimeout(closeTimer);
+    if (activeTrigger && activeTrigger !== trigger) setExpanded(activeTrigger, false);
+    activeTrigger = trigger;
+    triggers.forEach(item => setExpanded(item, item === trigger));
+    positionMenu(trigger);
+  }
+
+  function toggleMenu(trigger) {
+    if (!trigger) return;
+    if (!menu.hidden && activeTrigger === trigger) closeMenu();
+    else openMenu(trigger);
+  }
+
+  function scheduleClose() {
+    window.clearTimeout(closeTimer);
+    closeTimer = window.setTimeout(() => {
+      const pointerInsideMenu = menu.matches(':hover');
+      const pointerInsideTrigger = activeTrigger && activeTrigger.matches(':hover');
+      if (!pointerInsideMenu && !pointerInsideTrigger) closeMenu();
+    }, 220);
+  }
+
+  [sidebarTrigger, dockTrigger].filter(Boolean).forEach(trigger => {
+    trigger.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleMenu(trigger);
+    });
+    trigger.addEventListener('mouseenter', () => {
+      if (hoverCapable()) openMenu(trigger);
+    });
+    trigger.addEventListener('mouseleave', () => {
+      if (hoverCapable()) scheduleClose();
+    });
+    if (trigger === dockTrigger) {
+      trigger.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          toggleMenu(trigger);
+        }
+      });
+    }
+  });
+
+  if (mobileTrigger) {
+    mobileTrigger.addEventListener('click', event => {
+      event.preventDefault();
+      event.stopPropagation();
+      toggleMenu(mobileTrigger);
+    });
+  }
+
+  menu.addEventListener('mouseenter', () => window.clearTimeout(closeTimer));
+  menu.addEventListener('mouseleave', () => {
+    if (hoverCapable()) scheduleClose();
+  });
+  menu.addEventListener('click', event => event.stopPropagation());
+
+  document.addEventListener('pointerdown', event => {
+    const clickedTrigger = triggers.some(trigger => trigger.contains(event.target));
+    if (!menu.contains(event.target) && !clickedTrigger) closeMenu();
+  });
+
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !menu.hidden) {
+      closeMenu();
+      if (activeTrigger && typeof activeTrigger.focus === 'function') activeTrigger.focus();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (!menu.hidden && activeTrigger) positionMenu(activeTrigger);
+  });
+  window.addEventListener('scroll', () => {
+    if (!menu.hidden && activeTrigger) positionMenu(activeTrigger);
+  }, true);
+
+  profileButton?.addEventListener('click', () => {
+    closeMenu();
+    const overlay = document.createElement('div');
+    overlay.className = 'account-profile-overlay';
+    overlay.innerHTML = '<section class="account-profile-card" role="dialog" aria-modal="true" aria-labelledby="accountProfileTitle"><button type="button" class="account-profile-close" aria-label="Fechar">×</button><span class="account-avatar account-avatar-large" aria-hidden="true">A</span><h2 id="accountProfileTitle">Meu perfil</h2><p class="account-profile-subtitle">Conta administrativa demonstrativa</p><div class="account-profile-details"><div><small>Nome de usuário</small><strong>admin</strong></div><div><small>Tipo de acesso</small><strong>Administrador</strong></div><div><small>Status da conta</small><strong class="account-profile-status">Sessão ativa</strong></div></div><p class="account-profile-note">Este é um perfil genérico de demonstração. Os dados não representam uma conta pessoal individual.</p></section>';
+    document.body.append(overlay);
+
+    const closeProfile = () => {
+      overlay.remove();
+      document.removeEventListener('keydown', onEscape);
+    };
+    const onEscape = event => {
+      if (event.key === 'Escape') closeProfile();
+    };
+    overlay.querySelector('.account-profile-close').addEventListener('click', closeProfile);
+    overlay.addEventListener('click', event => {
+      if (event.target === overlay) closeProfile();
+    });
+    document.addEventListener('keydown', onEscape);
+    overlay.querySelector('.account-profile-close').focus();
+  });
+
+  logoutButton?.addEventListener('click', async () => {
+    logoutButton.disabled = true;
+    logoutButton.textContent = 'Saindo...';
+    try {
+      const response = await fetch('/api/demo-logout', {
+        method: 'POST',
+        credentials: 'same-origin'
+      });
+      if (!response.ok) throw new Error('Não foi possível encerrar a sessão.');
+      window.location.replace('/?logout=1');
+    } catch (error) {
+      logoutButton.disabled = false;
+      logoutButton.textContent = 'Sair da conta';
+      window.alert(error.message || 'Erro ao sair da conta.');
+    }
+  });
 })();
