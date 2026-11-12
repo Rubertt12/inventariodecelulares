@@ -1,4 +1,4 @@
-const CACHE_NAME = 'celular-inventario-v5';
+const CACHE_NAME = 'celular-inventario-v6';
 const APP_SHELL = [
   'celular.rubertt.html',
   'style.css',
@@ -12,6 +12,14 @@ const APP_SHELL = [
   'public/coletor.css',
   'public/coletor.js',
   'js/page-init.js',
+  'js/core.js',
+  'js/storage.js',
+  'js/inventory.js',
+  'js/terms.js',
+  'js/management.js',
+  'js/navigation.js',
+  'js/import.js',
+
   'css/gerador-caixa.css',
   'js/gerador-caixa.js',
   'css/gerador-termo.css',
