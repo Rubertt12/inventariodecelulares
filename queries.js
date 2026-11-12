@@ -110,17 +110,19 @@ const getLocalities = async () => (await pool.query('SELECT * FROM localidades O
 // --- GESTÃO UNIVERSAL DE ATIVOS (tenant demonstrativo resolvido no servidor) ---
 const getAssetCategories = async (companyId) => {
   const result = await pool.query(
-    `SELECT c.id, c.category_key, c.name, c.description, c.icon,
-      COALESCE(json_agg(json_build_object('id', f.id, 'field_key', f.field_key, 'label', f.label, 'data_type', f.data_type, 'options', f.options, 'is_required', f.is_required, 'show_in_list', f.show_in_list) ORDER BY f.sort_order) FILTER (WHERE f.id IS NOT NULL), '[]'::json) AS fields
-     FROM asset_categories c LEFT JOIN asset_field_definitions f ON f.category_id = c.id AND f.company_id = c.company_id AND f.is_active = TRUE
-     WHERE c.company_id = $1 AND c.is_active = TRUE GROUP BY c.id ORDER BY c.sort_order, c.name`, [companyId]);
+    "SELECT c.id, c.category_key, c.name, c.description, c.icon, " +
+    "COALESCE(json_agg(json_build_object('id', f.id, 'field_key', f.field_key, 'label', f.label, 'data_type', f.data_type, 'options', f.options, 'is_required', f.is_required, 'show_in_list', f.show_in_list) ORDER BY f.sort_order) FILTER (WHERE f.id IS NOT NULL), '[]'::json) AS fields " +
+    "FROM asset_categories c LEFT JOIN asset_field_definitions f ON f.category_id = c.id AND f.company_id = c.company_id AND f.is_active = TRUE " +
+    "WHERE c.company_id = $1 AND c.is_active = TRUE GROUP BY c.id ORDER BY c.sort_order, c.name", [companyId]);
   return result.rows;
 };
 
 const getUniversalAssets = async (companyId, filters = {}) => {
   const values = [companyId];
   let where = 'a.company_id = $1';
-  if (filters.categoryId) { values.push(filters.categoryId); where += ' AND a.category_id = 
+  if (filters.categoryId) {
+    values.push(filters.categoryId);
+    where += ' AND a.category_id = 
     getSmartphones,
     addSmartphone,
     updateSmartphone,
@@ -133,8 +135,11 @@ const getUniversalAssets = async (companyId, filters = {}) => {
     getAssetCategories,
     getUniversalAssets,
     createUniversalAsset,
-}; + values.length; }
-  if (filters.search) { values.push('%' + filters.search.replace(/[\\%_]/g, '\\module.exports = {') + '%'); where += ' AND (a.asset_tag ILIKE 
+}; + values.length;
+  }
+  if (filters.search) {
+    values.push('%' + String(filters.search).replace(/[\\%_]/g, '\\module.exports = {') + '%');
+    const p = '
     getSmartphones,
     addSmartphone,
     updateSmartphone,
@@ -144,52 +149,15 @@ const getUniversalAssets = async (companyId, filters = {}) => {
     addTermo,
     getModels,
     getLocalities,
-}; + values.length + ' OR a.serial_number ILIKE 
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-}; + values.length + ' OR a.model ILIKE 
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-}; + values.length + ' OR a.manufacturer ILIKE 
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-}; + values.length + ' OR a.assigned_to_name ILIKE 
-    getSmartphones,
-    addSmartphone,
-    updateSmartphone,
-    deleteSmartphone,
-    deliverSmartphone,
-    getTermos,
-    addTermo,
-    getModels,
-    getLocalities,
-}; + values.length + ')'; }
+}; + values.length;
+    where += ' AND (a.asset_tag ILIKE ' + p + ' OR a.serial_number ILIKE ' + p +
+      ' OR a.model ILIKE ' + p + ' OR a.manufacturer ILIKE ' + p + ' OR a.assigned_to_name ILIKE ' + p + ')';
+  }
   const result = await pool.query(
-    `SELECT a.id, a.asset_tag, a.serial_number, a.manufacturer, a.model, a.status, a.location, a.assigned_to_name, a.assigned_to_identifier, a.purchase_date, a.warranty_until, a.notes, a.created_at, c.id AS category_id, c.name AS category_name, c.category_key,
-      COALESCE((SELECT json_object_agg(fd.field_key, cv.value) FROM asset_custom_values cv JOIN asset_field_definitions fd ON fd.id = cv.field_definition_id WHERE cv.asset_id = a.id AND cv.company_id = a.company_id), '{}'::json) AS custom_values
-     FROM assets a JOIN asset_categories c ON c.id = a.category_id AND c.company_id = a.company_id
-     WHERE ${where} ORDER BY a.created_at DESC LIMIT 500`, values);
+    "SELECT a.id, a.asset_tag, a.serial_number, a.manufacturer, a.model, a.status, a.location, a.assigned_to_name, a.assigned_to_identifier, a.purchase_date, a.warranty_until, a.notes, a.created_at, c.id AS category_id, c.name AS category_name, c.category_key, " +
+    "COALESCE((SELECT json_object_agg(fd.field_key, cv.value) FROM asset_custom_values cv JOIN asset_field_definitions fd ON fd.id = cv.field_definition_id WHERE cv.asset_id = a.id AND cv.company_id = a.company_id), '{}'::json) AS custom_values " +
+    "FROM assets a JOIN asset_categories c ON c.id = a.category_id AND c.company_id = a.company_id " +
+    "WHERE " + where + " ORDER BY a.created_at DESC LIMIT 500", values);
   return result.rows;
 };
 
@@ -198,24 +166,38 @@ const createUniversalAsset = async (companyId, body) => {
   try {
     await client.query('BEGIN');
     const category = await client.query('SELECT id FROM asset_categories WHERE id = $1 AND company_id = $2 AND is_active = TRUE', [body.category_id, companyId]);
-    if (!category.rowCount) { const error = new Error('Categoria inválida.'); error.status = 400; throw error; }
+    if (!category.rowCount) {
+      const error = new Error('Categoria inválida.');
+      error.status = 400;
+      throw error;
+    }
     const inserted = await client.query(
-      `INSERT INTO assets (company_id, category_id, asset_tag, serial_number, manufacturer, model, status, location, assigned_to_name, assigned_to_identifier, purchase_date, warranty_until, notes)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id`,
+      'INSERT INTO assets (company_id, category_id, asset_tag, serial_number, manufacturer, model, status, location, assigned_to_name, assigned_to_identifier, purchase_date, warranty_until, notes) ' +
+      'VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13) RETURNING id',
       [companyId, body.category_id, body.asset_tag || null, body.serial_number || null, body.manufacturer || null, body.model || null, body.status || 'available', body.location || null, body.assigned_to_name || null, body.assigned_to_identifier || null, body.purchase_date || null, body.warranty_until || null, body.notes || null]);
     const assetId = inserted.rows[0].id;
     const definitions = await client.query('SELECT id, field_key, data_type, is_required FROM asset_field_definitions WHERE company_id = $1 AND category_id = $2 AND is_active = TRUE', [companyId, body.category_id]);
     const supplied = body.custom_values && typeof body.custom_values === 'object' ? body.custom_values : {};
     for (const field of definitions.rows) {
       const value = supplied[field.field_key];
-      if (field.is_required && (value === undefined || value === null || value === '')) { const error = new Error('Preencha o campo obrigatório: ' + field.field_key); error.status = 400; throw error; }
-      if (value !== undefined && value !== null && value !== '') await client.query('INSERT INTO asset_custom_values (company_id, asset_id, field_definition_id, value) VALUES ($1,$2,$3,$4::jsonb)', [companyId, assetId, field.id, JSON.stringify(value)]);
+      if (field.is_required && (value === undefined || value === null || value === '')) {
+        const error = new Error('Preencha o campo obrigatório: ' + field.field_key);
+        error.status = 400;
+        throw error;
+      }
+      if (value !== undefined && value !== null && value !== '') {
+        await client.query('INSERT INTO asset_custom_values (company_id, asset_id, field_definition_id, value) VALUES ($1,$2,$3,$4::jsonb)', [companyId, assetId, field.id, JSON.stringify(value)]);
+      }
     }
     await client.query("INSERT INTO asset_movements (company_id, asset_id, movement_type, to_status, to_location, to_responsible, notes) VALUES ($1,$2,'created',$3,$4,$5,'Cadastro inicial')", [companyId, assetId, body.status || 'available', body.location || null, body.assigned_to_name || null]);
     await client.query('COMMIT');
     return { id: assetId };
-  } catch (error) { await client.query('ROLLBACK'); throw error; }
-  finally { client.release(); }
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  } finally {
+    client.release();
+  }
 };
 
 module.exports = {
