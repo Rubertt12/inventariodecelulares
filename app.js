@@ -684,17 +684,18 @@ async function handleConnectClick() {
             const directory = await desktopFiles.chooseDirectory();
             if (!directory) return;
             handle = new DesktopDirectoryHandle('', directory.name);
-        } else if (window.showDirectoryPicker) {
+        } else if (window.showDirectoryPicker && window.isSecureContext) {
             try {
                 handle = await window.showDirectoryPicker({ mode: 'readwrite' });
             } catch (pickerError) {
-                // Some mobile browsers expose the API but block it in embedded or restricted contexts.
+                // Em navegadores móveis e WebViews, o seletor pode existir mas ser bloqueado pelo contexto.
+                // Cancelamento continua sendo respeitado; nos demais casos, oferecemos armazenamento local.
                 if (pickerError.name === 'AbortError') throw pickerError;
-                if (!['NotAllowedError', 'SecurityError', 'NotSupportedError'].includes(pickerError.name)) throw pickerError;
-                console.warn('Seletor de pastas indisponível neste contexto. Usando armazenamento local.', pickerError);
+                console.warn('Não foi possível abrir o seletor de pastas neste navegador. Usando armazenamento local.', pickerError);
                 handle = new LocalDirectoryHandle();
             }
         } else {
+            // Fallback para HTTP, navegadores móveis e WebViews sem suporte ao seletor de diretórios.
             handle = new LocalDirectoryHandle();
         }
 
