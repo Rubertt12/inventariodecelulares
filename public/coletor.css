@@ -20,3 +20,8 @@ body.embed-mode .layout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
 body.embed-mode .card{box-shadow:none}
 body.embed-mode #importStock{display:none!important}
 @media(max-width:800px){body.embed-mode .wrap{padding:10px}body.embed-mode .layout{grid-template-columns:1fr}}
+
+
+/* Estilos inline extraídos do HTML do coletor */
+.extracted-coletor-style-1 { margin:0 }
+.extracted-coletor-style-2 { margin:0 }
