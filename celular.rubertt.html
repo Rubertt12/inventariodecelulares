@@ -57,42 +57,42 @@
     </div>
 
     <ul class="sidebar-menu">
-        <li class="menu-item active" id="menu-dashboard" onclick="switchView('dashboard')">
+        <li class="menu-item active" id="menu-dashboard" data-inline-click="handler1">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg><span class="menu-item-text">Dashboard</span>
         </li>
-        <li class="menu-item" id="menu-cadastro" onclick="switchView('cadastro')">
+        <li class="menu-item" id="menu-cadastro" data-inline-click="handler2">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg><span class="menu-item-text">Monitor & Cadastro</span>
         </li>
-        <li class="menu-item" id="menu-estoque" onclick="switchView('estoque')">
+        <li class="menu-item" id="menu-estoque" data-inline-click="handler3">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg><span class="menu-item-text">Estoque</span>
         </li>
-        <li class="menu-item" id="menu-estoque-usados" onclick="switchView('estoque-usados')">
+        <li class="menu-item" id="menu-estoque-usados" data-inline-click="handler4">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5c0-1.24 1.01-2.25 2.25-2.25h15.5c1.24 0 2.25 1.01 2.25 2.25v8.25c0 1.24-1.01 2.25-2.25 2.25H4.25c-1.24 0-2.25-1.01-2.25-2.25Z"></path><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg><span class="menu-item-text">Estoque de Usados</span>
         </li>
-        <li class="menu-item" id="menu-termos" onclick="switchView('termos')">
+        <li class="menu-item" id="menu-termos" data-inline-click="handler5">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span class="menu-item-text">Vincular Termo / Saída</span>
         </li>
         <li class="menu-divider">
             <span class="menu-item-text">FERRAMENTAS</span>
         </li>
         
-        <li class="menu-item" id="menu-geradordetermo" onclick="window.location.href='geradordetermoprojetov1.html'">
+        <li class="menu-item" id="menu-geradordetermo" data-inline-click="handler6">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><rect x="8" y="12" width="8" height="6" rx="1"></rect><path d="M12 12v-2h.01"></path></svg><span class="menu-item-text">Gerador de Termo</span>
         </li>
 
-        <li class="menu-item" id="menu-zebra" onclick="window.location.href='zebra/zebra.html'">
+        <li class="menu-item" id="menu-zebra" data-inline-click="handler7">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20.5a.5.5 0 0 0 .5-.5v-19a.5.5 0 0 0-1 0v19a.5.5 0 0 0 .5.5Z"></path><path d="M12 2v20"></path><path d="M18.5 2a.5.5 0 0 0-.5.5v19a.5.5 0 0 0 1 0v-19a.5.5 0 0 0-.5-.5Z"></path><path d="M18 2v20"></path><path d="M5.5 2a.5.5 0 0 0-.5.5v19a.5.5 0 0 0 1 0v-19a.5.5 0 0 0-.5-.5Z"></path><path d="M5 2v20"></path></svg><span class="menu-item-text">Etiquetas</span>
         </li>
     
 
-        <li class="menu-item" id="menu-importar-lote" onclick="document.getElementById('inputImportarLoteZip').click()">
+        <li class="menu-item" id="menu-importar-lote" data-inline-click="handler8">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><path d="m7 10 5 5 5-5M12 15V3"></path></svg><span class="menu-item-text">Importar Lote ZIP</span>
         </li>
-        <li class="menu-item" id="menu-geradorcaixa" onclick="window.location.href='Gerador_Caixa_Etiqueta.html'">
+        <li class="menu-item" id="menu-geradorcaixa" data-inline-click="handler9">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="16.5" y1="9.4" x2="7.5" y2="4.21"></line><path d="M2.5 14.4V6.8L12 2l9.5 4.8v7.6L12 22l-9.5-4.8Z"></path><path d="M12 22V12"></path><path d="M2.5 14.4L12 19.2L21.5 14.4"></path><path d="M2.5 6.8L12 11.6L21.5 6.8"></path></svg><span class="menu-item-text">Caixas</span>
         </li>
         <li class="menu-divider"></li>
-        <li class="menu-item" id="menu-configuracoes" onclick="switchView('configuracoes')">
+        <li class="menu-item" id="menu-configuracoes" data-inline-click="handler10">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 0 2l-.15.08a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l-.22-.38a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1 0-2l.15-.08a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
             <span class="menu-item-text">Configurações</span>
         </li>
@@ -116,23 +116,23 @@
         </div>
 
         <div class="stats-grid">
-            <div class="stat-card" onclick="switchView('estoque')">
+            <div class="stat-card" data-inline-click="handler11">
                 <div class="stat-card-icon extracted-inline-style-3"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg></div>
                 <span class="stat-card-value" id="statDisponiveis">0</span>
                 <span class="stat-card-label">Disponíveis em Estoque</span>
             </div>
-            <div class="stat-card" onclick="switchView('termos')">
+            <div class="stat-card" data-inline-click="handler12">
                 <div class="stat-card-icon extracted-inline-style-4"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg></div>
                 <span class="stat-card-value" id="statEntregues">0</span>
                 <span class="stat-card-label">Aparelhos Entregues</span>
             </div>
-            <div class="stat-card" onclick="switchView('estoque-usados')">
+            <div class="stat-card" data-inline-click="handler13">
                 <div class="stat-card-icon extracted-inline-style-5"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9.5c0-1.24 1.01-2.25 2.25-2.25h15.5c1.24 0 2.25 1.01 2.25 2.25v8.25c0 1.24-1.01 2.25-2.25 2.25H4.25c-1.24 0-2.25-1.01-2.25-2.25Z"></path><path d="m15 9-6 6"></path><path d="m9 9 6 6"></path></svg></div>
                 <span class="stat-card-value" id="statUsados">0</span>
                 <span class="stat-card-label">No Estoque de Usados</span>
             </div>
             <!-- NOVO: Card de Status "Enviados" --> 
-            <div class="stat-card" onclick="switchView('estoque'); activateFilter(document.querySelector('#locationFilterGroup button[data-filter=\'Enviados\']'))">
+            <div class="stat-card" data-inline-click="handler14">
                 <div class="stat-card-icon extracted-inline-style-6"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg></div>
                 <span class="stat-card-value" id="statEnviados">0</span>
                 <span class="stat-card-label">Enviados</span>
@@ -141,10 +141,10 @@
             <div class="stat-card">
                 <div class="stat-card-label extracted-inline-style-7">Ações Rápidas</div>
                 <div class="quick-actions-grid">
-                    <button class="quick-action-btn" onclick="switchView('cadastro')" title="Adicionar Aparelho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14m-7-7h14"></path></svg></button>
-                    <button class="quick-action-btn" onclick="switchView('termos')" title="Vincular Termo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg></button>
-                    <button class="quick-action-btn" onclick="switchView('estoque'); setTimeout(() => document.getElementById('inputSearchStock').focus(), 100);" title="Buscar no Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
-                    <button class="quick-action-btn" onclick="switchView('configuracoes')" title="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
+                    <button class="quick-action-btn" data-inline-click="handler15" title="Adicionar Aparelho"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 5v14m-7-7h14"></path></svg></button>
+                    <button class="quick-action-btn" data-inline-click="handler16" title="Vincular Termo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line></svg></button>
+                    <button class="quick-action-btn" data-inline-click="handler17" title="Buscar no Estoque"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                    <button class="quick-action-btn" data-inline-click="handler18" title="Configurações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg></button>
                 </div>
             </div>
         </div>
@@ -413,8 +413,8 @@
 <div class="form-group">
     <label>Modelo do Termo</label>
     <div class="btn-group extracted-inline-style-43" id="modeloTermoGroup">
-        <button type="button" class="btn active" id="btnModelo1" onclick="setModeloTermo('A07')">Modelo 1</button>
-        <button type="button" class="btn" id="btnModelo2" onclick="setModeloTermo('A56')">Modelo 2 (A56/iPhone)</button>
+        <button type="button" class="btn active" id="btnModelo1" data-inline-click="handler19">Modelo 1</button>
+        <button type="button" class="btn" id="btnModelo2" data-inline-click="handler20">Modelo 2 (A56/iPhone)</button>
     </div>
     <!-- Campo oculto para salvar o valor -->
     <input type="hidden" id="inputTermoModelo" value="A07">
@@ -774,7 +774,7 @@
 <!-- MODAL DE DETALHES DA ENTREGA -->
 <div id="entregaModal" class="custom-modal">
     <div class="modal-content extracted-inline-style-69">
-        <span class="modal-close" onclick="closeEntregaModal()"></span>
+        <span class="modal-close" data-inline-click="handler21"></span>
         <div class="modal-info-container extracted-inline-style-70">
             <h3 class="modal-title-text extracted-inline-style-71"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>Informações de Entrega</h3>
             <hr class="extracted-inline-style-72">
@@ -783,42 +783,42 @@
                 <label>Nome do Colaborador</label>
                 <div class="info-value-wrapper">
                     <div id="entregaNome" class="info-value extracted-inline-style-73">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaNome')"></button>
+                    <button class="btn-copy" data-inline-click="handler22"></button>
                 </div>
             </div>
             <div class="info-group">
                 <label>Matrícula</label>
                 <div class="info-value-wrapper">
                     <div id="entregaMatricula" class="info-value">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaMatricula')"></button>
+                    <button class="btn-copy" data-inline-click="handler23"></button>
                 </div>
             </div>
             <div class="info-group">
                 <label>Centro de Custo (CC)</label>
                 <div class="info-value-wrapper">
                     <div id="entregaCC" class="info-value">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaCC')"></button>
+                    <button class="btn-copy" data-inline-click="handler24"></button>
                 </div>
             </div>
             <div class="info-group">
                 <label>Localidade</label>
                 <div class="info-value-wrapper">
                     <div id="entregaLocal" class="info-value">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaLocal')"></button>
+                    <button class="btn-copy" data-inline-click="handler25"></button>
                 </div>
             </div>
             <div class="info-group">
                 <label>Ticket / Chamado</label>
                 <div class="info-value-wrapper">
                     <div id="entregaTicket" class="info-value extracted-inline-style-74">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaTicket')"></button>
+                    <button class="btn-copy" data-inline-click="handler26"></button>
                 </div>
             </div>
             <div class="info-group">
                 <label>Entregue por (Técnico)</label>
                 <div class="info-value-wrapper">
                     <div id="entregaTecnico" class="info-value extracted-inline-style-75">-</div>
-                    <button class="btn-copy" onclick="copyInfoToClipboard('entregaTecnico')"></button>
+                    <button class="btn-copy" data-inline-click="handler27"></button>
                 </div>
             </div>
             <div class="extracted-inline-style-76">
@@ -835,7 +835,7 @@
 <!-- MODAL DE AÇÃO PARA ITEM EM ESTOQUE -->
 <div id="stockActionModal" class="custom-modal">
     <div class="modal-content extracted-inline-style-79">
-        <span class="modal-close" onclick="closeStockActionModal()"></span>
+        <span class="modal-close" data-inline-click="handler28"></span>
         <div class="modal-info-container extracted-inline-style-80">
             <h3 class="modal-title-text extracted-inline-style-81"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="extracted-inline-style-82"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path></svg>Ação para Item em Estoque</h3>
             <p id="stockActionItemInfo"></p>
