@@ -3781,7 +3781,7 @@ async function importCollectorZip(file) {
         currentStockPage = 1;
         renderStockTable();
         renderSelectStockOptions();
-        updateDashboard();
+        renderDashboard();
     }
     showCustomAlert('Importação concluída: ' + added + ' aparelho(s) incluído(s), ' +
         skipped + ' duplicado(s)/sem foto ignorado(s)' +
