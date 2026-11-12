@@ -3382,18 +3382,31 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 }
 
 
-/* MOBILE DOCK CLEARANCE: keeps form actions above the fixed dock */
+/* MOBILE DOCK CLEARANCE: reserve real scroll space and let long views grow */
 @media (max-width: 768px) {
   body.dock-layout .main-content {
-    /* Dock (68px) + afastamento inferior + folga de toque + safe area */
-    padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px)) !important;
-    scroll-padding-bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+    height: 100dvh !important;
+    min-height: 0 !important;
+    box-sizing: border-box !important;
+    padding: 12px 10px calc(190px + env(safe-area-inset-bottom, 0px)) !important;
+    scroll-padding-bottom: calc(190px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
   }
 
-  /* Mantém a última ação dos formulários acessível ao rolar até o fim. */
-  body.dock-layout .main-content .view-section,
-  body.dock-layout .main-content .view-section > :last-child {
-    scroll-margin-bottom: calc(156px + env(safe-area-inset-bottom, 0px));
+  /* As views estavam limitadas à altura da tela, impedindo o fim do formulário
+     de participar corretamente da rolagem do conteúdo principal. */
+  body.dock-layout .main-content > .view-section.active {
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    flex: 0 0 auto !important;
+    overflow: visible !important;
+  }
+
+  body.dock-layout .main-content > .view-section.active > :last-child {
+    margin-bottom: 12px;
   }
 }
