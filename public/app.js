@@ -4093,6 +4093,8 @@ document.addEventListener('DOMContentLoaded', () => {
     trigger.addEventListener('click', event => {
       event.preventDefault();
       event.stopPropagation();
+      // O hover já abriu o menu; o primeiro clique não deve fechá-lo.
+      if (hoverCapable() && !menu.hidden && activeTrigger === trigger && trigger.matches(':hover')) return;
       toggleMenu(trigger);
     });
     trigger.addEventListener('mouseenter', () => {
