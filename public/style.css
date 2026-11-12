@@ -3259,3 +3259,24 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 .account-profile-status{color:#16834a;}
 .account-profile-note{margin:14px 0 0;color:var(--text-muted);font-size:.76rem;line-height:1.5;}
 @media(max-width:480px){.account-profile-card{padding:24px 18px;}}
+
+
+/* Perfil do usuário integrado à sidebar e à dock */
+.sidebar-account-area{position:relative;margin:10px 12px 8px;padding-top:10px;border-top:1px solid var(--border-color);flex:0 0 auto}
+.sidebar-account-trigger{display:flex;width:100%;min-width:0;align-items:center;gap:10px;padding:8px;border:1px solid transparent;border-radius:12px;background:transparent;color:var(--text-main);text-align:left;cursor:pointer}
+.sidebar-account-trigger:hover{background:var(--menu-item-hover-bg);border-color:var(--border-color)}
+.sidebar-account-trigger>.account-avatar{width:36px;height:36px;flex:0 0 36px}
+.sidebar-account-copy{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}
+.sidebar-account-copy strong{font-size:.84rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-account-copy small{font-size:.72rem;color:var(--text-muted)}
+.sidebar-account-trigger>svg{width:15px;height:15px;flex:0 0 15px;fill:none;stroke:currentColor;stroke-width:2}
+.sidebar-account-area .account-menu{top:auto;right:0;bottom:calc(100% + 9px);left:0;width:100%;max-width:300px}
+.sidebar.collapsed .sidebar-account-area{margin-inline:7px}
+.sidebar.collapsed .sidebar-account-copy,.sidebar.collapsed .sidebar-account-trigger>svg{display:none}
+.sidebar.collapsed .sidebar-account-trigger{justify-content:center;padding:6px}
+.dock-account-item{display:none}
+@media(max-width:768px){
+ .sidebar-account-area{display:none!important}
+ .dock-account-item{display:flex!important}
+ body.dock-layout .sidebar .account-menu{position:absolute;top:auto;right:0;bottom:calc(100% + 12px);left:auto;width:min(280px,calc(100vw - 24px));max-width:calc(100vw - 24px)}
+}
