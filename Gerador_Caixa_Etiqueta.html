@@ -5,117 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Gerador de Caixa e Etiqueta V8</title>
 <!-- NOVO: Script para aplicar e sincronizar o tema com o app principal -->
-<script>
-  function applyThemeFromStorage() {
-    try {
-      const settingsJSON = localStorage.getItem('appSettings');
-      if (settingsJSON) {
-        const settings = JSON.parse(settingsJSON);
-        if (settings && settings.theme === 'dark') {
-          document.documentElement.classList.add('dark-mode');
-        } else {
-          document.documentElement.classList.remove('dark-mode');
-        }
-      }
-    } catch (e) { console.error("Falha ao aplicar tema do localStorage:", e); }
-  }
-  applyThemeFromStorage();
-  window.addEventListener('storage', (event) => {
-    if (event.key === 'appSettings') applyThemeFromStorage();
-  });
-</script>
-<style>
-:root{--blue:#1769d2;--green:#1da45a;--text:#111827;--muted:#667085;--line:#d7dde5;--paper:#fff;--bg:#f4f6f9;--box:#d39a57;--box-light:#e2b273;--box-dark:#b97936;--tape:#9a6936}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text)}.app{min-height:100vh;padding:16px}.shell{max-width:1500px;margin:0 auto;background:#fff;border-radius:16px;box-shadow:0 8px 28px rgba(0,0,0,.08);overflow:hidden}.top-tabs{display:flex;align-items:center;height:66px;padding:0 24px;border-bottom:1px solid var(--line)}.top-tab{height:66px;padding:0 28px;display:flex;align-items:center;gap:12px;font-size:18px;font-weight:900;color:#475467;border-bottom:4px solid transparent;cursor:pointer}.top-tab.active{color:var(--blue);border-bottom-color:var(--blue)}.tab-icon{font-size:24px}.panel{display:none}.panel.active{display:block}
-.box-layout{padding:22px 30px 16px}.heading{margin:0 0 6px;text-align:center;font-size:34px;font-weight:900}.weight-line{display:flex;justify-content:center;align-items:center;gap:12px;margin-bottom:10px;font-size:24px}.scale-icon{width:58px;height:48px}.canvas-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:28px}.left-area{padding:6px 10px 0}.right-area{border-left:1px dashed #98a2b3;padding-left:28px}.main-svg{width:100%;height:350px}.view-card{margin-bottom:26px}.view-title{text-align:center;font-size:22px;font-weight:900;margin-bottom:6px}.view-svg{width:100%;height:225px}.spec-table{width:72%;margin:2px auto 0;border:1.5px solid var(--blue);border-radius:10px;overflow:hidden}.spec-head{text-align:center;padding:10px;font-size:18px;font-weight:900;color:#0c4ea4;border-bottom:1px solid var(--blue)}.spec-row{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid #cfd6df}.spec-row:last-child{border-bottom:0}.spec-row div{padding:11px 16px;font-size:17px;font-weight:700}.spec-row div:first-child{border-right:1px solid #cfd6df}.controls{margin-top:20px;border:1px solid var(--line);border-radius:12px;padding:18px 20px}.fields{display:grid;grid-template-columns:1.4fr .8fr .85fr .8fr .95fr 1.15fr;gap:14px;align-items:end}.field label{display:block;font-size:14px;margin-bottom:7px}.field input{width:100%;padding:11px 12px;border:1px solid #cfd6df;border-radius:8px;font-size:16px}.generate{height:46px;border:0;border-radius:8px;background:var(--green);color:#fff;font-size:17px;font-weight:900;cursor:pointer}.note{margin-top:14px;display:flex;gap:12px;align-items:center;padding:12px 16px;border:1px solid #bddaf8;border-radius:8px;background:#eef7ff;font-size:15px}.info{width:26px;height:26px;border-radius:50%;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:900}.face{stroke:#111;stroke-width:2}.dim{stroke:#111;stroke-width:1.8}.dim-text{font-size:18px;font-weight:900;fill:#111}.small-dim{font-size:16px;font-weight:900;fill:#111}.ext{stroke:#777;stroke-width:1.2;stroke-dasharray:6 5}.tape{fill:var(--tape);opacity:.66}
-.label-layout{padding:26px 30px 30px}.label-grid{display:grid;grid-template-columns:340px 1fr;gap:26px;align-items:start}.label-form{border:1px solid var(--line);border-radius:12px;padding:20px}.label-form h2{margin:0 0 16px;font-size:22px}.label-actions{display:grid;gap:10px;margin-top:16px}.label-actions button{padding:12px;border:0;border-radius:8px;font-weight:900;cursor:pointer;font-size:15px}.label-actions .png{background:var(--blue);color:#fff}.label-actions .print{background:#1f2937;color:#fff}.label-preview-wrap{display:flex;justify-content:center;align-items:center}.shipping-label{width:850px;min-height:210px;background:#fff;border-top:3px solid #111;border-bottom:3px solid #111;padding:28px 34px;display:flex;align-items:center}.label-table{width:100%;display:flex;flex-direction:column;gap:16px}.label-row{display:flex;align-items:baseline;gap:10px;min-width:0}.label-caption{font-size:25px;font-weight:900;white-space:nowrap}.label-value{min-width:0;font-size:27px;font-weight:700;line-height:1.15;overflow-wrap:anywhere;word-break:break-word}.label-value.compact{font-size:23px}.label-value.very-compact{font-size:20px}
-@media(max-width:1100px){.canvas-grid,.label-grid{grid-template-columns:1fr}.right-area{border-left:0;border-top:1px dashed #98a2b3;padding-left:0;padding-top:20px}.fields{grid-template-columns:1fr 1fr}}
-@media print{body{background:#fff}.app,.shell{padding:0;margin:0;max-width:none;box-shadow:none;border-radius:0;overflow:visible}.top-tabs,.label-form,#boxPanel{display:none!important}#labelPanel{display:block!important}.label-layout{padding:0}.label-grid{display:block}.label-preview-wrap{display:block}.shipping-label{width:190mm;min-height:58mm;margin:0 auto;padding:10mm 12mm;border-top:2px solid #111;border-bottom:2px solid #111;page-break-inside:avoid}.label-table{gap:5mm}.label-caption{font-size:18pt}.label-value{font-size:20pt}.label-value.compact{font-size:17pt}.label-value.very-compact{font-size:15pt}@page{size:A4 portrait;margin:8mm}}
 
-.back-button {
-  text-decoration: none;
-  color: white;
-  background: var(--blue);
-  padding: 10px 15px;
-  border-radius: 8px;
-  border: none;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all .2s;
-  margin-bottom: 15px;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
 
-.back-button:hover {
-  opacity: 0.9;
-}
-
-/* NOVO: Estilos para o Modo Escuro */
-html.dark-mode {
-  --bg: #1a1a1a;
-  --text: #e0e0e0;
-  --line: #424242;
-  --muted: #9e9e93;
-  --blue: #0a84ff; /* Azul mais brilhante para o modo escuro */
-}
-html.dark-mode body {
-  color: var(--text);
-}
-html.dark-mode .shell {
-  background: #2d2d2d;
-}
-html.dark-mode .top-tab {
-  color: var(--muted);
-}
-html.dark-mode .top-tab.active {
-  color: var(--blue);
-  border-bottom-color: var(--blue);
-}
-html.dark-mode .field input {
-  background: #3a3a3a;
-  color: #e0e0e0;
-  border-color: #545458;
-}
-html.dark-mode .note {
-  background: #253245;
-  border-color: var(--blue);
-}
-html.dark-mode .info {
-    background: var(--blue);
-}
-html.dark-mode .back-button,
-html.dark-mode .label-actions .png {
-    background: var(--blue);
-}
-html.dark-mode .label-actions .print {
-    background: #3a3a3c;
-    color: #e0e0e0;
-}
-html.dark-mode .label-form {
-    border-color: var(--line);
-}
-/* NOVO: Garante que a área ao redor da etiqueta de envio também fique escura. */
-html.dark-mode .label-preview-wrap {
-    background-color: var(--bg);
-}
-/* Mantém as áreas de visualização claras, como se fossem documentos/objetos reais */
-html.dark-mode .shipping-label,
-html.dark-mode .main-svg,
-html.dark-mode .view-svg,
-html.dark-mode .spec-table {
-    background: var(--paper); /* var(--paper) é #fff */
-    border-radius: 8px;
-    box-shadow: 0 0 15px rgba(0,0,0,0.35);
-    color: #111; /* Garante que o texto dentro seja preto */
-}
-/* Ajustes finos para os elementos que ficaram claros */
-html.dark-mode .shipping-label .label-caption { color: #111; }
-html.dark-mode .spec-table { border-color: var(--blue); }
-html.dark-mode .spec-head { color: var(--blue); border-bottom-color: var(--blue); }
-html.dark-mode .spec-row div { border-color: #cfd6df; }
-</style>
+    <link rel="stylesheet" href="css/gerador-caixa.css">
 </head>
 <body>
 <div class="app">
@@ -128,7 +20,7 @@ html.dark-mode .spec-row div { border-color: #cfd6df; }
 <h1 id="titleText" class="heading">CAIXA MANAUS - AM</h1>
 <div class="weight-line"><svg class="scale-icon" viewBox="0 0 72 58"><path d="M34 4h4v8h-4z" fill="#111"/><path d="M21 13h30" stroke="#111" stroke-width="3"/><path d="M36 10v34" stroke="#111" stroke-width="3"/><path d="M17 18l-8 16M17 18l8 16M55 18l-8 16M55 18l8 16" stroke="#111" stroke-width="2"/><path d="M5 34h24c-2 8-20 8-24 0zM43 34h24c-2 8-20 8-24 0z" fill="#d7a51f" stroke="#111" stroke-width="2"/><path d="M28 47h16l5 6H23z" fill="#d7a51f" stroke="#111" stroke-width="2"/></svg><span>Peso: <strong id="weightText">0,780 kg</strong></span></div>
 <div class="canvas-grid"><div class="left-area">
-<svg class="main-svg" viewBox="0 0 760 420"><defs><marker id="arrowMain" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#111"/></marker><filter id="softShadow"><feDropShadow dx="6" dy="8" stdDeviation="7" flood-opacity=".18"/></filter></defs><polygon id="top3d" class="face" fill="var(--box-light)" filter="url(#softShadow)"/><polygon id="front3d" class="face" fill="var(--box)"/><polygon id="side3d" class="face" fill="var(--box-dark)"/><polygon id="topTape3d" class="tape"/><polygon id="frontTape3d" class="tape"/><line id="heightExtTop" class="ext"/><line id="heightExtBottom" class="ext"/><line id="heightLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="heightText" class="dim-text"/><line id="widthExtLeft" class="ext"/><line id="widthExtRight" class="ext"/><line id="widthLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="widthText" class="dim-text" text-anchor="middle"/><line id="lengthExtStart" class="ext"/><line id="lengthExtEnd" class="ext"/><line id="lengthLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="lengthText" class="dim-text" text-anchor="middle"/><text x="335" y="405" text-anchor="middle" style="font-style:italic;font-size:17px;fill:#475467;font-weight:700">VISTA ISOMÉTRICA</text></svg>
+<svg class="main-svg" viewBox="0 0 760 420"><defs><marker id="arrowMain" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#111"/></marker><filter id="softShadow"><feDropShadow dx="6" dy="8" stdDeviation="7" flood-opacity=".18"/></filter></defs><polygon id="top3d" class="face" fill="var(--box-light)" filter="url(#softShadow)"/><polygon id="front3d" class="face" fill="var(--box)"/><polygon id="side3d" class="face" fill="var(--box-dark)"/><polygon id="topTape3d" class="tape"/><polygon id="frontTape3d" class="tape"/><line id="heightExtTop" class="ext"/><line id="heightExtBottom" class="ext"/><line id="heightLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="heightText" class="dim-text"/><line id="widthExtLeft" class="ext"/><line id="widthExtRight" class="ext"/><line id="widthLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="widthText" class="dim-text" text-anchor="middle"/><line id="lengthExtStart" class="ext"/><line id="lengthExtEnd" class="ext"/><line id="lengthLine" class="dim" marker-start="url(#arrowMain)" marker-end="url(#arrowMain)"/><text id="lengthText" class="dim-text" text-anchor="middle"/><text x="335" y="405" text-anchor="middle" class="extracted-inline-style-1">VISTA ISOMÉTRICA</text></svg>
 <div class="spec-table"><div class="spec-head">ESPECIFICAÇÕES</div><div class="spec-row"><div>LARGURA</div><div id="specWidth">16,5 cm</div></div><div class="spec-row"><div>ALTURA</div><div id="specHeight">8 cm</div></div><div class="spec-row"><div>COMPRIMENTO</div><div id="specLength">23,5 cm</div></div></div>
 </div><div class="right-area">
 <div class="view-card"><div class="view-title">VISTA FRONTAL</div><svg class="view-svg" viewBox="0 0 430 235"><defs><marker id="arrowFront" markerWidth="8" markerHeight="8" refX="4" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#111"/></marker></defs><rect id="frontRect" class="face" fill="var(--box-light)"/><rect id="frontTape" class="tape"/><line id="frontWExtL" class="ext"/><line id="frontWExtR" class="ext"/><line id="frontWLine" class="dim" marker-start="url(#arrowFront)" marker-end="url(#arrowFront)"/><text id="frontWText" class="small-dim" text-anchor="middle"/><line id="frontHExtT" class="ext"/><line id="frontHExtB" class="ext"/><line id="frontHLine" class="dim" marker-start="url(#arrowFront)" marker-end="url(#arrowFront)"/><text id="frontHText" class="small-dim"/></svg></div>
@@ -138,15 +30,6 @@ html.dark-mode .spec-row div { border-color: #cfd6df; }
 </div></section>
 <section id="labelPanel" class="panel"><div class="label-layout"><div class="label-grid"><div class="label-form"><h2>Dados da etiqueta</h2><div class="field"><label>Origem</label><input id="originInput" value="TI CANOAS / RS"></div><div class="field"><label>Destino</label><input id="destinationInput" value="MANAUS / AM"></div><div class="field"><label>Contato</label><input id="contactInput" value="Bruno Pereira Martiz"></div><div class="label-actions"><button class="png" onclick="savePNG('labelPreview','etiqueta_envio')">GERAR PNG DA ETIQUETA</button><button class="print" onclick="printLabel()">IMPRIMIR ETIQUETA</button></div></div><div class="label-preview-wrap"><div id="labelPreview" class="shipping-label"><div class="label-table"><div class="label-row"><div class="label-caption">Origem:</div><div class="label-value" id="originText">TI CANOAS/RS</div></div><div class="label-row"><div class="label-caption">Destino:</div><div class="label-value" id="destinationText">MANAUS/AM</div></div><div class="label-row"><div class="label-caption">Contato:</div><div class="label-value" id="contactText">Bruno Pereira Martiz</div></div></div></div></div></div></div></section>
 </div></div>
-<script>
-const boxIds=["titleInput","weightInput","widthInput","heightInput","lengthInput"],labelIds=["originInput","destinationInput","contactInput"];boxIds.forEach(id=>document.getElementById(id).addEventListener("input",updateBox));labelIds.forEach(id=>document.getElementById(id).addEventListener("input",updateLabel));
-function showPanel(name){const box=name==="box";document.getElementById("boxPanel").classList.toggle("active",box);document.getElementById("labelPanel").classList.toggle("active",!box);document.getElementById("tabBox").classList.toggle("active",box);document.getElementById("tabLabel").classList.toggle("active",!box)}
-function num(id,fallback=1){const value=parseFloat(String(document.getElementById(id).value).replace(",","."));return Number.isFinite(value)&&value>0?value:fallback}function br(value,min=0,max=3){return Number(value).toLocaleString("pt-BR",{minimumFractionDigits:min,maximumFractionDigits:max})}function setLine(id,x1,y1,x2,y2){const e=document.getElementById(id);e.setAttribute("x1",x1);e.setAttribute("y1",y1);e.setAttribute("x2",x2);e.setAttribute("y2",y2)}function setText(id,x,y,value,anchor){const e=document.getElementById(id);e.setAttribute("x",x);e.setAttribute("y",y);if(anchor)e.setAttribute("text-anchor",anchor);e.textContent=value}function setRect(id,x,y,w,h){const e=document.getElementById(id);e.setAttribute("x",x);e.setAttribute("y",y);e.setAttribute("width",w);e.setAttribute("height",h)}function setPoly(id,points){document.getElementById(id).setAttribute("points",points.map(p=>p.join(",")).join(" "))}
-function updateBox(){const title=document.getElementById("titleInput").value.trim()||"CAIXA PARA ENVIO",weight=num("weightInput"),width=num("widthInput"),height=num("heightInput"),length=num("lengthInput");document.getElementById("titleText").textContent=title.toUpperCase();document.getElementById("weightText").textContent=`${br(weight,3,3)} kg`;document.getElementById("specWidth").textContent=`${br(width)} cm`;document.getElementById("specHeight").textContent=`${br(height)} cm`;document.getElementById("specLength").textContent=`${br(length)} cm`;drawMain(width,height,length);drawFront(width,height);drawTop(width,length)}
-function drawMain(width,height,length){const maxDim=Math.max(width,height,length),scale=285/maxDim,w=width*scale,h=height*scale,d=length*scale,dx=d*.45,dy=d*.22,projectedWidth=w+dx,x=335-projectedWidth/2,y=150,A=[x,y],B=[x+w,y],C=[x+w+dx,y-dy],D=[x+dx,y-dy],A2=[A[0],A[1]+h],B2=[B[0],B[1]+h],C2=[C[0],C[1]+h];setPoly("top3d",[A,B,C,D]);setPoly("front3d",[A,B,B2,A2]);setPoly("side3d",[B,C,C2,B2]);const tapeW=Math.max(18,w*.12),center=(A[0]+B[0])/2,tx1=center-tapeW/2,tx2=center+tapeW/2,shift=dx*(tapeW/w);setPoly("topTape3d",[[tx1,y],[tx2,y],[tx2+shift,C[1]],[tx1+shift,D[1]]]);setPoly("frontTape3d",[[tx1,y],[tx2,y],[tx2,y+h],[tx1,y+h]]);const heightX=C[0]+52;setLine("heightExtTop",C[0]+10,C[1],heightX+18,C[1]);setLine("heightExtBottom",C2[0]+10,C2[1],heightX+18,C2[1]);setLine("heightLine",heightX,C[1],heightX,C2[1]);setText("heightText",heightX+16,(C[1]+C2[1])/2+6,`${br(height)} cm`);const widthY=A2[1]+48;setLine("widthExtLeft",A2[0],A2[1]+8,A2[0],widthY+16);setLine("widthExtRight",B2[0],B2[1]+8,B2[0],widthY+16);setLine("widthLine",A2[0],widthY,B2[0],widthY);setText("widthText",(A2[0]+B2[0])/2,widthY+32,`${br(width)} cm`,"middle");const lx1=B2[0]+28,ly1=B2[1]+30,lx2=C2[0]+28,ly2=C2[1]+30;setLine("lengthExtStart",B2[0]+6,B2[1]+6,lx1+10,ly1+10);setLine("lengthExtEnd",C2[0]+6,C2[1]+6,lx2+10,ly2+10);setLine("lengthLine",lx1,ly1,lx2,ly2);setText("lengthText",(lx1+lx2)/2+28,(ly1+ly2)/2+32,`${br(length)} cm`,"middle")}
-function drawFront(width,height){const scale=Math.min(225/width,120/height),w=width*scale,h=height*scale,x=65+(225-w)/2,y=30+(120-h)/2;setRect("frontRect",x,y,w,h);setRect("frontTape",x+w*.43,y,w*.14,h*.34);const widthY=y+h+30;setLine("frontWExtL",x,y+h+6,x,widthY+16);setLine("frontWExtR",x+w,y+h+6,x+w,widthY+16);setLine("frontWLine",x,widthY,x+w,widthY);setText("frontWText",x+w/2,widthY+28,`${br(width)} cm`,"middle");const heightX=x+w+38;setLine("frontHExtT",x+w+6,y,heightX+14,y);setLine("frontHExtB",x+w+6,y+h,heightX+14,y+h);setLine("frontHLine",heightX,y,heightX,y+h);setText("frontHText",heightX+16,y+h/2+6,`${br(height)} cm`)}
-function drawTop(width,length){const scale=Math.min(225/length,130/width),w=length*scale,h=width*scale,x=55+(225-w)/2,y=25+(130-h)/2;setRect("topRect",x,y,w,h);setRect("topTape",x,y+h*.42,w,h*.16);const lengthY=y+h+30;setLine("topLExtL",x,y+h+6,x,lengthY+16);setLine("topLExtR",x+w,y+h+6,x+w,lengthY+16);setLine("topLLine",x,lengthY,x+w,lengthY);setText("topLText",x+w/2,lengthY+28,`${br(length)} cm`,"middle");const widthX=x+w+38;setLine("topWExtT",x+w+6,y,widthX+14,y);setLine("topWExtB",x+w+6,y+h,widthX+14,y+h);setLine("topWLine",widthX,y,widthX,y+h);setText("topWText",widthX+16,y+h/2+6,`${br(width)} cm`)}
-function fitLabelText(element){element.classList.remove("compact","very-compact");const length=element.textContent.trim().length;if(length>32){element.classList.add("very-compact")}else if(length>22){element.classList.add("compact")}}function updateLabel(){const origin=document.getElementById("originInput").value.trim().toUpperCase()||"TI CANOAS/RS";const destination=document.getElementById("destinationInput").value.trim().toUpperCase()||"DESTINO";const contact=document.getElementById("contactInput").value.trim()||"Nome do contato";[["originText",origin],["destinationText",destination],["contactText",contact]].forEach(([id,value])=>{const element=document.getElementById(id);element.textContent=value;fitLabelText(element)})}
-async function savePNG(id,name){if(typeof html2canvas==="undefined"){alert("Não foi possível carregar o gerador de PNG.");return}const element=document.getElementById(id),canvas=await html2canvas(element,{backgroundColor:"#ffffff",scale:2,useCORS:true}),link=document.createElement("a");link.download=`${name}.png`;link.href=canvas.toDataURL("image/png");link.click()}function printLabel(){showPanel("label");setTimeout(()=>window.print(),100)}updateBox();updateLabel();
-</script><script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="js/gerador-caixa.js"></script>
 </body></html>
