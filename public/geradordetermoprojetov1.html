@@ -1824,3 +1824,54 @@ document.addEventListener("DOMContentLoaded", autoDownload);
 }
 
 </style>
+
+
+
+<style>
+/* Responsividade complementar do gerador de termos */
+html,body{width:100%;min-width:320px;max-width:100%;overflow-x:hidden}
+*,*::before,*::after{box-sizing:border-box;min-width:0}
+.layout{width:100%;max-width:100%;grid-template-columns:minmax(290px, min(38vw,460px)) minmax(0,1fr);gap:clamp(12px,2vw,24px)}
+.panel,.preview-area,.page{min-width:0;max-width:100%}
+input,select,textarea,button{max-width:100%;min-width:0}
+.table-wrap{width:100%;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+.table-wrap table{width:max-content;min-width:100%}
+.preview-area{overflow-x:auto;overscroll-behavior-inline:contain}
+.page{width:min(100%,210mm);margin-inline:auto}
+@media(max-width:1050px){
+ .layout{grid-template-columns:minmax(0,1fr);height:auto;min-height:100dvh;padding:12px}
+ .panel{height:auto;min-height:0}
+ .sticky{position:static}
+ .preview-area{width:100%;padding:0;overflow-x:auto}
+ .page{width:min(100%,210mm)}
+}
+@media(max-width:650px){
+ .layout{display:flex;flex-direction:column;padding:8px;gap:10px}
+ .panel{width:100%;padding:12px;border-radius:12px}
+ .tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .tab{min-width:0;padding:9px 5px;font-size:13px}
+ .grid2{grid-template-columns:minmax(0,1fr)!important}
+ .batch-toolbar,.actions{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .batch-toolbar button,.actions button{width:100%;min-height:44px}
+ .field input,.field select,.field textarea{width:100%;min-height:44px;font-size:16px}
+ .checks{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+ .preview-area{overflow-x:auto;padding:0}
+ .page{width:100%;min-width:0;padding:clamp(12px,4vw,22px);font-size:clamp(10px,2.7vw,13px);overflow-wrap:anywhere}
+ .page .header img,.page .footer img{max-width:100%;height:auto}
+ .table-wrap{width:100%}
+ .table-wrap table{min-width:640px}
+ .logo-editor{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+ .logo-preview{max-width:100%;height:auto}
+}
+@media(max-width:380px){
+ .tabs{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .page{padding:10px;font-size:10px}
+ .page .title{font-size:15px}
+}
+@media(orientation:landscape) and (max-height:560px) and (max-width:900px){
+ .layout{padding:8px}
+ .panel{padding:10px}
+ .preview-area{max-height:none}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
