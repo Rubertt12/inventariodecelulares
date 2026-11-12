@@ -20,9 +20,17 @@ button:hover,.back:hover{background:var(--brand2)}button.secondary{background:#e
 .list-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.counter{font-size:13px;color:var(--muted)}.records{display:grid;gap:10px;margin-top:14px}.record{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;grid-template-columns:86px 1fr auto;gap:12px;align-items:center}.record img{width:86px;height:86px;object-fit:cover;border-radius:8px;background:#eef2f6}.record strong{display:block;overflow-wrap:anywhere}.record small{color:var(--muted)}.empty{padding:30px 12px;text-align:center;color:var(--muted);border:1px dashed #cbd5e1;border-radius:12px;margin-top:14px}
 footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);font-size:12px}
 @media(max-width:800px){.layout{grid-template-columns:1fr}.wrap{margin:14px auto}.card{padding:16px}.record{grid-template-columns:70px 1fr}.record img{width:70px;height:70px}.record .remove{grid-column:2;justify-self:start}.row{grid-template-columns:1fr}}
+/* Modo incorporado na tela principal de estoque */
+body.embed-mode{background:transparent}
+body.embed-mode header,body.embed-mode footer{display:none!important}
+body.embed-mode .wrap{max-width:none;margin:0;padding:14px}
+body.embed-mode .layout{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr)}
+body.embed-mode .card{box-shadow:none}
+body.embed-mode #importStock{display:none!important}
+@media(max-width:800px){body.embed-mode .wrap{padding:10px}body.embed-mode .layout{grid-template-columns:1fr}}
 </style>
 </head>
-<body>
+<body class="embed-mode">
 <header><div><h1>Coletor de celulares</h1><p>Leia IMEI e número de série, fotografe e exporte o lote.</p></div><a class="back" href="celular.rubertt.html">← Voltar ao inventário</a></header>
 <main class="wrap"><div class="layout">
 <section class="card">
@@ -39,7 +47,7 @@ footer{max-width:1180px;margin:0 auto;padding:0 16px 28px;color:var(--muted);fon
 </section>
 <section class="card">
 <div class="list-head"><div><h2 style="margin:0">2. Lote coletado</h2><div class="counter" id="counter">0 aparelhos</div></div><div class="actions" style="margin:0"><button id="importStock" class="secondary" disabled>Importar no estoque</button><button id="export" disabled>Baixar ZIP do lote</button></div></div>
-<p class="hint">O ZIP contém CSV, fotos e uma pasta individual por aparelho. Você também pode importar um ZIP gerado anteriormente.</p><label for="importZip">Importar lote de um ZIP salvo</label><input id="importZip" type="file" accept=".zip,application/zip">
+<p class="hint">O ZIP contém CSV, fotos e uma pasta individual por aparelho. Você também pode importar um ZIP gerado anteriormente. Para incluir no estoque desta tela, baixe o ZIP e use <strong>Importar Lote ZIP</strong> no menu do inventário.</p><label for="importZip">Importar lote de um ZIP salvo</label><input id="importZip" type="file" accept=".zip,application/zip">
 <div id="records" class="empty">Nenhum aparelho adicionado ainda.</div>
 </section></div></main>
 <footer>Privacidade: fotos, rascunho e lote ficam no armazenamento local deste navegador (IndexedDB), sem envio ao servidor. Se fechar a página, o coletor tenta restaurar a captura e o lote ao voltar no mesmo aparelho e navegador. O OCR pode errar: confira IMEI e SN. Exporte o ZIP para manter uma cópia de segurança.</footer>
