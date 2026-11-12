@@ -3229,128 +3229,114 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
 
 
 /* Menu de conta demonstrativa */
-.mobile-topbar{position:relative;}
-.account-trigger{display:inline-flex;align-items:center;gap:7px;min-height:40px;padding:4px 9px 4px 5px;border:1px solid var(--border-color);border-radius:999px;background:var(--card-bg);color:var(--text-main);font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;flex:0 0 auto;}
+/* ===== Perfil de usuário: componente único e responsivo ===== */
+.account-trigger{
+  display:inline-flex;align-items:center;gap:8px;min-height:40px;
+  padding:4px 10px 4px 5px;border:1px solid var(--border-color);
+  border-radius:999px;background:var(--card-bg);color:var(--text-main);
+  font:inherit;font-size:.82rem;font-weight:700;cursor:pointer;flex:0 0 auto;
+}
 .account-trigger>svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
-.account-avatar{display:inline-grid;place-items:center;width:30px;height:30px;border-radius:50%;background:var(--accent-color);color:#fff;font-size:.85rem;font-weight:800;}
-.account-menu{position:absolute;z-index:1500;right:10px;top:calc(100% + 7px);width:min(280px,calc(100vw - 24px));padding:10px;border:1px solid var(--border-color);border-radius:15px;background:var(--card-bg);color:var(--text-main);box-shadow:0 14px 38px rgba(0,0,0,.2);}
+.account-avatar{
+  display:inline-grid;place-items:center;width:34px;height:34px;flex:0 0 34px;
+  border-radius:50%;background:var(--accent-color);color:#fff;
+  font-size:.88rem;font-weight:800;line-height:1;
+}
+.account-avatar-large{width:44px;height:44px;flex-basis:44px;font-size:1.08rem;}
+
+/* Um único botão de perfil no rodapé da sidebar tradicional. */
+.sidebar-account-area{
+  position:relative;display:flex;flex:0 0 auto;align-items:center;
+  justify-content:center;margin:10px 10px 12px;padding:12px 0 0;
+  border-top:1px solid var(--border-color);
+}
+.sidebar-account-trigger{
+  display:grid;place-items:center;width:44px;height:44px;min-width:44px;
+  padding:4px;border:1px solid transparent;border-radius:12px;
+  background:transparent;color:var(--text-main);cursor:pointer;
+}
+.sidebar-account-trigger:hover,
+.sidebar-account-trigger[aria-expanded="true"],
+.dock-account-item:hover,
+.dock-account-item[aria-expanded="true"]{
+  background:var(--menu-item-hover-bg);border-color:var(--border-color);
+}
+.sidebar-account-trigger .account-avatar{width:34px;height:34px;}
+
+/* O perfil entra na dock somente quando o layout dock estiver ativo. */
+.dock-account-item{display:none!important;align-items:center;justify-content:center;cursor:pointer;}
+.dock-account-item>.account-avatar{width:34px;height:34px;flex:none;margin:0;}
+.dock-account-item:focus-visible,
+.sidebar-account-trigger:focus-visible,
+.account-trigger:focus-visible,
+.account-menu button:focus-visible{
+  outline:2px solid var(--accent-color);outline-offset:3px;
+}
+@media(min-width:769px){
+  body.dock-layout .sidebar-account-area{display:none!important;}
+  body.dock-layout .dock-account-item{
+    display:flex!important;width:44px;height:44px;min-width:44px;
+    padding:0!important;border:1px solid transparent;border-radius:12px;
+  }
+}
+@media(max-width:768px){
+  .sidebar-account-area,.dock-account-item{display:none!important;}
+  .account-trigger{min-height:38px;padding:3px 8px 3px 4px;}
+  .account-trigger .account-avatar{width:30px;height:30px;flex-basis:30px;}
+}
+@media(max-width:420px){
+  .account-trigger-name{display:none;}
+  .account-trigger{padding-right:4px;}
+}
+
+/* Menu único, fora da sidebar: não some ao trocar sidebar/dock. */
+.account-menu{
+  position:fixed;z-index:20000;display:block;
+  width:min(290px,calc(100vw - 24px));padding:10px;
+  border:1px solid var(--border-color);border-radius:16px;
+  background:var(--card-bg);color:var(--text-main);
+  box-shadow:0 16px 44px rgba(0,0,0,.22);
+}
 .account-menu[hidden]{display:none!important;}
-.account-menu-head{display:flex;align-items:center;gap:11px;padding:8px 7px 12px;}
-.account-avatar-large{width:42px;height:42px;font-size:1.1rem;}
-.account-menu-head div{display:flex;flex-direction:column;gap:3px;min-width:0;}
-.account-menu-head strong{font-size:.9rem;}
-.account-menu-head small{font-size:.74rem;color:var(--text-muted);}
-.account-menu-divider{height:1px;background:var(--border-color);margin:2px 0 7px;}
-.account-menu>button{display:flex;width:100%;align-items:center;min-height:40px;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:var(--text-main);font:inherit;text-align:left;cursor:pointer;}
+.account-menu-head{display:flex;align-items:center;gap:12px;padding:8px 7px 12px;}
+.account-menu-head>div{display:flex;flex:1;min-width:0;flex-direction:column;gap:4px;}
+.account-menu-head strong{font-size:.92rem;line-height:1.2;}
+.account-menu-head small{color:var(--text-muted);font-size:.75rem;line-height:1.35;}
+.account-menu-divider{height:1px;margin:2px 0 7px;background:var(--border-color);}
+.account-menu>button{
+  display:flex;width:100%;min-height:42px;align-items:center;
+  padding:10px 11px;border:0;border-radius:10px;background:transparent;
+  color:var(--text-main);font:inherit;text-align:left;cursor:pointer;
+}
 .account-menu>button:hover{background:var(--accent-color-subtle);}
 .account-menu>button.account-logout{color:#dc3545;}
 .account-menu>button:disabled{opacity:.6;cursor:wait;}
-@media(max-width:420px){.account-trigger-name{display:none}.account-trigger{padding-right:5px}.mobile-topbar>strong{font-size:.86rem;}}
 
-.account-profile-overlay{position:fixed;inset:0;z-index:2200;display:grid;place-items:center;padding:20px;background:rgba(12,18,30,.48);backdrop-filter:blur(5px);}
-.account-profile-card{position:relative;width:min(420px,100%);padding:28px;border:1px solid var(--border-color);border-radius:20px;background:var(--card-bg);color:var(--text-main);box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center;}
-.account-profile-card h2{margin:14px 0 4px;font-size:1.35rem;}
+/* Modal de dados do perfil demonstrativo. */
+.account-profile-overlay{
+  position:fixed;inset:0;z-index:21000;display:grid;place-items:center;
+  padding:20px;background:rgba(12,18,30,.52);backdrop-filter:blur(5px);
+}
+.account-profile-card{
+  position:relative;width:min(420px,100%);padding:28px;
+  border:1px solid var(--border-color);border-radius:20px;
+  background:var(--card-bg);color:var(--text-main);
+  box-shadow:0 24px 70px rgba(0,0,0,.25);text-align:center;
+}
+.account-profile-card h2{margin:14px 0 4px;font-size:1.3rem;}
 .account-profile-subtitle{margin:0;color:var(--text-muted);font-size:.88rem;}
-.account-profile-close{position:absolute;top:12px;right:14px;width:34px;height:34px;border:0;border-radius:50%;background:var(--accent-color-subtle);color:var(--text-main);font-size:1.4rem;cursor:pointer;}
+.account-profile-close{
+  position:absolute;top:12px;right:14px;width:34px;height:34px;
+  border:0;border-radius:50%;background:var(--accent-color-subtle);
+  color:var(--text-main);font-size:1.4rem;cursor:pointer;
+}
 .account-profile-details{display:grid;gap:10px;margin:22px 0 14px;text-align:left;}
-.account-profile-details>div{display:flex;justify-content:space-between;gap:12px;padding:12px;border:1px solid var(--border-color);border-radius:10px;}
+.account-profile-details>div{
+  display:flex;justify-content:space-between;gap:12px;padding:12px;
+  border:1px solid var(--border-color);border-radius:10px;
+}
 .account-profile-details small{color:var(--text-muted);}
 .account-profile-details strong{font-size:.86rem;text-align:right;}
 .account-profile-status{color:#16834a;}
 .account-profile-note{margin:14px 0 0;color:var(--text-muted);font-size:.76rem;line-height:1.5;}
 @media(max-width:480px){.account-profile-card{padding:24px 18px;}}
-
-
-/* Perfil — um único ponto de acesso por layout */
-.sidebar-account-area{
-  position:relative;
-  display:flex;
-  flex:0 0 auto;
-  justify-content:center;
-  align-items:center;
-  margin:10px 8px 8px;
-  padding:10px 0 0;
-  border-top:1px solid var(--border-color);
-  overflow:visible;
-}
-.sidebar-account-trigger{
-  display:grid;
-  place-items:center;
-  width:46px;
-  height:46px;
-  min-width:46px;
-  margin:0 auto;
-  padding:5px;
-  border:1px solid transparent;
-  border-radius:12px;
-  background:transparent;
-  color:var(--text-main);
-  cursor:pointer;
-}
-.sidebar-account-trigger:hover,
-body.dock-layout .dock-account-item:hover{
-  background:var(--menu-item-hover-bg);
-  border-color:var(--border-color);
-}
-.sidebar-account-trigger>.account-avatar{width:34px;height:34px;flex:none;}
-.sidebar-account-copy,
-.sidebar-account-trigger>svg{display:none!important;}
-.sidebar.collapsed .sidebar-account-area{
-  margin:10px 5px 8px;
-  padding-top:10px;
-}
-.sidebar.collapsed .sidebar-account-trigger{width:44px;min-width:44px;}
-.dock-account-item{display:none!important;}
-.dock-account-item>.account-avatar{
-  display:grid;
-  width:34px;
-  height:34px;
-  flex:none;
-  margin:0;
-  place-items:center;
-  border-radius:50%;
-}
-.dock-account-item>.menu-item-text{display:none!important;}
-
-/* Em modo dock, o perfil sai da sidebar e aparece somente na dock. */
-@media (min-width:769px){
-  body.dock-layout .sidebar-account-area{display:none!important;}
-  body.dock-layout .dock-account-item{
-    display:flex!important;
-    position:relative;
-    justify-content:center;
-    align-items:center;
-    width:44px;
-    height:44px;
-    min-width:44px;
-    padding:0!important;
-    border:1px solid transparent;
-    border-radius:12px;
-    cursor:pointer;
-  }
-  .account-menu.profile-floating-menu{
-    position:fixed!important;
-    inset:auto!important;
-    transform:none!important;
-    z-index:15000!important;
-    width:min(280px,calc(100vw - 24px))!important;
-    max-width:calc(100vw - 24px)!important;
-    margin:0!important;
-  }
-}
-
-/* No celular, o perfil fica exclusivamente na topbar. */
-@media (max-width:768px){
-  .sidebar-account-area{display:none!important;}
-  .dock-account-item{display:none!important;}
-  .account-menu.profile-floating-menu{
-    position:fixed!important;
-    right:12px!important;
-    left:auto!important;
-    bottom:76px!important;
-    top:auto!important;
-    width:min(280px,calc(100vw - 24px))!important;
-    max-width:calc(100vw - 24px)!important;
-    transform:none!important;
-  }
-}
