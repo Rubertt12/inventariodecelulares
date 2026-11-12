@@ -3453,12 +3453,36 @@ function applyTheme(theme) {
 }
 
 const accentPalettes = {
-    ocean: { accent: '#0078d4', hover: '#106ebe', active: '#005a9e', subtle: 'rgba(0,120,212,.12)' },
-    emerald: { accent: '#0b8f68', hover: '#087653', active: '#066044', subtle: 'rgba(11,143,104,.13)' },
-    purple: { accent: '#7955c8', hover: '#6542b2', active: '#503397', subtle: 'rgba(121,85,200,.14)' },
-    graphite: { accent: '#596579', hover: '#465265', active: '#354052', subtle: 'rgba(89,101,121,.15)' },
-    sunset: { accent: '#d96b32', hover: '#bd5524', active: '#9f431b', subtle: 'rgba(217,107,50,.14)' },
-    rose: { accent: '#c94f78', hover: '#b33e67', active: '#963253', subtle: 'rgba(201,79,120,.14)' }
+    ocean: {
+        accent: '#0878d1', hover: '#0668b8', active: '#045493', subtle: 'rgba(8,120,209,.13)',
+        light: { bg:'#f3f7fb', main:'#f7f9fc', sidebar:'#173f5f', card:'#ffffff', table:'#edf3f9', row:'#f5f9fd', input:'#ffffff', border:'#d8e2ed', text:'#172536', muted:'#627386', activeBg:'#e4f0fb', btn:'#ffffff', btnHover:'#eaf2fa', modal:'#ffffff' },
+        dark: { bg:'#101c2a', main:'#132235', sidebar:'#0d1a28', card:'#1b2d41', table:'#24394f', row:'#20344a', input:'#20344a', border:'#344b62', text:'#e8f1fa', muted:'#a5b8ca', activeBg:'#174a73', btn:'#24394f', btnHover:'#304b65', modal:'#1b2d41' }
+    },
+    emerald: {
+        accent: '#078765', hover: '#067452', active: '#045c41', subtle: 'rgba(7,135,101,.13)',
+        light: { bg:'#f1f8f5', main:'#f7fbf9', sidebar:'#174b40', card:'#ffffff', table:'#eaf4ef', row:'#f4faf6', input:'#ffffff', border:'#d5e7dd', text:'#19352d', muted:'#60796e', activeBg:'#dff1e8', btn:'#ffffff', btnHover:'#e7f4ed', modal:'#ffffff' },
+        dark: { bg:'#101f1b', main:'#142720', sidebar:'#10251f', card:'#1d352c', table:'#29483b', row:'#244136', input:'#244136', border:'#365849', text:'#e7f5ed', muted:'#a3c0b1', activeBg:'#175b43', btn:'#29483b', btnHover:'#345b4b', modal:'#1d352c' }
+    },
+    purple: {
+        accent: '#7955c8', hover: '#6845b5', active: '#523597', subtle: 'rgba(121,85,200,.14)',
+        light: { bg:'#f5f3fa', main:'#faf9fd', sidebar:'#392b5d', card:'#ffffff', table:'#efebf8', row:'#f8f6fc', input:'#ffffff', border:'#e0d9ef', text:'#29223c', muted:'#716783', activeBg:'#ebe4f8', btn:'#ffffff', btnHover:'#f0ebfa', modal:'#ffffff' },
+        dark: { bg:'#1b1726', main:'#211b30', sidebar:'#1a1428', card:'#2b2340', table:'#3a3052', row:'#342a4b', input:'#342a4b', border:'#4c4165', text:'#f0eafa', muted:'#b8abcF', activeBg:'#4b3478', btn:'#3a3052', btnHover:'#4a3d63', modal:'#2b2340' }
+    },
+    graphite: {
+        accent: '#596579', hover: '#465265', active: '#354052', subtle: 'rgba(89,101,121,.15)',
+        light: { bg:'#f1f3f5', main:'#f7f8fa', sidebar:'#343e4d', card:'#ffffff', table:'#e9edf1', row:'#f4f6f8', input:'#ffffff', border:'#d8dde4', text:'#222b36', muted:'#66717e', activeBg:'#e2e7ee', btn:'#ffffff', btnHover:'#edf0f4', modal:'#ffffff' },
+        dark: { bg:'#171b21', main:'#1d232b', sidebar:'#151a21', card:'#282f39', table:'#343d49', row:'#303945', input:'#303945', border:'#444f5d', text:'#edf0f4', muted:'#adb6c2', activeBg:'#46566d', btn:'#343d49', btnHover:'#424e5e', modal:'#282f39' }
+    },
+    sunset: {
+        accent: '#d96b32', hover: '#bd5524', active: '#9f431b', subtle: 'rgba(217,107,50,.14)',
+        light: { bg:'#fbf4ef', main:'#fdf9f6', sidebar:'#663b2c', card:'#ffffff', table:'#f7ece4', row:'#fcf6f1', input:'#ffffff', border:'#ead8cb', text:'#3b2a22', muted:'#80695d', activeBg:'#f8e5d8', btn:'#ffffff', btnHover:'#fbede4', modal:'#ffffff' },
+        dark: { bg:'#241812', main:'#2d1e16', sidebar:'#241710', card:'#3b281e', table:'#503628', row:'#493024', input:'#493024', border:'#654737', text:'#fff0e6', muted:'#d0ad98', activeBg:'#754326', btn:'#503628', btnHover:'#624331', modal:'#3b281e' }
+    },
+    rose: {
+        accent: '#c94f78', hover: '#b33e67', active: '#963253', subtle: 'rgba(201,79,120,.14)',
+        light: { bg:'#fbf2f5', main:'#fdf8fa', sidebar:'#633448', card:'#ffffff', table:'#f6eaf0', row:'#fcf5f8', input:'#ffffff', border:'#ead5df', text:'#3b2630', muted:'#806675', activeBg:'#f5e1ea', btn:'#ffffff', btnHover:'#faedf2', modal:'#ffffff' },
+        dark: { bg:'#241720', main:'#2d1d28', sidebar:'#241620', card:'#3b2935', table:'#503847', row:'#493241', input:'#493241', border:'#654757', text:'#f9edf2', muted:'#d0adbd', activeBg:'#71334f', btn:'#503847', btnHover:'#624357', modal:'#3b2935' }
+    }
 };
 function applyAccentTheme(preset, customColor) {
     const root = document.documentElement;
@@ -3466,30 +3490,38 @@ function applyAccentTheme(preset, customColor) {
     const palette = accentPalettes[preset] || accentPalettes.ocean;
     let accent = palette.accent, hover = palette.hover, active = palette.active, subtle = palette.subtle;
     if (preset === 'custom') {
-        accent = /^#[0-9a-f]{6}$/i.test(customColor || '') ? customColor : '#0078d4';
+        accent = /^#[0-9a-f]{6}$/i.test(customColor || '') ? customColor : '#0878d1';
         const hex = accent.slice(1), r = parseInt(hex.slice(0,2),16), g = parseInt(hex.slice(2,4),16), b = parseInt(hex.slice(4,6),16);
         const shade = factor => '#' + [r,g,b].map(v => Math.max(0,Math.min(255,Math.round(v*factor))).toString(16).padStart(2,'0')).join('');
         hover = shade(.88); active = shade(.72); subtle = `rgba(${r},${g},${b},.13)`;
     }
-    // As variáveis do modo escuro são declaradas no próprio body e têm
-    // precedência sobre as herdadas do :root. Aplicamos nos dois níveis
-    // para manter a paleta consistente em modo claro e escuro.
+    const mode = appSettings.theme === 'dark' ? 'dark' : 'light';
+    const surfaces = (palette[mode] || accentPalettes.ocean[mode]);
     const themeVars = {
-        '--accent-color': accent,
-        '--accent-hover': hover,
-        '--accent-active': active,
-        '--accent-color-subtle': subtle,
-        '--menu-item-active-text': accent,
-        '--input-border-focus': accent
+        '--accent-color': accent, '--accent-hover': hover, '--accent-active': active,
+        '--accent-color-subtle': subtle, '--menu-item-active-text': mode === 'dark' ? '#ffffff' : accent,
+        '--input-border-focus': accent,
+        '--bg-app': surfaces.bg, '--main-content-bg': surfaces.main, '--sidebar-bg': surfaces.sidebar,
+        '--card-bg': surfaces.card, '--table-header-bg': surfaces.table, '--table-row-hover-bg': surfaces.row,
+        '--input-bg': surfaces.input, '--border-color': surfaces.border, '--input-border': surfaces.border,
+        '--input-border-bottom': surfaces.border, '--input-readonly-border': surfaces.border,
+        '--text-main': surfaces.text, '--text-muted': surfaces.muted,
+        '--menu-item-active-bg': surfaces.activeBg, '--btn-secondary-bg': surfaces.btn,
+        '--btn-secondary-hover-bg': surfaces.btnHover, '--modal-bg': surfaces.modal,
+        '--modal-info-bg': surfaces.modal, '--modal-image-bg': surfaces.table,
+        '--modal-history-bg': surfaces.main,
+        '--switch-bg': surfaces.table, '--switch-glider-bg': surfaces.card,
+        '--input-readonly-bg': surfaces.row,
+        '--fluent-border': mode === 'dark' ? '1px solid rgba(255,255,255,.10)' : '1px solid rgba(25,45,65,.09)',
+        '--fluent-shadow': mode === 'dark' ? '0 4px 16px rgba(0,0,0,.24)' : '0 4px 14px rgba(25,45,65,.07)'
     };
     Object.entries(themeVars).forEach(([name, value]) => {
         root.style.setProperty(name, value);
         body.style.setProperty(name, value);
     });
     appSettings.themePreset = preset;
-    appSettings.customAccent = customColor || appSettings.customAccent || '#0078d4';
+    appSettings.customAccent = customColor || appSettings.customAccent || '#0878d1';
 }
-
 function applyLayout(layout) {
     const body = document.body;
     if (layout === 'dock') {
@@ -3507,6 +3539,8 @@ if (darkModeToggle) {
         appSettings.theme = theme;
         saveAppSettings();
         applyTheme(theme);
+        applyAccentTheme(appSettings.themePreset || 'ocean', appSettings.customAccent);
+        saveAppSettings();
     });
 }
 
