@@ -3815,3 +3815,40 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 })();
+
+
+/* Recolher/expandir indicadores da dashboard, preservando a preferência local */
+(() => {
+  const dashboard = document.getElementById('view-dashboard');
+  const toggle = document.getElementById('dashboardStatsToggle');
+  const grid = document.getElementById('dashboardStatsGrid');
+  if (!dashboard || !toggle || !grid) return;
+
+  const storageKey = 'inventoryDashboardStatsCollapsed';
+  let collapsed = false;
+  try {
+    collapsed = localStorage.getItem(storageKey) === 'true';
+  } catch (error) {
+    // O controle continua funcionando mesmo se o armazenamento estiver bloqueado.
+  }
+
+  const applyState = () => {
+    dashboard.classList.toggle('stats-collapsed', collapsed);
+    toggle.setAttribute('aria-expanded', String(!collapsed));
+    const label = toggle.querySelector('span');
+    if (label) label.textContent = collapsed ? 'Expandir indicadores' : 'Recolher indicadores';
+    toggle.setAttribute('aria-label', collapsed ? 'Expandir indicadores do inventário' : 'Recolher indicadores do inventário');
+  };
+
+  toggle.addEventListener('click', () => {
+    collapsed = !collapsed;
+    applyState();
+    try {
+      localStorage.setItem(storageKey, String(collapsed));
+    } catch (error) {
+      // Sem persistência disponível: mantém o estado durante esta sessão.
+    }
+  });
+
+  applyState();
+})();
