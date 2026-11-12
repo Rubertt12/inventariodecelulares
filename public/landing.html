@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#06152f">
+  <meta name="description" content="Centralize, organize e acompanhe seus celulares e ativos tecnológicos em uma única plataforma.">
+  <title>Inventário de Celulares | Gestão inteligente de ativos</title>
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/landing.css">
+</head>
+<body>
+  <div class="ambient ambient-one"></div><div class="ambient ambient-two"></div>
+  <header class="site-header">
+    <a class="brand" href="#" aria-label="Inventário de Celulares - início">
+      <span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4"/><path d="M10 18.5h4"/></svg></span>
+      <span>Inventário <b>de Celulares</b></span>
+    </a>
+    <button class="mobile-menu" id="mobileMenu" aria-label="Abrir menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <nav class="main-nav" id="mainNav">
+      <a class="active" href="#inicio">Início</a><a href="#funcionalidades">Funcionalidades</a><a href="#plataforma">Plataforma</a><a href="#beneficios">Benefícios</a>
+      <div class="nav-mobile-actions"><button class="btn btn-ghost" data-open="register">Criar conta</button><button class="btn btn-primary" data-open="login">Entrar na plataforma</button></div>
+    </nav>
+    <div class="header-actions"><button class="btn btn-ghost" data-open="login">Login</button><button class="btn btn-primary" data-open="register">Cadastrar</button></div>
+  </header>
+
+  <main>
+    <section class="hero section-wrap" id="inicio">
+      <div class="hero-copy">
+        <div class="eyebrow"><span class="pulse"></span> Gestão inteligente de ativos</div>
+        <h1>Seus ativos.<br>Sua operação.<br><span>Seu controle.</span></h1>
+        <p>Centralize, organize e acompanhe seus celulares em um único ambiente. Mais visibilidade para o estoque e mais fluidez para sua operação.</p>
+        <div class="hero-actions"><button class="btn btn-primary btn-large" data-open="login"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>Acessar plataforma</button><a class="btn btn-outline btn-large" href="#funcionalidades"><svg viewBox="0 0 24 24"><path d="m8 5 12 7-12 7z"/></svg>Conhecer recursos</a></div>
+        <div class="trust-row"><span><i>✓</i> Visão centralizada</span><span><i>✓</i> Acesso simplificado</span><span><i>✓</i> Layout responsivo</span></div>
+      </div>
+      <div class="hero-visual" aria-label="Prévia ilustrativa do painel de inventário">
+        <div class="orbit orbit-a"></div><div class="orbit orbit-b"></div>
+        <div class="laptop">
+          <div class="laptop-screen">
+            <div class="mock-sidebar"><div class="mock-brand"><span class="mini-phone"></span><b>Inventário<br><em>de Celulares</em></b></div><div class="mock-menu selected">▦ &nbsp; Dashboard</div><div class="mock-menu">▣ &nbsp; Dispositivos</div><div class="mock-menu">◇ &nbsp; Estoque</div><div class="mock-menu">⌁ &nbsp; Coletor</div><div class="mock-menu">⌖ &nbsp; Mapa</div><div class="mock-menu">☷ &nbsp; Relatórios</div><div class="mock-menu">⚙ &nbsp; Configurações</div></div>
+            <div class="mock-main"><div class="mock-top"><div><small>VISÃO GERAL</small><h3>Dashboard</h3></div><span class="avatar">A</span></div>
+              <div class="mock-stats"><div class="mock-stat"><span>Disponíveis em estoque</span><strong>245</strong><i class="cyan">▣</i></div><div class="mock-stat"><span>Aparelhos entregues</span><strong>1.230</strong><i class="green">✓</i></div><div class="mock-stat"><span>Total de dispositivos</span><strong>1.475</strong><i class="violet">▥</i></div></div>
+              <div class="mock-bottom"><div class="chart-card"><div class="chart-head">Movimentações <small>Últimos 6 meses</small></div><div class="chart-bars"><i style="height:38%"></i><i style="height:58%"></i><i style="height:47%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:94%"></i><i style="height:73%"></i><i style="height:100%"></i></div><div class="chart-labels"><span>Mai</span><span>Jun</span><span>Jul</span><span>Ago</span><span>Set</span><span>Out</span></div></div><div class="status-card"><b>Status dos ativos</b><div class="donut"></div><small><i class="dot blue"></i> Em estoque</small><small><i class="dot green"></i> Em uso</small><small><i class="dot orange"></i> Manutenção</small></div></div>
+            </div>
+          </div>
+        </div><div class="laptop-base"></div>
+        <div class="floating-chip chip-stock"><span>▣</span><div><small>Estoque disponível</small><b>245 aparelhos</b></div><i>↗</i></div>
+        <div class="floating-chip chip-sync"><span>✓</span><div><small>Inventário atualizado</small><b>Sincronização ativa</b></div></div>
+      </div>
+      <div class="hero-glow"></div>
+    </section>
+
+    <section class="feature-strip section-wrap" id="funcionalidades">
+      <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2"/><path d="M10 18h4"/></svg></div><h3>Gestão de dispositivos</h3><p>Cadastre, consulte e acompanhe seus aparelhos em um só lugar.</p></article>
+      <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="m12 2 9 5-9 5-9-5 9-5Z"/><path d="m3 7 9 5 9-5M3 12l9 5 9-5M3 17l9 5 9-5"/></svg></div><h3>Controle de estoque</h3><p>Visualize disponibilidade e encontre equipamentos com agilidade.</p></article>
+      <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3"/><path d="M7 12h10M12 7v10"/></svg></div><h3>Coleta de aparelhos</h3><p>Organize a coleta e a conferência de dispositivos.</p></article>
+      <article class="feature-card"><div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m7 14 4-4 3 3 6-7"/></svg></div><h3>Indicadores operacionais</h3><p>Acompanhe os dados essenciais para decidir com confiança.</p></article>
+      <article class="feature-card"><div class="feature-icon green-icon"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg></div><h3>Acesso e organização</h3><p>Uma experiência consistente para acompanhar sua operação.</p></article>
+    </section>
+
+    <section class="platform-section section-wrap" id="plataforma">
+      <div class="platform-copy"><div class="eyebrow"><span class="spark">✦</span> Tudo em um só lugar</div><h2>Conheça uma nova forma de <span>gerenciar seu inventário.</span></h2><p>Uma interface moderna e intuitiva, pensada para facilitar a rotina e trazer mais organização para a gestão dos seus dispositivos.</p>
+        <ul class="check-list"><li>Busca rápida por IMEI, modelo ou número</li><li>Visualização de estoque e movimentações</li><li>Ferramentas integradas para sua operação</li><li>Temas personalizáveis e experiência responsiva</li></ul>
+        <button class="btn btn-outline" data-open="login">Explorar a plataforma <span>→</span></button>
+      </div>
+      <div class="platform-visual"><div class="app-window"><div class="window-bar"><span></span><span></span><span></span><b>Dispositivos</b><small>•••</small></div><div class="window-content"><aside><b>▣ Inventário</b><span>Dashboard</span><span class="chosen">Dispositivos</span><span>Estoque</span><span>Coletor</span><span>Relatórios</span></aside><div class="device-table"><div class="table-title">Dispositivos <small>Buscar por IMEI, modelo ou número...</small></div><div class="table-filters"><i>Todos</i><i>Em estoque</i><i>Em uso</i><i>Manutenção</i></div><div class="table-row table-head"><span>Modelo</span><span>Identificação</span><span>Status</span></div><div class="table-row"><span>▯ &nbsp; iPhone 15 Pro</span><span>••••••••4628</span><b class="tag-use">Em uso</b></div><div class="table-row"><span>▯ &nbsp; Galaxy S24</span><span>••••••••1094</span><b class="tag-stock">Em estoque</b></div><div class="table-row"><span>▯ &nbsp; Moto Edge</span><span>••••••••8371</span><b class="tag-maint">Manutenção</b></div><div class="table-row"><span>▯ &nbsp; iPhone 13</span><span>••••••••2250</span><b class="tag-stock">Em estoque</b></div></div></div></div>
+        <div class="phone-preview"><div class="phone-notch"></div><div class="phone-content"><small>INVENTÁRIO</small><h4>Estoque</h4><div class="phone-search">⌕ &nbsp; Buscar aparelho</div><div class="phone-item"> <span>Apple<small>245 disponíveis</small></span>›</div><div class="phone-item">◉ <span>Samsung<small>180 disponíveis</small></span>›</div><div class="phone-item">◈ <span>Motorola<small>120 disponíveis</small></span>›</div></div></div>
+      </div>
+    </section>
+
+    <section class="benefits-section section-wrap" id="beneficios">
+      <div class="benefit-visual"><div class="phone-tile"><span class="phone-symbol">▯</span><b>Inventário<br><em>de Celulares</em></b></div><div class="mini-dashboard"><small>RESUMO DO INVENTÁRIO</small><strong>1.475</strong><span>Ativos monitorados</span><div class="mini-bars"><i></i><i></i><i></i><i></i><i></i><i></i></div></div><div class="scan-tile"><span>⌗</span><b>Coletor</b><small>Leitura de aparelhos</small></div></div>
+      <div class="benefit-copy"><div class="eyebrow"><span class="spark">✦</span> Mais clareza na rotina</div><h2>Mais organização.<br><span>Mais controle.</span></h2><p>Transforme a forma como sua equipe acompanha os dispositivos com uma plataforma centralizada e fácil de usar.</p><div class="benefit-grid"><span>✓ Interface intuitiva</span><span>✓ Acesso em vários dispositivos</span><span>✓ Gestão centralizada</span><span>✓ Personalização de temas</span><span>✓ Consulta simplificada</span><span>✓ Ferramentas integradas</span></div><button class="btn btn-primary" data-open="login">Acessar plataforma <span>→</span></button></div>
+    </section>
+
+    <section class="closing-cta section-wrap"><div class="rocket">↗</div><div><h2>Tenha o controle dos seus ativos em suas mãos.</h2><p>Centralize sua gestão, simplifique processos e ganhe mais visibilidade.</p></div><button class="btn btn-light" data-open="login">Entrar na plataforma <span>→</span></button></section>
+  </main>
+
+  <footer class="site-footer section-wrap"><a class="brand" href="#"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4"/><path d="M10 18.5h4"/></svg></span><span>Inventário <b>de Celulares</b></span></a><div class="footer-links"><a href="#funcionalidades">Funcionalidades</a><a href="#beneficios">Benefícios</a><a href="#plataforma">Plataforma</a></div><small>Gestão inteligente para sua operação. <span>◆</span></small></footer>
+
+  <div class="modal-backdrop" id="authModal" aria-hidden="true">
+    <section class="auth-modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <button class="modal-close" id="closeModal" aria-label="Fechar">×</button>
+      <div class="auth-brand"><span class="brand-mark"><svg viewBox="0 0 24 24" fill="none"><rect x="6" y="2" width="12" height="20" rx="2.4"/><path d="M10 18.5h4"/></svg></span></div>
+      <div class="auth-tabs"><button class="auth-tab active" data-tab="login">Login</button><button class="auth-tab" data-tab="register">Cadastro</button></div>
+      <div id="loginPanel"><div class="eyebrow centered">BEM-VINDO DE VOLTA</div><h2 id="authTitle">Acesse sua plataforma</h2><p class="auth-description">Entre para continuar gerenciando seus dispositivos.</p>
+        <form id="loginForm"><label for="username">Usuário</label><input id="username" name="username" autocomplete="username" placeholder="Digite seu usuário" required><label for="password">Senha</label><input id="password" name="password" type="password" autocomplete="current-password" placeholder="Digite sua senha" required><div class="form-error" id="loginError" role="alert"></div><button class="btn btn-primary submit-btn" type="submit">Entrar na plataforma <span>→</span></button></form>
+        <div class="demo-note"><span>ⓘ</span> Acesso temporário de demonstração. Use as credenciais fornecidas pelo administrador.</div>
+      </div>
+      <div id="registerPanel" hidden><div class="eyebrow centered">COMECE POR AQUI</div><h2>Solicitar cadastro</h2><p class="auth-description">O cadastro de novos usuários será habilitado em uma próxima etapa.</p><form id="registerForm"><label for="regName">Nome</label><input id="regName" placeholder="Seu nome" required><label for="regEmail">E-mail</label><input id="regEmail" type="email" placeholder="voce@empresa.com" required><label for="regCompany">Empresa</label><input id="regCompany" placeholder="Nome da empresa"><button class="btn btn-primary submit-btn" type="submit">Solicitar acesso <span>→</span></button><div class="form-success" id="registerMessage" role="status"></div></form></div>
+    </section>
+  </div>
+  <script src="/landing.js" defer></script>
+</body>
+</html>
