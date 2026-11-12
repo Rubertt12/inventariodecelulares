@@ -116,6 +116,14 @@ app.get('/api/universal/categories', async (_req, res) => {
   try { res.json(await db.getAssetCategories(DEMO_COMPANY_ID)); }
   catch (error) { res.status(503).json({ message: 'Estrutura de ativos ainda não disponível. A migração do banco precisa ser aplicada no ambiente de desenvolvimento.', detail: process.env.NODE_ENV === 'production' ? undefined : error.message }); }
 });
+app.post('/api/universal/categories', async (req, res) => {
+  try {
+    const result = await db.createAssetCategory(DEMO_COMPANY_ID, req.body || {});
+    res.status(201).json(result);
+  } catch (error) {
+    res.status(error.status || 500).json({ message: error.message || 'Não foi possível cadastrar a categoria.' });
+  }
+});
 app.get('/api/universal/assets', async (req, res) => {
   try { res.json(await db.getUniversalAssets(DEMO_COMPANY_ID, { categoryId: req.query.category || null, search: String(req.query.search || '').trim().slice(0, 120) })); }
   catch (error) { res.status(503).json({ message: 'Não foi possível consultar os ativos. Verifique se a migração universal foi aplicada.', detail: process.env.NODE_ENV === 'production' ? undefined : error.message }); }
