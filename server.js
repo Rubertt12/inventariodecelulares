@@ -41,9 +41,20 @@ function requireDemoAuth(req, res, next) {
   return res.status(401).json({ message: 'Sessão expirada. Entre novamente para continuar.' });
 }
 
-// Landing page pública.
+// Landing page pública e seus assets servidos por rotas explícitas na Vercel.
 app.get('/', (_req, res) => {
-  res.sendFile(path.join(PUBLIC_DIR, 'landing.html'));
+  res.sendFile(path.join(PUBLIC_DIR, 'landing.html'), error => {
+    if (error && !res.headersSent) res.status(error.statusCode || 500).send('Não foi possível carregar a página inicial. Tente novamente em instantes.');
+  });
+});
+app.get('/landing.css', (_req, res) => {
+  res.type('text/css').sendFile(path.join(PUBLIC_DIR, 'landing.css'));
+});
+app.get('/landing.js', (_req, res) => {
+  res.type('application/javascript').sendFile(path.join(PUBLIC_DIR, 'landing.js'));
+});
+app.get('/icon.svg', (_req, res) => {
+  res.type('image/svg+xml').sendFile(path.join(PUBLIC_DIR, 'icon.svg'));
 });
 
 // Login demonstrativo. Troque as credenciais e configure DEMO_AUTH_SECRET antes de produção.
