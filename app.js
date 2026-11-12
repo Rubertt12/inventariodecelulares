@@ -401,6 +401,30 @@ function showCustomAlert(message, type = 'warning') {
     notificationModal.classList.add('active');
 }
 
+function setBrandConnectionStatus(status) {
+    const indicator = document.getElementById('brandConnectionStatus');
+    if (!indicator) return;
+
+    indicator.className = 'brand-connection-status';
+    indicator.replaceChildren();
+
+    if (status === 'loading') {
+        indicator.classList.add('is-loading');
+        indicator.innerHTML = '<span class="brand-status-spinner" aria-hidden="true"></span><span>Reconectando...</span>';
+        indicator.setAttribute('aria-label', 'Reconectando à pasta de dados');
+    } else if (status === 'connected') {
+        indicator.classList.add('is-connected');
+        indicator.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"></path></svg><span>Conectado</span>';
+        indicator.setAttribute('aria-label', 'Conectado à pasta de dados');
+    } else if (status === 'error') {
+        indicator.classList.add('is-error');
+        indicator.textContent = 'Não conectado';
+        indicator.setAttribute('aria-label', 'Não foi possível reconectar à pasta de dados');
+    } else {
+        indicator.removeAttribute('aria-label');
+    }
+}
+
 function updateConnectionStatusUI(isConnected, handleName = '') {
     const dotElements = [dbDot, dbDotSettings];
     const textElements = [dbStatusText, dbStatusTextSettings];
@@ -2527,8 +2551,11 @@ async function loadInitialState() {
     }
     if (savedHandle) {
         console.log("Tentando reconectar à pasta salva...");
+        setBrandConnectionStatus('loading');
         if (await connectToDirectory(savedHandle)) {
-            showCustomAlert('Reconectado à pasta anterior.', 'success');
+            setBrandConnectionStatus('connected');
+        } else {
+            setBrandConnectionStatus('error');
         }
     }
     // --- NOVO: Renderiza o dashboard no carregamento inicial ---
