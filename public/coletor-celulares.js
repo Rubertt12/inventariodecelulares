@@ -1,0 +1,250 @@
+(()=>{
+const $=id=>document.getElementById(id);let stream=null,photoBlob=null,photoUrl=null,items=[];
+const DB_NAME='coletor-celulares-local',DB_VERSION=1;
+function openLocalDB(){return new Promise((resolve,reject)=>{const req=indexedDB.open(DB_NAME,DB_VERSION);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains('kv'))req.result.createObjectStore('kv')};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)})}
+async function localGet(key){const db=await openLocalDB();return new Promise((resolve,reject)=>{const r=db.transaction('kv').objectStore('kv').get(key);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)})}
+async function localSet(key,value){const db=await openLocalDB();return new Promise((resolve,reject)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(value,key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+async function persistDraft(){try{await localSet('draft',{model:$('model').value,locality:$('locality').value,imei:$('imei').value,imei2:$('imei2').value,sn:$('sn').value,photoBlob})}catch(e){console.warn('Falha ao salvar rascunho local',e)}}
+async function persistItems(){try{await localSet('items',items.map(({photoUrl,...it})=>it))}catch(e){say('Aviso: não foi possível salvar o lote neste navegador.')}}
+async function restoreLocalData(){try{const saved=await localGet('items');if(Array.isArray(saved))items=saved.map(it=>({...it,photoUrl:URL.createObjectURL(it.photoBlob)}));const draft=await localGet('draft');if(draft){$('model').value=draft.model||'';$('locality').value=draft.locality||'Canoas';$('imei').value=draft.imei||'';$('imei2').value=draft.imei2||'';$('sn').value=draft.sn||'';if(draft.photoBlob){photoBlob=draft.photoBlob;setPhoto(photoBlob);say('Rascunho recuperado: foto e campos restaurados.')}}render()}catch(e){console.warn('Falha ao recuperar dados locais',e)}}
+const video=$('video'),photoPreview=$('photoPreview'),status=$('status'),progress=$('progress');
+const OCR_CACHE='coletor-ocr-offline-v1';
+const OCR_ASSETS=[
+ {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js',key:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js'},
+ {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js',key:'/ocr/vendor/worker.min.js'},
+ ...['tesseract-core.wasm.js','tesseract-core-simd.wasm.js','tesseract-core-lstm.wasm.js','tesseract-core-simd-lstm.wasm.js',
+ 'tesseract-core.wasm','tesseract-core-simd.wasm','tesseract-core-lstm.wasm','tesseract-core-simd-lstm.wasm'].map(name=>({url:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/'+name,key:'/ocr/core/'+name})),
+ ...['por','eng'].map(lang=>({url:'https://tessdata.projectnaptha.com/4.0.0/'+lang+'.traineddata.gz',key:'/ocr/lang/'+lang+'.traineddata.gz'}))
+];
+let offlineOcrReady=false,ocrWorker=null;
+async function hasOfflineOcr(){
+ try{const cache=await caches.open(OCR_CACHE);return (await Promise.all(OCR_ASSETS.map(a=>cache.match(a.key.startsWith('http')?a.key:new URL(a.key,location.origin).href)))).every(Boolean)}catch(e){return false}
+}
+async function prepareOfflineOcr(){
+ if(!('caches'in window)||!('serviceWorker'in navigator)){say('Este navegador não oferece os recursos necessários para preparar o OCR offline.');return}
+ if(!navigator.serviceWorker.controller){say('Ativando o modo offline. Recarregue esta página uma vez e toque novamente em Preparar OCR offline.');return}
+ const cache=await caches.open(OCR_CACHE);let done=0;
+ $('prepareOffline').disabled=true;
+ try{
+  for(const asset of OCR_ASSETS){
+   const key=asset.key.startsWith('http')?asset.key:new URL(asset.key,location.origin).href;
+   if(await cache.match(key)){done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';continue}
+   say('Baixando mecanismo OCR offline ('+(done+1)+'/'+OCR_ASSETS.length+'): '+asset.key.split('/').pop());
+   const response=await fetch(asset.url,{mode:'cors',cache:'no-cache'});
+   if(!response.ok)throw new Error('Não foi possível baixar '+asset.url+' (HTTP '+response.status+')');
+   await cache.put(key,response.clone());done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';
+  }
+  offlineOcrReady=true;say('Pacote OCR offline preparado. Recarregue a página para garantir que todos os arquivos fiquem disponíveis sem internet.');
+ }catch(e){say('Não foi possível preparar o OCR offline: '+e.message+'. Conecte-se à internet e tente novamente.')}
+ finally{$('prepareOffline').disabled=false}
+}
+$('prepareOffline').onclick=prepareOfflineOcr;
+
+function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
+function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
+function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
+$('startCam').onclick=async()=>{
+ try{
+  stop();
+  if(!window.isSecureContext){say('A câmera exige uma conexão segura (HTTPS). Abra o coletor pelo endereço https://inventariodecelulares.vercel.app.');return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say('Este navegador não disponibiliza acesso à câmera. Abra a página no Google Chrome atualizado ou use “Selecionar foto”.');return;}
+  say('Solicitando permissão para acessar a câmera…');
+  try{
+   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+  }catch(firstError){
+   if(firstError.name==='OverconstrainedError'||firstError.name==='ConstraintNotSatisfiedError'){
+    stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+   }else throw firstError;
+  }
+  video.muted=true;video.playsInline=true;video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;
+  await video.play();
+  $('takePhoto').disabled=false;say('Câmera ativa. Enquadre a etiqueta ou o aparelho.');
+ }catch(e){
+  stop();video.style.display='none';
+  const messages={
+   NotAllowedError:'Permissão da câmera negada. Toque no cadeado ao lado do endereço do site > Permissões > Câmera > Permitir. Depois recarregue a página.',
+   PermissionDeniedError:'Permissão da câmera negada pelo navegador ou pelo Android. Libere a câmera nas permissões do site e tente novamente.',
+   NotFoundError:'Nenhuma câmera foi encontrada neste aparelho.',
+   NotReadableError:'A câmera está sendo usada por outro aplicativo ou não pôde ser iniciada. Feche outros apps que usam a câmera e tente novamente.',
+   AbortError:'O Android interrompeu a abertura da câmera. Tente novamente.',
+   SecurityError:'O navegador bloqueou a câmera por segurança. Abra o coletor em HTTPS no Chrome.',
+   OverconstrainedError:'A câmera não aceitou as configurações solicitadas. Tente novamente.'
+  };
+  say((messages[e.name]||('Falha ao abrir a câmera ('+(e.name||'erro desconhecido')+'): '+(e.message||'sem detalhes')+'.'))+' Você também pode usar “Selecionar foto”.');
+ }
+};
+$('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
+function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
+$('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
+$('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto da etiqueta carregada. Clique em Ler texto da etiqueta (OCR).')};
+$('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Conecte-se à internet, recarregue a página e prepare o pacote offline.');return}try{
+ offlineOcrReady=offlineOcrReady||await hasOfflineOcr();
+ say(offlineOcrReady?'Analisando a foto inteira com OCR local (português + inglês)…':'Analisando a foto inteira com OCR. Para usar sem internet, prepare antes o pacote offline.');
+ progress.style.width='3%';
+ const logger=m=>{if(m.status==='recognizing text')progress.style.width=Math.round(m.progress*38+5)+'%';else if(m.status==='loading language model')say('Carregando idioma '+(m.progress?Math.round(m.progress*100)+'%':'')+'…')};
+ if(!ocrWorker){
+  const options=offlineOcrReady?{
+   workerPath:new URL('/ocr/vendor/worker.min.js',location.origin).href,
+   corePath:new URL('/ocr/core/',location.origin).href,
+   langPath:new URL('/ocr/lang/',location.origin).href,
+   workerBlobURL:false,gzip:true,cacheMethod:'write',logger
+  }:{logger};
+  ocrWorker=await Tesseract.createWorker(offlineOcrReady?'por+eng':'eng',1,options);
+  await ocrWorker.setParameters({preserve_interword_spaces:'1'});
+ }
+ await ocrWorker.setParameters({tessedit_pageseg_mode:'11',preserve_interword_spaces:'1'});
+ const firstPass=await ocrWorker.recognize(source);
+ let fullText=firstPass.data.text||'';
+let enhancedCanvas=null;
+try{
+ const bitmap=await createImageBitmap(source);
+ const scale=Math.min(2.5,Math.max(1,2200/Math.max(bitmap.width,bitmap.height)));
+ enhancedCanvas=document.createElement('canvas');
+ enhancedCanvas.width=Math.round(bitmap.width*scale);enhancedCanvas.height=Math.round(bitmap.height*scale);
+ const ectx=enhancedCanvas.getContext('2d',{willReadFrequently:true});
+ ectx.drawImage(bitmap,0,0,enhancedCanvas.width,enhancedCanvas.height);bitmap.close();
+ const imageData=ectx.getImageData(0,0,enhancedCanvas.width,enhancedCanvas.height),px=imageData.data;
+ for(let p=0;p<px.length;p+=4){
+  const gray=0.299*px[p]+0.587*px[p+1]+0.114*px[p+2];
+  const contrast=Math.max(0,Math.min(255,(gray-128)*1.35+128));
+  px[p]=px[p+1]=px[p+2]=contrast;
+ }
+ ectx.putImageData(imageData,0,0);
+ const secondPass=await ocrWorker.recognize(enhancedCanvas);
+ fullText+='\n'+(secondPass.data.text||'');
+}catch(preprocessError){console.warn('OCR aprimorado indisponível; usando leitura original da foto',preprocessError)}
+const text=fullText;
+let barcodeValues=[];
+try{
+ if(window.ZXing&&window.createImageBitmap){
+  const bitmap=await createImageBitmap(source),canvas=document.createElement('canvas');
+  canvas.width=bitmap.width;canvas.height=bitmap.height;
+  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
+  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
+  const luminance=new ZXing.RGBLuminanceSource(pixels.data,canvas.width,canvas.height);
+  const binary=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminance));
+  const reader=new ZXing.MultiFormatReader();
+  try{
+   const multi=new ZXing.GenericMultipleBarcodeReader(reader);
+   barcodeValues=(multi.decodeMultiple(binary)||[]).map(x=>x.getText()).filter(Boolean);
+  }catch(multiError){
+   try{reader.reset();const one=reader.decode(binary);if(one)barcodeValues=[one.getText()]}catch(singleError){}
+  }
+  bitmap.close();
+ }
+}catch(barcodeError){console.warn('Falha na leitura de código de barras',barcodeError)}
+let barcodeAdded=0;
+for(const raw of [...new Set(barcodeValues)]){
+ const value=String(raw||'').trim();
+ const labeledImei=value.match(/IMEI\s*([12])?\s*[:#=-]?\s*((?:[0-9][\s-]*){15})/i);
+ const labeledSn=value.match(/(?:S\/?N|SERIAL(?:\s*(?:NO|NUMBER))?)\s*[:#=-]?\s*([A-Z0-9-]{5,40})/i);
+ const number=value.replace(/\D/g,'');
+ if(labeledImei&&number.length>=15){
+  const imeiValue=labeledImei[2].replace(/\D/g,'').slice(0,15),field=labeledImei[1]==='2'?'imei2':'imei';
+  if(!digits($(field).value)){$(field).value=imeiValue;barcodeAdded++;}
+  else if(field==='imei'&&!digits($('imei2').value)&&imeiValue!==digits($('imei').value)){$('imei2').value=imeiValue;barcodeAdded++;}
+  continue;
+ }
+ if(number.length===15){
+  if(!digits($('imei').value)){$('imei').value=number;barcodeAdded++;}
+  else if(!digits($('imei2').value)&&number!==digits($('imei').value)){$('imei2').value=number;barcodeAdded++;}
+  continue;
+ }
+ const serial=(labeledSn?labeledSn[1]:value).replace(/[^a-zA-Z0-9-]/g,'');
+ if(!/^[0-9]{15}$/.test(serial)&&/[A-Za-z]/.test(serial)&&serial.length>=5&&!$('sn').value.trim()){$('sn').value=serial.slice(0,40);barcodeAdded++;}
+}
+const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+const normalizeOcrDigits=s=>String(s||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/[^0-9]/g,'');
+const candidates=[];
+for(let i=0;i<lines.length;i++){
+ const line=lines[i], label1=/IMEI\s*[-:#]?\s*1\b|IMEI\s*1\b|IMEI1\b/i.test(line),label2=/IMEI\s*[-:#]?\s*2\b|IMEI\s*2\b|IMEI2\b/i.test(line);
+ const nearby=[line,lines[i+1]||'',lines[i+2]||''].join(' ');
+ const found=[...nearby.matchAll(/[0-9OQDIL|SB][\s.:_-]*[0-9OQDIL|SB](?:[\s.:_-]*[0-9OQDIL|SB]){13,16}/gi)].map(m=>normalizeOcrDigits(m[0])).filter(v=>v.length>=14&&v.length<=17);
+ for(const value of found)candidates.push({value:value.slice(-15),slot:label1?'imei':label2?'imei2':''});
+}
+const all=[...text.matchAll(/[0-9OQDIL|SB](?:[\s.:_-]*[0-9OQDIL|SB]){14,16}/gi)].map(m=>normalizeOcrDigits(m[0])).filter(v=>v.length>=14&&v.length<=17).map(v=>v.slice(-15));
+const labeled1=candidates.find(x=>x.slot==='imei'),labeled2=candidates.find(x=>x.slot==='imei2');
+const unique=[...new Set([...candidates.map(x=>x.value),...all])];
+if(labeled1)$('imei').value=labeled1.value;
+else if(all[0])$('imei').value=all[0];
+if(labeled2)$('imei2').value=labeled2.value;
+else {const second=unique.find(v=>v!==$('imei').value);if(second)$('imei2').value=second;}
+// Extrai o número de série mesmo quando o OCR coloca o valor na linha seguinte.
+const serialLabels=/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\b/i;
+const cleanSerial=value=>String(value||'').toUpperCase().replace(/^[\s:#=\-]+|[\s,;]+$/g,'').replace(/[^A-Z0-9-]/g,'');
+let serialCandidate='';
+for(let i=0;i<lines.length;i++){
+ const line=lines[i];
+ const match=line.match(/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\s*[:#=\-]?\s*(.*)$/i);
+ if(!match)continue;
+ let value=cleanSerial(match[1]);
+ if(!value || /^(?:IMEI|MODEL|MODEL\s*NAME)$/i.test(value)){
+  const next=(lines[i+1]||'').trim();
+  if(next && !serialLabels.test(next) && !/IMEI/i.test(next))value=cleanSerial(next);
+ }
+ value=value.replace(/^(?:NO\.?|NUMBER)[:#=\-]?/i,'');
+ if(value.length>=4 && value.length<=40 && !/^\d{15}$/.test(value)){serialCandidate=value;break;}
+}
+if(serialCandidate && !$('sn').value.trim())$('sn').value=serialCandidate.slice(0,40);progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();
+const missing=[];if(foundImei.length!==15)missing.push('IMEI 1');if(foundImei2.length!==15)missing.push('IMEI 2');if(!foundSn)missing.push('número de série (SN)');
+if(missing.length){
+ const proceed=window.confirm('O OCR analisou a foto inteira, mas não conseguiu identificar: '+missing.join(', ')+'.\\n\\nDeseja continuar mesmo assim para revisar e preencher os dados manualmente?');
+ if(proceed)say('Leitura concluída com campos pendentes: '+missing.join(', ')+'. Confira a foto e preencha os dados manualmente. O aparelho só será adicionado após revisão.');
+ else say('Leitura interrompida. Tente outra foto, aproxime a etiqueta ou ajuste a iluminação.');
+}else say('Leitura concluída: todos os campos encontrados. Revise IMEI 1, IMEI 2 e SN; nada será adicionado ao lote até você confirmar.');}catch(e){say('Falha no OCR. Tente outra foto mais nítida ou preencha manualmente.')}};
+function render(){const root=$('records');$('counter').textContent=items.length+' aparelho(s)';$('export').disabled=!items.length;$('importStock').disabled=!items.length;if(!items.length){root.className='empty';root.textContent='Nenhum aparelho adicionado ainda.';return}root.className='records';root.innerHTML='';items.forEach((it,i)=>{const row=document.createElement('div');row.className='record';const img=document.createElement('img');img.src=it.photoUrl;img.alt='Foto '+(i+1);const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=it.model||'Aparelho '+(i+1);const detail=document.createElement('small');detail.textContent='IMEI: '+(it.imei||'—')+' · SN: '+(it.sn||'—');info.append(strong,detail);const del=document.createElement('button');del.className='danger remove';del.textContent='Remover';del.onclick=()=>{URL.revokeObjectURL(it.photoUrl);items.splice(i,1);render();persistItems()};row.append(img,info,del);root.append(row)})}
+function addCurrentDevice(fromOcr=false){
+ const imei=digits($('imei').value).slice(0,15),imei2=digits($('imei2').value).slice(0,15),sn=$('sn').value.trim(),model=$('model').value.trim();
+ if(imei.length!==15){say('IMEI 1 é obrigatório e deve ter 15 dígitos.');$('imei').focus();return}
+ if(imei2.length!==15){say('IMEI 2 é obrigatório e deve ter 15 dígitos.');$('imei2').focus();return}
+ if(!sn){say('Número de série (SN) é obrigatório.');$('sn').focus();return}
+ if(!photoBlob){say('Fotografe o aparelho antes de adicionar.');return}
+ if(items.some(x=>(imei&&(x.imei===imei||x.imei2===imei))||(imei2&&(x.imei===imei2||x.imei2===imei2))||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){say('Possível duplicidade: IMEI ou SN já está no lote.');return}
+ items.push({imei,imei2,sn,model,photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:new Date().toISOString()});render();persistItems();
+ say(fromOcr?'OCR validado: aparelho adicionado automaticamente ao lote.':'Aparelho adicionado ao lote.');
+ $('imei').value='';$('imei2').value='';$('sn').value='';$('model').value='';$('labelPhoto').value='';photoBlob=null;
+ if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=null;photoPreview.hidden=true;$('previewText').hidden=false;progress.style.width='0%';persistDraft();
+}
+$('add').onclick=()=>addCurrentDevice(false);
+$('clear').onclick=()=>{$('imei').value='';$('imei2').value='';$('sn').value='';$('model').value='';$('labelPhoto').value='';photoBlob=null;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=null;photoPreview.hidden=true;$('previewText').hidden=false;progress.style.width='0%';say('Campos limpos.');persistDraft()};
+$('export').onclick=async()=>{if(!items.length)return;const incomplete=items.findIndex(it=>digits(it.imei).length!==15||digits(it.imei2).length!==15||!String(it.sn||'').trim());if(incomplete!==-1){say('O aparelho '+(incomplete+1)+' do lote está sem IMEI 1, IMEI 2 ou SN válido. Remova-o ou corrija os dados antes de gerar o ZIP.');return;}if(!window.JSZip){say('Biblioteca ZIP indisponível. Recarregue com internet.');return}
+const zip=new JSZip(),photos=zip.folder('fotos'),devices=zip.folder('aparelhos'),rows=[['Modelo','IMEI 1','IMEI 2','SN','Foto','Data de captura']],manifest={format:'inventario-celulares-v1',createdAt:new Date().toISOString(),items:[]};
+for(let i=0;i<items.length;i++){const it=items[i],base=String(i+1).padStart(3,'0')+'_'+clean(it.imei||it.sn),photoName=base+'.jpg',photoPath='fotos/'+photoName;
+photos.file(photoName,it.photoBlob);const record={model:it.model,imei:it.imei,imei2:it.imei2,sn:it.sn,locality:$('locality').value.trim()||'Canoas',createdAt:it.createdAt,photo:photoPath};
+manifest.items.push(record);const deviceFolder=devices.folder(base);deviceFolder.file('registro.json',JSON.stringify(record,null,2));deviceFolder.file('foto.jpg',it.photoBlob);
+rows.push([it.model,it.imei,it.imei2,it.sn,photoPath,it.createdAt]);}
+zip.file('manifest.json',JSON.stringify(manifest,null,2));
+const csv='\uFEFF'+rows.map(r=>r.map(v=>'"'+String(v??'').replace(/"/g,'""')+'"').join(';')).join('\r\n');
+zip.file('inventario.csv',csv);
+zip.file('LEIA-ME.txt','Pacote de coleta de celulares. Cada pasta em /aparelhos contém registro.json e foto.jpg. Para importar pelo celular: abra o Inventário de Celulares, escolha “Importar lote ZIP” no menu lateral e selecione este arquivo. O inventário valida IMEI/SN, ignora duplicados e salva os dados e fotos no armazenamento local do navegador. No computador com a pasta do inventário vinculada, a importação grava em banco.json e fotofiles.');
+say('Preparando ZIP com um pacote individual por aparelho…');
+const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'},m=>progress.style.width=Math.round(m.percent)+'%');
+const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='Inventario_Celulares_'+new Date().toISOString().slice(0,10)+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);say('ZIP gerado: CSV, fotos e pastas individuais com registro + foto.');};
+
+$('importZip').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!window.JSZip){say('Biblioteca ZIP indisponível.');return;}
+try{say('Lendo pacote ZIP…');const zip=await JSZip.loadAsync(file),manifestFile=zip.file('manifest.json');if(!manifestFile)throw new Error('Este ZIP não possui manifest.json. Gere novamente o pacote pelo coletor atualizado.');
+const manifest=JSON.parse(await manifestFile.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
+let loaded=0,skipped=0;for(const record of manifest.items){const photoFile=record.photo&&zip.file(record.photo);if(!photoFile){skipped++;continue;}const photoBlob=await photoFile.async('blob');const imei=digits(record.imei),imei2=digits(record.imei2),sn=(record.sn||'').trim();if(imei.length!==15||imei2.length!==15||!sn){skipped++;continue;}if(items.some(x=>(imei&&x.imei===imei)||(imei2&&x.imei2===imei2)||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
+items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model||'',photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:record.createdAt||new Date().toISOString()});loaded++;}
+render();persistItems();if(manifest.items[0]&&manifest.items[0].locality)$('locality').value=manifest.items[0].locality;
+say('ZIP carregado: '+loaded+' aparelho(s) pronto(s) para importar no estoque; '+skipped+' item(ns) ignorado(s). Agora clique em Importar no estoque.');}catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}finally{e.target.value='';}};
+$('importStock').onclick=async()=>{if(!items.length)return;
+if(!window.showDirectoryPicker){say('No celular: volte ao Inventário de Celulares e toque em “Importar lote ZIP” no menu. Selecione o arquivo ZIP que você acabou de baixar.');return;}
+let dir;try{dir=await window.showDirectoryPicker({id:'inventario-celulares-data',mode:'readwrite'});}catch(e){if(e.name==='AbortError')say('Seleção da pasta cancelada.');else say('Não foi possível acessar a pasta. Verifique a permissão.');return;}
+try{
+const bankHandle=await dir.getFileHandle('banco.json',{create:true});let stock=[];
+try{const raw=await (await bankHandle.getFile()).text();if(raw.trim()){const parsed=JSON.parse(raw);if(!Array.isArray(parsed))throw new Error('banco.json inválido: esperado uma lista de aparelhos.');stock=parsed;}}catch(e){if(e.name!=='NotFoundError')throw e;}
+const norm=v=>(v||'').toString().trim().toLowerCase(),digitsOnly=v=>(v||'').toString().replace(/\D/g,'');
+const duplicate=it=>stock.some(x=>(it.imei&&digitsOnly(x.imei1)===it.imei)||(it.imei2&&digitsOnly(x.imei1)===it.imei2)||(it.imei&&digitsOnly(x.imei2)===it.imei)||(it.imei2&&digitsOnly(x.imei2)===it.imei)||(it.sn&&norm(x.sn)===norm(it.sn)));
+const photoDir=await dir.getDirectoryHandle('fotofiles',{create:true});let added=0,skipped=0;
+for(const it of items){if(duplicate(it)){skipped++;continue;}
+const photoName='coleta_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.jpg';
+const photoHandle=await photoDir.getFileHandle(photoName,{create:true}),writer=await photoHandle.createWritable();await writer.write(it.photoBlob);await writer.close();
+stock.unshift({id:Date.now()+Math.random(),imei1:it.imei||'',imei2:it.imei2||'',sn:it.sn||'',modelo:it.model||'Não informado',localidade:$('locality').value.trim()||'Canoas',dataEntrada:it.createdAt||new Date().toISOString(),photoName,status:'Disponível',entrega:{nome:'',cc:'',matricula:'',localidade:'',ticket:''},history:[]});added++;}
+if(!added){say('Nenhum aparelho novo importado. '+skipped+' duplicado(s) ignorado(s).');return;}
+const writer=await bankHandle.createWritable();await writer.write(JSON.stringify(stock,null,2));await writer.close();
+say('Importação concluída: '+added+' aparelho(s) incluído(s) no estoque; '+skipped+' duplicado(s) ignorado(s). Use a mesma pasta de dados vinculada ao Inventário.');
+}catch(e){console.error(e);say('Falha na importação: '+(e.message||'erro inesperado')+'. Confira a pasta e o banco.json.');}};
+if('serviceWorker' in navigator && location.protocol==='https:'){navigator.serviceWorker.register('./sw.js').catch(e=>console.warn('Service Worker indisponível',e));}
+['model','locality','imei','imei2','sn'].forEach(id=>$(id).addEventListener('input',persistDraft));window.addEventListener('beforeunload',stop);restoreLocalData();render();
+})();
