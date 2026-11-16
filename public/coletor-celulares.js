@@ -43,13 +43,8 @@ $('prepareOffline').onclick=prepareOfflineOcr;
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
-// Ação principal no Android: aciona o seletor nativo de captura diretamente
-// durante o clique do usuário. Isso evita bloqueios de getUserMedia em WebViews.
-$('startCam').onclick=()=>{
- stop();
- say('Abrindo a câmera do Android…');
- $('labelPhoto').click();
-};
+// A abertura nativa é feita por um label associado diretamente ao input file.
+// Isso preserva o gesto real do usuário e evita bloqueios de .click() programático.
 // Câmera ao vivo opcional para navegadores que oferecem getUserMedia.
 $('liveCam').onclick=async()=>{
  try{
