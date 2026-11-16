@@ -30,6 +30,20 @@ function signedGoogleSession(user) {
   const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
   return payload + '.' + signature;
 }
+function validAccountSession(req) {
+  if (!SESSION_SECRET) return false;
+  const token = cookieValue(req, 'inventory_account');
+  const [payload, signature] = token.split('.');
+  if (!payload || !signature) return false;
+  const expected = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+  if (!safeEqual(signature, expected)) return false;
+  try { const user = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8')); return Number(user.exp) > Math.floor(Date.now() / 1000) && Boolean(user.sub); } catch { return false; }
+}
+function signedAccountSession(user) {
+  const payload = Buffer.from(JSON.stringify({ ...user, exp: Math.floor(Date.now() / 1000) + SESSION_SECONDS })).toString('base64url');
+  const signature = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+  return payload + '.' + signature;
+}
 function validGoogleSession(req) {
   if (!SESSION_SECRET) return false;
   const token = cookieValue(req, 'inventory_google');
@@ -54,7 +68,7 @@ function signSession(expiresAt) {
 }
 
 function hasValidSession(req) {
-  if (validGoogleSession(req)) return true;
+  if (validGoogleSession(req) || validAccountSession(req)) return true;
   const token = cookieValue(req, 'inventory_demo');
   if (!token) return false;
   const [expiresAt, signature] = token.split('.');
@@ -128,10 +142,56 @@ app.get('/auth/google/callback', async (req, res) => {
 });
 
 app.get('/api/auth/session', (req, res) => {
-  if (!validGoogleSession(req)) return res.status(200).json({ authenticated: false });
-  const token = cookieValue(req, 'inventory_google').split('.')[0];
-  try { const user = JSON.parse(Buffer.from(token, 'base64url').toString('utf8')); return res.json({ authenticated: true, user: { name: user.name, email: user.email, picture: user.picture } }); }
+  const token = cookieValue(req, 'inventory_account') || cookieValue(req, 'inventory_google');
+  if (!validAccountSession(req) && !validGoogleSession(req)) return res.status(200).json({ authenticated: false });
+  try { const user = JSON.parse(Buffer.from(token.split('.')[0], 'base64url').toString('utf8')); return res.json({ authenticated: true, user: { name: user.name, email: user.email, picture: user.picture || '' } }); }
   catch { return res.json({ authenticated: false }); }
+});
+function hashPassword(password, salt = crypto.randomBytes(16).toString('hex')) {
+  return { salt, hash: crypto.scryptSync(password, salt, 64).toString('hex') };
+}
+function verifyPassword(password, salt, expectedHash) {
+  const actual = crypto.scryptSync(password, salt, 64), expected = Buffer.from(expectedHash, 'hex');
+  return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
+}
+function setAccountCookie(res, user) {
+  const token = signedAccountSession({ sub: String(user.id), name: user.name, email: user.email, picture: '' });
+  res.setHeader('Set-Cookie', 'inventory_account=' + encodeURIComponent(token) + '; HttpOnly; Path=/; SameSite=Lax; Max-Age=' + SESSION_SECONDS + secureCookie);
+}
+app.post('/api/auth/register', async (req, res) => {
+  try {
+    if (!SESSION_SECRET) return res.status(503).json({ message: 'Cadastro indisponível: configure SESSION_SECRET na Vercel.' });
+    const name = String(req.body?.name || '').trim(), email = String(req.body?.email || '').trim().toLowerCase();
+    const company = String(req.body?.company || '').trim(), password = String(req.body?.password || ''), confirmation = String(req.body?.confirmPassword || '');
+    if (name.length < 2) return res.status(400).json({ message: 'Informe seu nome completo.' });
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return res.status(400).json({ message: 'Informe um e-mail válido.' });
+    if (password.length < 8) return res.status(400).json({ message: 'A senha precisa ter pelo menos 8 caracteres.' });
+    if (password !== confirmation) return res.status(400).json({ message: 'As senhas não conferem.' });
+    await db.ensureUsersTable();
+    const { salt, hash } = hashPassword(password);
+    const user = await db.createUser({ name, email, company, passwordHash: hash, passwordSalt: salt });
+    setAccountCookie(res, user);
+    return res.status(201).json({ authenticated: true, user: { name: user.name, email: user.email } });
+  } catch (error) {
+    if (error.code === '23505') return res.status(409).json({ message: 'Este e-mail já possui cadastro. Faça login.' });
+    console.error('Falha no cadastro:', error.message);
+    return res.status(500).json({ message: 'Não foi possível concluir o cadastro. Verifique a conexão com o banco de dados.' });
+  }
+});
+app.post('/api/auth/login', async (req, res) => {
+  try {
+    if (!SESSION_SECRET) return res.status(503).json({ message: 'Login por senha indisponível: configure SESSION_SECRET na Vercel.' });
+    const email = String(req.body?.email || '').trim().toLowerCase(), password = String(req.body?.password || '');
+    if (!email || !password) return res.status(400).json({ message: 'Informe e-mail e senha.' });
+    await db.ensureUsersTable();
+    const user = await db.getUserByEmail(email);
+    if (!user || !verifyPassword(password, user.password_salt, user.password_hash)) return res.status(401).json({ message: 'E-mail ou senha incorretos.' });
+    setAccountCookie(res, user);
+    return res.json({ authenticated: true, user: { name: user.name, email: user.email } });
+  } catch (error) {
+    console.error('Falha no login:', error.message);
+    return res.status(500).json({ message: 'Não foi possível entrar. Verifique a conexão com o banco de dados.' });
+  }
 });
 
 // Login demonstrativo legado. Mantenha apenas para ambientes de teste.
@@ -152,7 +212,7 @@ app.get('/api/demo-session', (req, res) => {
 });
 
 app.post('/api/demo-logout', (_req, res) => {
-  res.setHeader('Set-Cookie', ['inventory_demo=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0' + secureCookie, 'inventory_google=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0' + secureCookie]);
+  res.setHeader('Set-Cookie', ['inventory_demo=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0' + secureCookie, 'inventory_google=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0' + secureCookie, 'inventory_account=; HttpOnly; Path=/; SameSite=Lax; Max-Age=0' + secureCookie]);
   res.status(200).json({ ok: true });
 });
 
@@ -178,7 +238,7 @@ app.get('/api/health', (_req, res) => {
   res.status(200).json({ info: 'API do Inventário de Celulares no ar!' });
 });
 app.use('/api', (req, res, next) => {
-  if (['/health', '/demo-login', '/demo-session', '/demo-logout', '/auth/session'].includes(req.path)) return next();
+  if (['/health', '/demo-login', '/demo-session', '/demo-logout', '/auth/session', '/auth/register', '/auth/login'].includes(req.path)) return next();
   return requireDemoAuth(req, res, next);
 });
 
