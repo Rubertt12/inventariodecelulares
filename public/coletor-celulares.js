@@ -42,44 +42,40 @@ $('prepareOffline').onclick=prepareOfflineOcr;
 
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
-function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
-// Abrir câmera usa a API de câmera ao vivo do navegador (getUserMedia).
-// A chamada ocorre diretamente no gesto do usuário, sem abrir seletor de arquivos.
-const openCamera=async()=>{
+function stop(){
+ if(stream){stream.getTracks().forEach(track=>track.stop());stream=null}
+ video.pause();video.srcObject=null;video.style.display='none';$('takePhoto').disabled=true;
+}
+async function openCamera(){
+ stop();
+ if(!window.isSecureContext){say('A câmera precisa de HTTPS. Abra este endereço no Chrome.');return}
+ if(!navigator.mediaDevices?.getUserMedia){say('Este navegador não liberou acesso à câmera. Abra a página no Chrome atualizado.');return}
+ say('Solicitando acesso à câmera traseira…');
  try{
-  stop();
-  if(!window.isSecureContext)throw new Error('A câmera ao vivo exige HTTPS. Abra o coletor pelo endereço seguro.');
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Este navegador não oferece câmera ao vivo. Use Abrir câmera para abrir a câmera nativa.');
-  say('Solicitando permissão para acessar a câmera…');
-  try{
-   stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
-  }catch(firstError){
-   if(firstError.name==='OverconstrainedError'||firstError.name==='ConstraintNotSatisfiedError')stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-   else throw firstError;
-  }
-  video.muted=true;video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('autoplay','');
-  video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;
+  let media;
+  try{media=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:{exact:'environment'},width:{ideal:1920},height:{ideal:1080}}})}
+  catch(e){media=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'environment'}})}
+  stream=media;video.muted=true;video.playsInline=true;video.setAttribute('playsinline','');video.srcObject=stream;
+  video.style.display='block';photoPreview.hidden=true;$('previewText').hidden=true;
   await video.play();
-  $('takePhoto').disabled=false;say('Câmera ao vivo ativa. Enquadre a etiqueta e toque em Fotografar aparelho.');
+  $('takePhoto').disabled=false;say('Câmera ativa. Enquadre a etiqueta e toque em Fotografar.');
  }catch(e){
-  stop();video.style.display='none';
-  const messages={
-   NotAllowedError:'Permissão da câmera negada. Libere a câmera nas permissões do site e tente novamente.',
-   PermissionDeniedError:'Permissão da câmera negada pelo navegador ou Android. Libere a câmera nas configurações do site.',
-   NotFoundError:'Nenhuma câmera foi encontrada neste aparelho.',
-   NotReadableError:'A câmera está ocupada por outro aplicativo. Feche-o e tente novamente.',
-   AbortError:'O Android interrompeu a abertura da câmera. Tente novamente.',
-   SecurityError:'O navegador bloqueou a câmera. Abra o coletor em HTTPS no Chrome.'
-  };
-  say((messages[e.name]||e.message||'Não foi possível iniciar a câmera ao vivo.')+' Confira a permissão de câmera do navegador e tente novamente.');
+  stop();
+  const msg={NotAllowedError:'Permissão negada. No Chrome, permita Câmera nas configurações do site.',NotFoundError:'Não encontrei uma câmera disponível.',NotReadableError:'A câmera está sendo usada por outro aplicativo. Feche-o e tente novamente.',OverconstrainedError:'Não foi possível selecionar a câmera traseira.'};
+  say(msg[e.name]||('Não foi possível abrir a câmera: '+(e.message||e.name)));
  }
-};
-$('startCam').onclick=openCamera;
-$('liveCam').onclick=openCamera;
-$('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
-function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
+}
+$('startCam').addEventListener('click',openCamera);
+$('stopCam').addEventListener('click',()=>{stop();$('previewText').hidden=false;say('Câmera desligada.')});
+$('takePhoto').addEventListener('click',()=>{
+ if(!stream||!video.videoWidth){say('Aguarde a imagem da câmera aparecer.');return}
+ const canvas=document.createElement('canvas');canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+ const ctx=canvas.getContext('2d');ctx.drawImage(video,0,0,canvas.width,canvas.height);
+ canvas.toBlob(blob=>{if(blob){setPhoto(blob);say('Foto capturada. Agora faça a leitura da etiqueta ou confira os campos manualmente.')}else say('Não foi possível salvar a foto. Tente novamente.')},'image/jpeg',.92);
+});
+function setPhoto(blob){stop();photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
-$('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto da etiqueta carregada. Clique em Ler texto da etiqueta (OCR).')};
+$('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto carregada. Toque em Ler etiqueta (OCR).')};
 $('readOcr').onclick=async()=>{const f=$('labelPhoto').files[0];const source=f||photoBlob;if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}if(!window.Tesseract){say('Biblioteca OCR indisponível. Conecte-se à internet, recarregue a página e prepare o pacote offline.');return}try{
  offlineOcrReady=offlineOcrReady||await hasOfflineOcr();
  say(offlineOcrReady?'Analisando a foto inteira com OCR local (português + inglês)…':'Analisando a foto inteira com OCR. Para usar sem internet, prepare antes o pacote offline.');
