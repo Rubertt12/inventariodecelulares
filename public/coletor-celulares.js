@@ -114,45 +114,60 @@ try{
  fullText+='\n'+(secondPass.data.text||'');
 }catch(preprocessError){console.warn('OCR aprimorado indisponível; usando leitura original da foto',preprocessError)}
 const text=fullText;
+// Decodifica todos os códigos 1D da etiqueta e guarda a posição vertical
+// para manter a ordem física dos identificadores.
 let barcodeValues=[];
 try{
  if(window.ZXing&&window.createImageBitmap){
-  const bitmap=await createImageBitmap(source),canvas=document.createElement('canvas');
-  canvas.width=bitmap.width;canvas.height=bitmap.height;
-  const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0);
-  const pixels=ctx.getImageData(0,0,canvas.width,canvas.height);
-  const luminance=new ZXing.RGBLuminanceSource(pixels.data,canvas.width,canvas.height);
-  const binary=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminance));
-  const reader=new ZXing.MultiFormatReader();
-  try{
-   const multi=new ZXing.GenericMultipleBarcodeReader(reader);
-   barcodeValues=(multi.decodeMultiple(binary)||[]).map(x=>x.getText()).filter(Boolean);
-  }catch(multiError){
-   try{reader.reset();const one=reader.decode(binary);if(one)barcodeValues=[one.getText()]}catch(singleError){}
+  const bitmap=await createImageBitmap(source);
+  const formats=[ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,ZXing.BarcodeFormat.CODE_93,ZXing.BarcodeFormat.ITF,ZXing.BarcodeFormat.CODABAR,ZXing.BarcodeFormat.EAN_13,ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E].filter(Boolean);
+  const hints=new Map();
+  if(ZXing.DecodeHintType){
+   hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,formats);
+   hints.set(ZXing.DecodeHintType.ALSO_INVERTED,true);
+  }
+  const attempts=[];
+  for(const rotation of [0,90,180,270]){
+   const rotated=rotation===90||rotation===270,canvas=document.createElement('canvas');
+   canvas.width=rotated?bitmap.height:bitmap.width;canvas.height=rotated?bitmap.width:bitmap.height;
+   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.save();
+   if(rotation===90){ctx.translate(canvas.width,0);ctx.rotate(Math.PI/2)}
+   else if(rotation===180){ctx.translate(canvas.width,canvas.height);ctx.rotate(Math.PI)}
+   else if(rotation===270){ctx.translate(0,canvas.height);ctx.rotate(-Math.PI/2)}
+   ctx.drawImage(bitmap,0,0);ctx.restore();
+   for(const contrast of [false,true]){
+    const work=document.createElement('canvas');work.width=canvas.width;work.height=canvas.height;
+    const wctx=work.getContext('2d',{willReadFrequently:true});wctx.drawImage(canvas,0,0);
+    if(contrast){
+     const image=wctx.getImageData(0,0,work.width,work.height),px=image.data;
+     for(let p=0;p<px.length;p+=4){const gray=.299*px[p]+.587*px[p+1]+.114*px[p+2],v=Math.max(0,Math.min(255,(gray-128)*1.65+128));px[p]=px[p+1]=px[p+2]=v}
+     wctx.putImageData(image,0,0);
+    }
+    try{
+     const pixels=wctx.getImageData(0,0,work.width,work.height);
+     const luminance=new ZXing.RGBLuminanceSource(pixels.data,work.width,work.height);
+     const binary=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(luminance));
+     const reader=new ZXing.MultiFormatReader();reader.setHints(hints);
+     let decoded=[];
+     try{decoded=new ZXing.GenericMultipleBarcodeReader(reader).decodeMultiple(binary)||[]}catch(multiError){}
+     if(!decoded.length){try{reader.reset();const one=reader.decode(binary);if(one)decoded=[one]}catch(singleError){}}
+     if(decoded.length){
+      const values=decoded.map(result=>{
+       const points=result.getResultPoints?result.getResultPoints():[];
+       const y=points.length?points.reduce((sum,p)=>sum+p.getY(),0)/points.length:0;
+       return {value:String(result.getText()||'').trim(),y};
+      }).filter(item=>item.value);
+      attempts.push(values);
+     }
+    }catch(decodeError){}
+   }
   }
   bitmap.close();
+  attempts.sort((a,b)=>new Set(b.map(x=>x.value)).size-new Set(a.map(x=>x.value)).size||b.length-a.length);
+  if(attempts.length)barcodeValues=attempts[0].sort((a,b)=>a.y-b.y);
  }
 }catch(barcodeError){console.warn('Falha na leitura de código de barras',barcodeError)}
-let barcodeAdded=0;
-for(const raw of [...new Set(barcodeValues)]){
- const value=String(raw||'').trim();
- const labeledImei=value.match(/IMEI\s*([12])?\s*[:#=-]?\s*((?:[0-9][\s-]*){15})/i);
- const labeledSn=value.match(/(?:S\/?N|SERIAL(?:\s*(?:NO|NUMBER))?)\s*[:#=-]?\s*([A-Z0-9-]{5,40})/i);
- const number=value.replace(/\D/g,'');
- if(labeledImei&&number.length>=15){
-  const imeiValue=labeledImei[2].replace(/\D/g,'').slice(0,15),field=labeledImei[1]==='2'?'imei2':'imei';
-  if(!digits($(field).value)){$(field).value=imeiValue;barcodeAdded++;}
-  else if(field==='imei'&&!digits($('imei2').value)&&imeiValue!==digits($('imei').value)){$('imei2').value=imeiValue;barcodeAdded++;}
-  continue;
- }
- if(number.length===15){
-  if(!digits($('imei').value)){$('imei').value=number;barcodeAdded++;}
-  else if(!digits($('imei2').value)&&number!==digits($('imei').value)){$('imei2').value=number;barcodeAdded++;}
-  continue;
- }
- const serial=(labeledSn?labeledSn[1]:value).replace(/[^a-zA-Z0-9-]/g,'');
- if(!/^[0-9]{15}$/.test(serial)&&/[A-Za-z]/.test(serial)&&serial.length>=5&&!$('sn').value.trim()){$('sn').value=serial.slice(0,40);barcodeAdded++;}
-}
 const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
 const normalizeOcrDigits=s=>String(s||'').toUpperCase().replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/S/g,'5').replace(/B/g,'8').replace(/[^0-9]/g,'');
 const candidates=[];
@@ -185,7 +200,17 @@ for(let i=0;i<lines.length;i++){
  value=value.replace(/^(?:NO\.?|NUMBER)[:#=\-]?/i,'');
  if(value.length>=4 && value.length<=40 && !/^\d{15}$/.test(value)){serialCandidate=value;break;}
 }
-if(serialCandidate && !$('sn').value.trim())$('sn').value=serialCandidate.slice(0,40);progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();
+if(serialCandidate && !$('sn').value.trim())$('sn').value=serialCandidate.slice(0,40);
+// Códigos de barras prevalecem sobre OCR para evitar confusões entre 0/O e 1/I.
+const barcodeUnique=[...new Map(barcodeValues.map(item=>[item.value,item])).values()];
+const barcodeImeis=barcodeUnique.map(item=>digits(item.value)).filter(value=>value.length>=15).map(value=>value.slice(0,15));
+const distinctImeis=[...new Set(barcodeImeis)];
+if(distinctImeis[0])$('imei').value=distinctImeis[0];
+if(distinctImeis[1])$('imei2').value=distinctImeis[1];
+const barcodeSerial=barcodeUnique.map(item=>item.value.replace(/^(?:S\\/?N|SERIAL(?:\\s*(?:NO|NUMBER))?)\\s*[:#=-]?\\s*/i,'').replace(/[^a-zA-Z0-9-]/g,''))
+ .find(value=>/[A-Za-z]/.test(value)&&value.length>=5&&value.length<=40&&!/^IMEI/i.test(value));
+if(barcodeSerial)$('sn').value=barcodeSerial.slice(0,40);
+progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();
 const missing=[];if(foundImei.length!==15)missing.push('IMEI 1');if(foundImei2.length!==15)missing.push('IMEI 2');if(!foundSn)missing.push('número de série (SN)');
 if(missing.length){
  const proceed=window.confirm('O OCR analisou a foto inteira, mas não conseguiu identificar: '+missing.join(', ')+'.\\n\\nDeseja continuar mesmo assim para revisar e preencher os dados manualmente?');
