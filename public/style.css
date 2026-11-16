@@ -3410,3 +3410,8 @@ button,a,input,select,textarea { -webkit-tap-highlight-color:transparent; }
     margin-bottom: 12px;
   }
 }
+
+:focus-visible{outline:2px solid var(--accent-color,#1686ff);outline-offset:3px}
+button,.menu-item,.stat-card{-webkit-tap-highlight-color:transparent}
+@media(max-width:768px){.main-content{min-width:0}.view-section.active{min-width:0}.main-content table{min-width:680px}.table-responsive,.table-wrapper,.stock-table-wrapper{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}.mobile-topbar{position:sticky;top:0;z-index:100;backdrop-filter:blur(14px)}.stat-card{min-width:0}input,select,textarea{max-width:100%}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
