@@ -221,7 +221,7 @@ function sendInventoryApp(req, res) {
   if (!hasValidSession(req)) return res.redirect('/?login=required');
   fs.readFile(path.join(PUBLIC_DIR, 'celular.rubertt.html'), 'utf8', (error, html) => {
     if (error) return res.status(500).send('Não foi possível carregar o inventário.');
-    const onboardingScript = '<script src="/onboarding.js" defer></script>';
+    const onboardingScript = '<script src="/onboarding.js" defer></script><script src="/account.js" defer></script>';
     const page = html.includes('</body>') ? html.replace('</body>', onboardingScript + '\n</body>') : html + onboardingScript;
     res.type('html').send(page);
   });
@@ -229,6 +229,7 @@ function sendInventoryApp(req, res) {
 
 app.get('/app', sendInventoryApp);
 app.get('/celular.rubertt.html', sendInventoryApp);
+app.get('/account.js', (_req, res) => { res.type('application/javascript').sendFile(path.join(PUBLIC_DIR, 'account.js')); });
 app.get('/onboarding.js', (_req, res) => {
   res.type('application/javascript').sendFile(path.join(PUBLIC_DIR, 'onboarding.js'));
 });
