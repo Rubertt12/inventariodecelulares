@@ -206,7 +206,7 @@ const barcodeImeis=barcodeUnique.map(item=>digits(item.value)).filter(value=>val
 const distinctImeis=[...new Set(barcodeImeis)];
 if(distinctImeis[0])$('imei').value=distinctImeis[0];
 if(distinctImeis[1])$('imei2').value=distinctImeis[1];
-const barcodeSerial=barcodeUnique.map(item=>item.value.replace(/^(?:S\\/?N|SERIAL(?:\\s*(?:NO|NUMBER))?)\\s*[:#=-]?\\s*/i,'').replace(/[^a-zA-Z0-9-]/g,''))
+const barcodeSerial=barcodeUnique.map(item=>item.value.replace(/^(?:S\/?N|SERIAL(?:\s*(?:NO|NUMBER))?)\s*[:#=-]?\s*/i,'').replace(/[^a-zA-Z0-9-]/g,''))
  .find(value=>/[A-Za-z]/.test(value)&&value.length>=5&&value.length<=40&&!/^IMEI/i.test(value));
 if(barcodeSerial)$('sn').value=barcodeSerial.slice(0,40);
 progress.style.width='100%';await persistDraft();const foundImei=digits($('imei').value),foundImei2=digits($('imei2').value),foundSn=$('sn').value.trim();
