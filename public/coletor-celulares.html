@@ -10,7 +10,6 @@
 <link rel="stylesheet" href="coletor-celulares.css">
 <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
 <script defer src="coletor-celulares.js"></script>
 </head>
 <body>
@@ -31,7 +30,7 @@
 <div class="field"><label for="imei2">IMEI 2 <b>obrigatório</b></label><input id="imei2" inputmode="numeric" maxlength="17" autocomplete="off" placeholder="15 dígitos"></div>
 <div class="field full"><label for="sn">Número de série (SN) <b>obrigatório</b></label><input id="sn" autocomplete="off" placeholder="Digite ou leia o número de série"></div>
 </div>
-<div class="scan-actions"><button class="button primary wide" id="readOcr" type="button">⌕ Ler etiqueta (OCR)</button><button class="button outline wide" id="readBarcode" type="button">▥ Ler código de barras da foto</button><button class="button outline" id="prepareOffline" type="button">Preparar OCR offline</button></div>
+<div class="scan-actions"><button class="button primary wide" id="readOcr" type="button">⌕ Ler foto (IMEI, SN e código)</button></div>
 <div class="progress"><span id="progress"></span></div><div class="status" id="status" role="status" aria-live="polite">Pronto. Abra a câmera para começar.</div>
 <div class="form-actions"><button class="button primary" id="add" type="button">Adicionar ao lote</button><button class="button ghost" id="clear" type="button">Limpar captura</button></div>
 </section>
