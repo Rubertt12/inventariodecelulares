@@ -16,6 +16,7 @@
   function closeModal(){modal.classList.remove('open');modal.setAttribute('aria-hidden','true');document.body.style.overflow=''}
   const localPreview = window.location.protocol === 'file:';
   if(new URLSearchParams(window.location.search).get('login')==='required') openModal('login');
+  if(new URLSearchParams(window.location.search).get('auth_error')) { openModal('login'); document.getElementById('loginError').textContent='Não foi possível entrar com Google. Tente novamente.'; }
   document.querySelectorAll('[data-open]').forEach(button=>button.addEventListener('click',()=>openModal(button.dataset.open)));
   tabs.forEach(button=>button.addEventListener('click',()=>setTab(button.dataset.tab)));
   document.getElementById('closeModal').addEventListener('click',closeModal);
@@ -50,5 +51,5 @@
     event.preventDefault();
     document.getElementById('registerMessage').textContent='Cadastro demonstrativo: o envio de solicitações será ativado em uma próxima etapa.';
   });
-  if(!localPreview){fetch('/api/demo-session',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(data=>{if(data&&data.authenticated){document.querySelectorAll('[data-open="login"]').forEach(b=>{b.addEventListener('click',()=>window.location.assign('/app'),{once:true})})}}).catch(()=>{});}
+  if(!localPreview){fetch('/api/auth/session',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(data=>{if(data&&data.authenticated){document.querySelectorAll('[data-open="login"]').forEach(b=>{b.addEventListener('click',()=>window.location.assign('/app'),{once:true})})}}).catch(()=>{});fetch('/api/demo-session',{credentials:'same-origin'}).then(r=>r.ok?r.json():null).then(data=>{if(data&&data.authenticated){document.querySelectorAll('[data-open="login"]').forEach(b=>{b.addEventListener('click',()=>window.location.assign('/app'),{once:true})})}}).catch(()=>{});}
 })();
