@@ -76,6 +76,82 @@ $('takePhoto').addEventListener('click',()=>{
 function setPhoto(blob){stop();photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
 $('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto carregada. Toque em Ler etiqueta (OCR).')};
+
+$('readBarcode').onclick=async()=>{
+ const source=photoBlob||$('labelPhoto').files?.[0];
+ if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}
+ if(!window.ZXing){say('Biblioteca de leitura de código de barras não carregou. Recarregue a página com internet.');return}
+ const button=$('readBarcode');button.disabled=true;progress.style.width='5%';
+ try{
+  say('Preparando leitor de código de barras…');
+  const imageUrl=URL.createObjectURL(source);
+  const image=new Image();
+  image.decoding='async';
+  image.src=imageUrl;
+  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('Não foi possível abrir a foto para leitura.'))});
+  const Reader=ZXing.BrowserMultiFormatReader;
+  if(!Reader)throw new Error('Leitor compatível não encontrado na biblioteca ZXing.');
+  const reader=new Reader();
+  const hints=new Map();
+  if(ZXing.DecodeHintType&&ZXing.BarcodeFormat){
+   hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
+   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[
+    ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,
+    ZXing.BarcodeFormat.CODE_93,ZXing.BarcodeFormat.EAN_13,
+    ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.ITF,
+    ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E,
+    ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.DATA_MATRIX,
+    ZXing.BarcodeFormat.PDF_417,ZXing.BarcodeFormat.AZTEC
+   ]);
+  }
+  reader.hints=hints;
+  const attempts=[];
+  const decode=async(img,label)=>{
+   try{
+    const result=await reader.decodeFromImageElement(img);
+    if(result){attempts.push({text:String(result.getText()||'').trim(),format:result.getBarcodeFormat?.()||'',label})}
+   }catch(e){}
+  };
+  await decode(image,'foto original');
+  if(!attempts.length){
+   say('Código não localizado na foto inteira. Tentando melhorar a imagem…');
+   const rotations=[0,90,180,270];
+   for(const angle of rotations.slice(1)){
+    const c=document.createElement('canvas'),swap=angle===90||angle===270;
+    c.width=swap?image.naturalHeight:image.naturalWidth;
+    c.height=swap?image.naturalWidth:image.naturalHeight;
+    const ctx=c.getContext('2d');ctx.translate(c.width/2,c.height/2);ctx.rotate(angle*Math.PI/180);
+    ctx.drawImage(image,-image.naturalWidth/2,-image.naturalHeight/2);
+    const rotated=new Image();rotated.src=c.toDataURL('image/png');
+    await new Promise((resolve,reject)=>{rotated.onload=resolve;rotated.onerror=reject});
+    await decode(rotated,'foto girada '+angle+'°');
+    if(attempts.length)break;
+   }
+  }
+  URL.revokeObjectURL(imageUrl);
+  if(!attempts.length){progress.style.width='100%';say('Nenhum código de barras/QR foi decodificado. Aproxime a etiqueta, evite reflexos e fotografe o código inteiro, focado e sem cortes.');return}
+  const decoded=[...new Set(attempts.map(x=>x.text).filter(Boolean))];
+  let filled=[];
+  for(const value of decoded){
+   const normalized=value.replace(/\s+/g,'').trim(),numeric=normalized.replace(/\D/g,'');
+   if(numeric.length===15){
+    if(!$('imei').value){$('imei').value=numeric;filled.push('IMEI 1')}
+    else if(!$('imei2').value&&numeric!==$('imei').value.replace(/\D/g,'')){$('imei2').value=numeric;filled.push('IMEI 2')}
+    else if(!$('imei').value&&$('imei2').value){$('imei').value=numeric;filled.push('IMEI 1')}
+   }else if(normalized.length>=5&&normalized.length<=40&&!$('sn').value){
+    $('sn').value=normalized;filled.push('SN');
+   }
+  }
+  await persistDraft();progress.style.width='100%';
+  if(filled.length)say('Código de barras lido. Preenchido: '+[...new Set(filled)].join(', ')+'. Confira os dados antes de adicionar ao lote.');
+  else say('Código decodificado ('+decoded.join(', ')+'), mas não correspondeu a um IMEI de 15 dígitos ou SN vazio. Confira e copie manualmente se necessário.');
+  console.log('[Coletor Barcode] Códigos lidos:',decoded);
+ }catch(error){
+  console.error('[Coletor Barcode] Falha:',error);
+  say('Falha no leitor de código de barras: '+(error.message||error));
+ }finally{button.disabled=false}
+};
+
 $('readOcr').onclick=async()=>{
  const source=photoBlob||$('labelPhoto').files?.[0];
  if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}
