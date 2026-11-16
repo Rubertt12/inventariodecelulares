@@ -17,7 +17,7 @@
 <label for="model">Modelo / identificação (opcional)</label><input id="model" placeholder="Ex.: Samsung Galaxy A54"><label for="locality">Localidade de entrada no estoque</label><input id="locality" value="Canoas" placeholder="Ex.: Canoas">
 <div class="row"><div><label for="imei">IMEI 1 *</label><input id="imei" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div><div><label for="imei2">IMEI 2 *</label><input id="imei2" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div></div>
 <label for="sn">Número de série (SN) *</label><input id="sn" placeholder="Digite ou leia o SN" required>
-<div class="actions"><button id="startCam">Abrir câmera</button><button class="secondary" id="takePhoto" disabled>Fotografar aparelho</button></div>
+<div class="actions"><button id="startCam" type="button">Abrir câmera</button><button class="secondary" id="liveCam" type="button">Câmera ao vivo</button><button class="secondary" id="takePhoto" type="button" disabled>Fotografar aparelho</button></div>
 <div class="preview" id="preview"><span id="previewText">A câmera/foto aparecerá aqui</span><video id="video" playsinline autoplay></video><img id="photoPreview" alt="Foto capturada" hidden></div>
 <label for="labelPhoto">Ou selecionar foto da etiqueta para leitura</label><input id="labelPhoto" type="file" accept="image/*" capture="environment">
 <div class="actions"><button class="secondary" id="readOcr">Ler texto da etiqueta (OCR)</button><button class="secondary" id="prepareOffline">Preparar OCR offline</button><button class="secondary" id="stopCam">Fechar câmera</button></div>
