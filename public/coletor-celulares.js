@@ -91,7 +91,6 @@ $('readBarcode').onclick=async()=>{
   await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('Não foi possível abrir a foto para leitura.'))});
   const Reader=ZXing.BrowserMultiFormatReader;
   if(!Reader)throw new Error('Leitor compatível não encontrado na biblioteca ZXing.');
-  const reader=new Reader();
   const hints=new Map();
   if(ZXing.DecodeHintType&&ZXing.BarcodeFormat){
    hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
@@ -104,7 +103,7 @@ $('readBarcode').onclick=async()=>{
     ZXing.BarcodeFormat.PDF_417,ZXing.BarcodeFormat.AZTEC
    ]);
   }
-  reader.hints=hints;
+  const reader=new Reader(hints);
   const attempts=[];
   const decode=async(img,label)=>{
    try{
