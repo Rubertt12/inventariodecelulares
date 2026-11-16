@@ -43,10 +43,9 @@ $('prepareOffline').onclick=prepareOfflineOcr;
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
-// A abertura nativa é feita por um label associado diretamente ao input file.
-// Isso preserva o gesto real do usuário e evita bloqueios de .click() programático.
-// Câmera ao vivo opcional para navegadores que oferecem getUserMedia.
-$('liveCam').onclick=async()=>{
+// Abrir câmera usa a API de câmera ao vivo do navegador (getUserMedia).
+// A chamada ocorre diretamente no gesto do usuário, sem abrir seletor de arquivos.
+const openCamera=async()=>{
  try{
   stop();
   if(!window.isSecureContext)throw new Error('A câmera ao vivo exige HTTPS. Abra o coletor pelo endereço seguro.');
@@ -72,9 +71,11 @@ $('liveCam').onclick=async()=>{
    AbortError:'O Android interrompeu a abertura da câmera. Tente novamente.',
    SecurityError:'O navegador bloqueou a câmera. Abra o coletor em HTTPS no Chrome.'
   };
-  say((messages[e.name]||e.message||'Não foi possível iniciar a câmera ao vivo.')+' Você ainda pode usar Abrir câmera para chamar a câmera nativa do Android.');
+  say((messages[e.name]||e.message||'Não foi possível iniciar a câmera ao vivo.')+' Confira a permissão de câmera do navegador e tente novamente.');
  }
 };
+$('startCam').onclick=openCamera;
+$('liveCam').onclick=openCamera;
 $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
 function setPhoto(blob){photoBlob=blob;if(photoUrl)URL.revokeObjectURL(photoUrl);photoUrl=URL.createObjectURL(blob);photoPreview.src=photoUrl;photoPreview.hidden=false;video.style.display='none';$('previewText').hidden=true;persistDraft()}
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
