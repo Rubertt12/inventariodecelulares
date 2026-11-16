@@ -85,17 +85,28 @@ $('readOcr').onclick=async()=>{
   offlineOcrReady=offlineOcrReady||await hasOfflineOcr();
   say('Preparando leitura da etiqueta…');
   const logger=m=>{
-   if(m.status==='recognizing text')progress.style.width=Math.min(80,Math.round(m.progress*75+5))+'%';
-   if(m.status==='loading language model')say('Carregando idioma OCR…');
+   if(m.status==='recognizing text'){progress.style.width=Math.min(80,Math.round(m.progress*75+5))+'%';say('Reconhecendo texto da etiqueta… '+Math.round((m.progress||0)*100)+'%')}
+   else if(m.status==='loading language model')say('Baixando modelo de leitura OCR…');
+   else if(m.status==='loading tesseract core')say('Carregando núcleo do OCR…');
+   else if(m.status==='initializing tesseract')say('Inicializando mecanismo OCR…');
+   else if(m.status==='initializing api')say('Preparando reconhecimento de texto…');
   };
   if(!ocrWorker){
+   say('Iniciando mecanismo OCR (idioma inglês para códigos e números)…');
    const options=offlineOcrReady?{
     workerPath:new URL('/ocr/vendor/worker.min.js',location.origin).href,
     corePath:new URL('/ocr/core/',location.origin).href,
     langPath:new URL('/ocr/lang/',location.origin).href,
     workerBlobURL:false,gzip:true,cacheMethod:'write',logger
-   }:{logger};
-   ocrWorker=await Tesseract.createWorker('eng+por',1,options);
+   }:{
+    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js',
+    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0',
+    langPath:'https://tessdata.projectnaptha.com/4.0.0',
+    workerBlobURL:false,gzip:true,logger
+   };
+   const init=Tesseract.createWorker('eng',1,options);
+   const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('O mecanismo OCR demorou mais de 60 segundos para iniciar. Verifique a conexão e tente novamente.')),60000));
+   ocrWorker=await Promise.race([init,timeout]);
   }
   await ocrWorker.setParameters({preserve_interword_spaces:'1',tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/:.# '});
   const texts=[];
