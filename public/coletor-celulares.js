@@ -8,38 +8,6 @@ async function persistDraft(){try{await localSet('draft',{model:$('model').value
 async function persistItems(){try{await localSet('items',items.map(({photoUrl,...it})=>it))}catch(e){say('Aviso: não foi possível salvar o lote neste navegador.')}}
 async function restoreLocalData(){try{const saved=await localGet('items');if(Array.isArray(saved))items=saved.map(it=>({...it,photoUrl:URL.createObjectURL(it.photoBlob)}));const draft=await localGet('draft');if(draft){$('model').value=draft.model||'';$('locality').value=draft.locality||'Canoas';$('imei').value=draft.imei||'';$('imei2').value=draft.imei2||'';$('sn').value=draft.sn||'';if(draft.photoBlob){photoBlob=draft.photoBlob;setPhoto(photoBlob);say('Rascunho recuperado: foto e campos restaurados.')}}render()}catch(e){console.warn('Falha ao recuperar dados locais',e)}}
 const video=$('video'),photoPreview=$('photoPreview'),status=$('status'),progress=$('progress');
-const OCR_CACHE='coletor-ocr-offline-v1';
-const OCR_ASSETS=[
- {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js',key:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js'},
- {url:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js',key:'/ocr/vendor/worker.min.js'},
- ...['tesseract-core.wasm.js','tesseract-core-simd.wasm.js','tesseract-core-lstm.wasm.js','tesseract-core-simd-lstm.wasm.js',
- 'tesseract-core.wasm','tesseract-core-simd.wasm','tesseract-core-lstm.wasm','tesseract-core-simd-lstm.wasm'].map(name=>({url:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0/'+name,key:'/ocr/core/'+name})),
- ...['por','eng'].map(lang=>({url:'https://tessdata.projectnaptha.com/4.0.0/'+lang+'.traineddata.gz',key:'/ocr/lang/'+lang+'.traineddata.gz'}))
-];
-let offlineOcrReady=false,ocrWorker=null;
-async function hasOfflineOcr(){
- try{const cache=await caches.open(OCR_CACHE);return (await Promise.all(OCR_ASSETS.map(a=>cache.match(a.key.startsWith('http')?a.key:new URL(a.key,location.origin).href)))).every(Boolean)}catch(e){return false}
-}
-async function prepareOfflineOcr(){
- if(!('caches'in window)||!('serviceWorker'in navigator)){say('Este navegador não oferece os recursos necessários para preparar o OCR offline.');return}
- if(!navigator.serviceWorker.controller){say('Ativando o modo offline. Recarregue esta página uma vez e toque novamente em Preparar OCR offline.');return}
- const cache=await caches.open(OCR_CACHE);let done=0;
- $('prepareOffline').disabled=true;
- try{
-  for(const asset of OCR_ASSETS){
-   const key=asset.key.startsWith('http')?asset.key:new URL(asset.key,location.origin).href;
-   if(await cache.match(key)){done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';continue}
-   say('Baixando mecanismo OCR offline ('+(done+1)+'/'+OCR_ASSETS.length+'): '+asset.key.split('/').pop());
-   const response=await fetch(asset.url,{mode:'cors',cache:'no-cache'});
-   if(!response.ok)throw new Error('Não foi possível baixar '+asset.url+' (HTTP '+response.status+')');
-   await cache.put(key,response.clone());done++;progress.style.width=Math.round(done/OCR_ASSETS.length*100)+'%';
-  }
-  offlineOcrReady=true;say('Pacote OCR offline preparado. Recarregue a página para garantir que todos os arquivos fiquem disponíveis sem internet.');
- }catch(e){say('Não foi possível preparar o OCR offline: '+e.message+'. Conecte-se à internet e tente novamente.')}
- finally{$('prepareOffline').disabled=false}
-}
-$('prepareOffline').onclick=prepareOfflineOcr;
-
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){
@@ -77,235 +45,82 @@ function setPhoto(blob){stop();photoBlob=blob;if(photoUrl)URL.revokeObjectURL(ph
 $('takePhoto').onclick=()=>{if(!stream)return;const c=document.createElement('canvas');c.width=video.videoWidth;c.height=video.videoHeight;c.getContext('2d').drawImage(video,0,0);c.toBlob(b=>{if(b){setPhoto(b);say('Foto capturada. Agora leia a etiqueta ou preencha os dados.')}},'image/jpeg',.9)};
 $('labelPhoto').onchange=e=>{const f=e.target.files[0];if(!f)return;setPhoto(f);say('Foto carregada. Toque em Ler etiqueta (OCR).')};
 
-$('readBarcode').onclick=async()=>{
- const source=photoBlob||$('labelPhoto').files?.[0];
- if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}
- if(!window.ZXing){say('Biblioteca de leitura de código de barras não carregou. Recarregue a página com internet.');return}
- const button=$('readBarcode');button.disabled=true;progress.style.width='5%';
- let imageUrl='';
- try{
-  say('Preparando leitor de código de barras…');
-  const loadImage=src=>new Promise((resolve,reject)=>{
-   const img=new Image();
-   img.onload=()=>resolve(img);
-   img.onerror=()=>reject(new Error('O navegador não conseguiu carregar a imagem para decodificação.'));
-   img.src=src;
-  });
-  imageUrl=URL.createObjectURL(source);
-  const image=await loadImage(imageUrl);
-  if(!image.naturalWidth||!image.naturalHeight)throw new Error('A foto está vazia ou em formato não suportado.');
-  const Reader=ZXing.BrowserMultiFormatReader;
-  if(!Reader)throw new Error('A biblioteca ZXing carregou, mas o leitor de imagem não está disponível.');
-  const hints=new Map();
-  if(ZXing.DecodeHintType&&ZXing.BarcodeFormat){
-   hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
-   hints.set(ZXing.DecodeHintType.POSSIBLE_FORMATS,[
-    ZXing.BarcodeFormat.CODE_128,ZXing.BarcodeFormat.CODE_39,
-    ZXing.BarcodeFormat.CODE_93,ZXing.BarcodeFormat.EAN_13,
-    ZXing.BarcodeFormat.EAN_8,ZXing.BarcodeFormat.ITF,
-    ZXing.BarcodeFormat.UPC_A,ZXing.BarcodeFormat.UPC_E,
-    ZXing.BarcodeFormat.QR_CODE,ZXing.BarcodeFormat.DATA_MATRIX,
-    ZXing.BarcodeFormat.PDF_417,ZXing.BarcodeFormat.AZTEC
-   ]);
-  }
-  const reader=new Reader(hints);
-  const attempts=[],decodeErrors=[];
-  const decode=async(img,label)=>{
-   try{
-    const result=await reader.decodeFromImageElement(img);
-    if(result){attempts.push({text:String(result.getText()||'').trim(),format:String(result.getBarcodeFormat?.()||''),label})}
-   }catch(err){
-    const message=err&&typeof err.message==='string'?err.message:'Código não encontrado nesta imagem.';
-    decodeErrors.push(message);
-   }
-  };
-  say('Analisando código na foto original…');
-  await decode(image,'foto original');
-  if(!attempts.length){
-   say('Código não localizado na foto inteira. Tentando rotações…');
-   for(const angle of [90,180,270]){
-    const c=document.createElement('canvas'),swap=angle===90||angle===270;
-    c.width=swap?image.naturalHeight:image.naturalWidth;
-    c.height=swap?image.naturalWidth:image.naturalHeight;
-    const ctx=c.getContext('2d');
-    if(!ctx)throw new Error('Não foi possível preparar a imagem para leitura.');
-    ctx.translate(c.width/2,c.height/2);ctx.rotate(angle*Math.PI/180);
-    ctx.drawImage(image,-image.naturalWidth/2,-image.naturalHeight/2);
-    const rotated=await loadImage(c.toDataURL('image/png'));
-    await decode(rotated,'foto girada '+angle+'°');
-    if(attempts.length)break;
-   }
-  }
-  if(!attempts.length){
-   progress.style.width='100%';
-   say('Nenhum código de barras ou QR foi encontrado. Fotografe o código inteiro, de perto, focado e sem reflexo. Se a etiqueta só tiver números impressos, use o leitor OCR.');
-   return;
-  }
-  const decoded=[...new Set(attempts.map(x=>x.text).filter(Boolean))];
-  const filled=[];
-  for(const value of decoded){
-   const normalized=value.replace(/\\s+/g,'').trim(),numeric=normalized.replace(/\\D/g,'');
-   if(numeric.length===15){
-    if(!$('imei').value){$('imei').value=numeric;filled.push('IMEI 1')}
-    else if(!$('imei2').value&&numeric!==$('imei').value.replace(/\\D/g,'')){$('imei2').value=numeric;filled.push('IMEI 2')}
-   }else if(normalized.length>=5&&normalized.length<=40&&!$('sn').value){
-    $('sn').value=normalized;filled.push('SN');
-   }
-  }
-  await persistDraft();progress.style.width='100%';
-  if(filled.length)say('Código de barras lido. Preenchido: '+[...new Set(filled)].join(', ')+'. Confira os dados antes de adicionar ao lote.');
-  else say('Código decodificado ('+decoded.join(', ')+'), mas o conteúdo não corresponde a um IMEI de 15 dígitos ou não há campo SN vazio. Confira o valor reconhecido no console.');
-  console.log('[Coletor Barcode] Códigos lidos:',attempts);
- }catch(error){
-  console.error('[Coletor Barcode] Falha:',error);
-  const message=error&&typeof error.message==='string'?error.message:'Erro inesperado ao processar a foto.';
-  say('Falha no leitor de código de barras: '+message);
- }finally{
-  if(imageUrl)URL.revokeObjectURL(imageUrl);
-  button.disabled=false;
- }
-};
-
 $('readOcr').onclick=async()=>{
  const source=photoBlob||$('labelPhoto').files?.[0];
  if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}
- if(!window.Tesseract){say('Biblioteca OCR não carregou. Verifique a internet e recarregue a página.');return}
- const button=$('readOcr');button.disabled=true;progress.style.width='2%';
+ if(!window.Tesseract){say('Leitor de texto indisponível. Recarregue a página com internet.');return}
+ const button=$('readOcr');button.disabled=true;progress.style.width='10%';
+ let worker=null;
  try{
-  offlineOcrReady=offlineOcrReady||await hasOfflineOcr();
-  say('Preparando leitura da etiqueta…');
-  const logger=m=>{
-   if(m.status==='recognizing text'){progress.style.width=Math.min(80,Math.round(m.progress*75+5))+'%';say('Reconhecendo texto da etiqueta… '+Math.round((m.progress||0)*100)+'%')}
-   else if(m.status==='loading language model')say('Baixando modelo de leitura OCR…');
-   else if(m.status==='loading tesseract core')say('Carregando núcleo do OCR…');
-   else if(m.status==='initializing tesseract')say('Inicializando mecanismo OCR…');
-   else if(m.status==='initializing api')say('Preparando reconhecimento de texto…');
-  };
-  if(!ocrWorker){
-   say('Iniciando mecanismo OCR (idioma inglês para códigos e números)…');
-   const options=offlineOcrReady?{
-    workerPath:new URL('/ocr/vendor/worker.min.js',location.origin).href,
-    corePath:new URL('/ocr/core/',location.origin).href,
-    langPath:new URL('/ocr/lang/',location.origin).href,
-    workerBlobURL:false,gzip:true,cacheMethod:'write',logger
-   }:{
-    workerPath:'https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/worker.min.js',
-    corePath:'https://cdn.jsdelivr.net/npm/tesseract.js-core@5.0.0',
-    langPath:'https://tessdata.projectnaptha.com/4.0.0',
-    workerBlobURL:false,gzip:true,logger
-   };
-   const init=Tesseract.createWorker('eng',1,options);
-   const timeout=new Promise((_,reject)=>setTimeout(()=>reject(new Error('O mecanismo OCR demorou mais de 60 segundos para iniciar. Verifique a conexão e tente novamente.')),60000));
-   ocrWorker=await Promise.race([init,timeout]);
+  say('Lendo a foto. Isso pode levar alguns segundos…');
+  // Leitura de código de barras nativa do navegador, sem biblioteca adicional.
+  if('BarcodeDetector' in window){
+   try{
+    const detector=new BarcodeDetector();
+    const codes=await detector.detect(source);
+    for(const code of codes){
+     const value=String(code.rawValue||'').trim(),numeric=value.replace(/\D/g,'');
+     if(numeric.length===15){
+      if(!$('imei').value)$('imei').value=numeric;
+      else if(!$('imei2').value&&numeric!==digits($('imei').value))$('imei2').value=numeric;
+     }else if(value.length>=5&&value.length<=40&&!$('sn').value)$('sn').value=value;
+    }
+   }catch(e){console.warn('Leitura de código nativa indisponível:',e)}
   }
-  await ocrWorker.setParameters({preserve_interword_spaces:'1',tessedit_char_whitelist:'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-/:.# '});
-  const texts=[];
-  say('Lendo a foto original…');
-  await ocrWorker.setParameters({tessedit_pageseg_mode:'11'});
-  const original=await ocrWorker.recognize(source);texts.push(original.data.text||'');
-  let canvas=null;
-  try{
-   const bitmap=await createImageBitmap(source);
-   const scale=Math.min(3,Math.max(1.5,2600/Math.max(bitmap.width,bitmap.height)));
-   canvas=document.createElement('canvas');canvas.width=Math.round(bitmap.width*scale);canvas.height=Math.round(bitmap.height*scale);
-   const ctx=canvas.getContext('2d',{willReadFrequently:true});ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);bitmap.close();
-   const image=ctx.getImageData(0,0,canvas.width,canvas.height),px=image.data;
-   for(let i=0;i<px.length;i+=4){
-    const gray=.299*px[i]+.587*px[i+1]+.114*px[i+2];
-    const value=Math.max(0,Math.min(255,(gray-128)*1.65+128));
-    px[i]=px[i+1]=px[i+2]=value;
-   }
-   ctx.putImageData(image,0,0);
-   say('Melhorando contraste e relendo a etiqueta…');
-   await ocrWorker.setParameters({tessedit_pageseg_mode:'6'});
-   const enhanced=await ocrWorker.recognize(canvas);texts.push(enhanced.data.text||'');
-   // Algumas etiquetas têm os identificadores em áreas separadas. Lê também faixas da imagem.
-   const regions=[
-    [0,0,canvas.width,Math.round(canvas.height*.58)],
-    [0,Math.round(canvas.height*.30),canvas.width,Math.round(canvas.height*.70)]
-   ];
-   await ocrWorker.setParameters({tessedit_pageseg_mode:'11'});
-   for(const [x,y,w,h] of regions){
-    const crop=document.createElement('canvas');crop.width=w;crop.height=h;
-    crop.getContext('2d').drawImage(canvas,x,y,w,h,0,0,w,h);
-    const part=await ocrWorker.recognize(crop);texts.push(part.data.text||'');
-   }
-  }catch(imageError){console.warn('Pré-processamento OCR:',imageError)}
-  const fullText=texts.join('\n');
-  console.log('[Coletor OCR] Texto reconhecido:',fullText);
-  const lines=fullText.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-  const normDigits=value=>String(value||'').toUpperCase()
-   .replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/Z/g,'2').replace(/S/g,'5').replace(/B/g,'8').replace(/[^0-9]/g,'');
-  const luhn=value=>{
-   if(value.length!==15)return false;let sum=0;
-   for(let i=0;i<15;i++){let n=Number(value[i]);if(i%2===1){n*=2;if(n>9)n-=9}sum+=n}
-   return sum%10===0;
-  };
-  const candidates=[];
-  // Captura números contínuos e números quebrados por espaços/hífens em mais de uma linha.
-  const joined=lines.join(' ');
-  const rawMatches=joined.match(/[0-9OQDIL|ZSB](?:[\s.:_\-]*[0-9OQDIL|ZSB]){13,19}/gi)||[];
-  for(const raw of rawMatches){
-   const value=normDigits(raw);
-   if(value.length>=14&&value.length<=17){
-    const normalized=value.length>15?value.slice(-15):value;
-    if(normalized.length===15)candidates.push({value:normalized,valid:luhn(normalized)});
-   }
-  }
-  const unique=[...new Map(candidates.map(x=>[x.value,x])).values()];
-  const labelled=(label)=>{
-   const re=label==='imei'?/IMEI\s*[-:#]?\s*1\b|IMEI1\b/i:/IMEI\s*[-:#]?\s*2\b|IMEI2\b/i;
+  progress.style.width='25%';
+  worker=await Tesseract.createWorker('eng');
+  const result=await worker.recognize(source);
+  const text=result?.data?.text||'';
+  console.log('[Coletor] Texto lido:',text);
+  const lines=text.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+  const normalizedDigits=value=>String(value||'').toUpperCase()
+   .replace(/[OQD]/g,'0').replace(/[IL|]/g,'1').replace(/Z/g,'2').replace(/S/g,'5').replace(/B/g,'8')
+   .replace(/[^0-9]/g,'');
+  const candidates=[...new Set((text.match(/[0-9OQDIL|ZSB](?:[\s.-]*[0-9OQDIL|ZSB]){13,18}/gi)||[])
+   .map(normalizedDigits).filter(x=>x.length===15))];
+  const getLabelled=(re)=>{
    for(let i=0;i<lines.length;i++){
     if(!re.test(lines[i]))continue;
-    const near=[lines[i],lines[i+1]||'',lines[i+2]||''].join(' ');
-    const match=near.match(/[0-9OQDIL|ZSB](?:[\s.:_\-]*[0-9OQDIL|ZSB]){13,19}/i);
-    if(match){const value=normDigits(match[0]);if(value.length===15)return value;if(value.length>15)return value.slice(-15)}
+    const near=[lines[i],lines[i+1]||''].join(' ');
+    const match=near.match(/[0-9OQDIL|ZSB](?:[\s.-]*[0-9OQDIL|ZSB]){13,18}/i);
+    if(match){const n=normalizedDigits(match[0]);if(n.length===15)return n}
    }
    return '';
   };
-  const firstLabel=labelled('imei'),secondLabel=labelled('imei2');
-  const choose=(preferred,used=[])=>preferred&&!used.includes(preferred)?preferred:(unique.filter(x=>!used.includes(x.value)).sort((a,b)=>Number(b.valid)-Number(a.valid))[0]?.value||'');
-  const imei1=choose(firstLabel),imei2=choose(secondLabel,[imei1].filter(Boolean));
-  if(imei1)$('imei').value=imei1;
-  if(imei2)$('imei2').value=imei2;
-  const serialLabel=/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\b/i;
-  let sn='';
-  for(let i=0;i<lines.length;i++){
-   if(!serialLabel.test(lines[i]))continue;
-   let value=lines[i].replace(/.*?(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\s*[:#=\-]?/i,'').trim();
-   if(!value)value=(lines[i+1]||'').trim();
-   value=value.replace(/[^A-Z0-9-]/gi,'');
-   if(value.length>=5&&value.length<=40&&!/^\d{15}$/.test(value)){sn=value;break}
-  }
-  // Usa texto de barras como reforço, sem sobrescrever identificadores já encontrados pelo OCR.
-  let barcodeCount=0;
-  try{
-   if(window.ZXing){
-    const bitmap=await createImageBitmap(source);
-    const reader=new ZXing.MultiFormatReader();
-    const hints=new Map();if(ZXing.DecodeHintType){hints.set(ZXing.DecodeHintType.TRY_HARDER,true)}
-    reader.setHints(hints);
-    const canvasBarcode=document.createElement('canvas');canvasBarcode.width=bitmap.width;canvasBarcode.height=bitmap.height;
-    const bctx=canvasBarcode.getContext('2d');bctx.drawImage(bitmap,0,0);bitmap.close();
-    const pixels=bctx.getImageData(0,0,canvasBarcode.width,canvasBarcode.height);
-    const binary=new ZXing.BinaryBitmap(new ZXing.HybridBinarizer(new ZXing.RGBLuminanceSource(pixels.data,canvasBarcode.width,canvasBarcode.height)));
-    try{const result=reader.decode(binary);const val=String(result.getText()||'');const d=normDigits(val);if(d.length===15){if(!$('imei').value)$('imei').value=d;else if(!$('imei2').value&&d!==$('imei').value)$('imei2').value=d}else if(!sn&&val.length>=5&&val.length<=40)sn=val;barcodeCount++}catch(e){}
+  const first=getLabelled(/IMEI\s*[-:#]?\s*1\b|IMEI1\b/i);
+  const second=getLabelled(/IMEI\s*[-:#]?\s*2\b|IMEI2\b/i);
+  const chosen=[];
+  if(first)chosen.push(first);
+  if(second&&second!==first)chosen.push(second);
+  for(const value of candidates)if(!chosen.includes(value))chosen.push(value);
+  if(!$('imei').value&&chosen[0])$('imei').value=chosen[0];
+  if(!$('imei2').value&&chosen.find(x=>x!==digits($('imei').value)))$('imei2').value=chosen.find(x=>x!==digits($('imei').value));
+  if(!$('sn').value){
+   for(let i=0;i<lines.length;i++){
+    if(/(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\b/i.test(lines[i])){
+     let value=lines[i].replace(/.*?(?:S\s*\/?\s*N|SERIAL(?:\s*(?:NO\.?|NUMBER))?|SER\.?\s*NO\.?|SN)\s*[:#=\-]?/i,'').trim();
+     if(!value)value=lines[i+1]||'';
+     value=value.replace(/[^A-Z0-9-]/gi,'');
+     if(value.length>=5&&value.length<=40&&!/^\d{15}$/.test(value)){$('sn').value=value;break}
+    }
    }
-  }catch(e){console.warn('Leitor de código de barras:',e)}
-  if(sn)$('sn').value=sn;
+  }
   await persistDraft();progress.style.width='100%';
-  const got1=digits($('imei').value).length===15,got2=digits($('imei2').value).length===15,gotSn=!!$('sn').value.trim();
-  const found=[got1?'IMEI 1':'',got2?'IMEI 2':'',gotSn?'SN':''].filter(Boolean);
-  const missing=[!got1?'IMEI 1':'',!got2?'IMEI 2':'',!gotSn?'SN':''].filter(Boolean);
-  if(found.length)say('Leitura concluída. Identificado: '+found.join(', ')+'. '+(missing.length?'Ainda não foi possível localizar: '+missing.join(', ')+'.':'Confira os dados antes de adicionar ao lote.'));
-  else say('O OCR não conseguiu reconhecer os identificadores. Aumente a iluminação, aproxime a etiqueta e fotografe de frente, sem reflexo. Você também pode preencher os campos manualmente.');
-  if(!fullText.trim())say('A imagem foi aberta, mas o OCR não reconheceu nenhum texto. Tente uma foto mais nítida e focada.');
+  const found=[];
+  if(digits($('imei').value).length===15)found.push('IMEI 1');
+  if(digits($('imei2').value).length===15)found.push('IMEI 2');
+  if($('sn').value.trim())found.push('SN');
+  if(found.length)say('Leitura concluída: '+found.join(', ')+'. Confira os campos, pois a leitura automática pode confundir caracteres.');
+  else if(!text.trim())say('Não consegui ler texto ou código. Tire outra foto mais próxima, nítida e sem reflexo.');
+  else say('A foto foi lida, mas não encontrei IMEI/SN com segurança. Preencha os campos manualmente ou tente outra foto.');
  }catch(error){
-  console.error('[Coletor OCR] Falha:',error);
-  say('Falha na leitura OCR: '+(error.message||error)+'. Recarregue a página e tente novamente.');
- }finally{button.disabled=false}
+  console.error('[Coletor] Erro na leitura:',error);
+  say('Não foi possível ler esta foto. Confira a conexão e tente novamente.');
+ }finally{
+  if(worker){try{await worker.terminate()}catch(e){}}
+  button.disabled=false;
+ }
 };
-
 function render(){const root=$('records');$('counter').textContent=items.length+' aparelho(s)';$('export').disabled=!items.length;$('importStock').disabled=!items.length;if(!items.length){root.className='empty';root.textContent='Nenhum aparelho adicionado ainda.';return}root.className='records';root.innerHTML='';items.forEach((it,i)=>{const row=document.createElement('div');row.className='record';const img=document.createElement('img');img.src=it.photoUrl;img.alt='Foto '+(i+1);const info=document.createElement('div');const strong=document.createElement('strong');strong.textContent=it.model||'Aparelho '+(i+1);const detail=document.createElement('small');detail.textContent='IMEI: '+(it.imei||'—')+' · SN: '+(it.sn||'—');info.append(strong,detail);const del=document.createElement('button');del.className='danger remove';del.textContent='Remover';del.onclick=()=>{URL.revokeObjectURL(it.photoUrl);items.splice(i,1);render();persistItems()};row.append(img,info,del);root.append(row)})}
 function addCurrentDevice(fromOcr=false){
  const imei=digits($('imei').value).slice(0,15),imei2=digits($('imei2').value).slice(0,15),sn=$('sn').value.trim(),model=$('model').value.trim();
