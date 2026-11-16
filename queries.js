@@ -105,6 +105,22 @@ const addTermo = async (body) => {
 const getModels = async () => (await pool.query('SELECT * FROM modelos ORDER BY nome')).rows;
 const getLocalities = async () => (await pool.query('SELECT * FROM localidades ORDER BY nome')).rows;
 
+const ensureUsersTable = async () => {
+    await pool.query(`CREATE TABLE IF NOT EXISTS app_users (
+      id BIGSERIAL PRIMARY KEY, name VARCHAR(160) NOT NULL, email VARCHAR(255) NOT NULL UNIQUE,
+      company VARCHAR(180), password_hash TEXT NOT NULL, password_salt VARCHAR(64) NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    )`);
+};
+const createUser = async ({ name, email, company, passwordHash, passwordSalt }) => {
+    const result = await pool.query('INSERT INTO app_users (name,email,company,password_hash,password_salt) VALUES ($1,$2,$3,$4,$5) RETURNING id,name,email,company,created_at',
+      [name,email,company || null,passwordHash,passwordSalt]);
+    return result.rows[0];
+};
+const getUserByEmail = async email => {
+    const result = await pool.query('SELECT id,name,email,company,password_hash,password_salt FROM app_users WHERE email=$1 LIMIT 1',[email]);
+    return result.rows[0] || null;
+};
 module.exports = {
     getSmartphones,
     addSmartphone,
@@ -115,4 +131,7 @@ module.exports = {
     addTermo,
     getModels,
     getLocalities,
+    ensureUsersTable,
+    createUser,
+    getUserByEmail,
 };
