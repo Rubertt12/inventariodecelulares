@@ -82,15 +82,20 @@ $('readBarcode').onclick=async()=>{
  if(!source){say('Primeiro fotografe ou selecione a etiqueta.');return}
  if(!window.ZXing){say('Biblioteca de leitura de código de barras não carregou. Recarregue a página com internet.');return}
  const button=$('readBarcode');button.disabled=true;progress.style.width='5%';
+ let imageUrl='';
  try{
   say('Preparando leitor de código de barras…');
-  const imageUrl=URL.createObjectURL(source);
-  const image=new Image();
-  image.decoding='async';
-  image.src=imageUrl;
-  await new Promise((resolve,reject)=>{image.onload=resolve;image.onerror=()=>reject(new Error('Não foi possível abrir a foto para leitura.'))});
+  const loadImage=src=>new Promise((resolve,reject)=>{
+   const img=new Image();
+   img.onload=()=>resolve(img);
+   img.onerror=()=>reject(new Error('O navegador não conseguiu carregar a imagem para decodificação.'));
+   img.src=src;
+  });
+  imageUrl=URL.createObjectURL(source);
+  const image=await loadImage(imageUrl);
+  if(!image.naturalWidth||!image.naturalHeight)throw new Error('A foto está vazia ou em formato não suportado.');
   const Reader=ZXing.BrowserMultiFormatReader;
-  if(!Reader)throw new Error('Leitor compatível não encontrado na biblioteca ZXing.');
+  if(!Reader)throw new Error('A biblioteca ZXing carregou, mas o leitor de imagem não está disponível.');
   const hints=new Map();
   if(ZXing.DecodeHintType&&ZXing.BarcodeFormat){
    hints.set(ZXing.DecodeHintType.TRY_HARDER,true);
@@ -104,51 +109,61 @@ $('readBarcode').onclick=async()=>{
    ]);
   }
   const reader=new Reader(hints);
-  const attempts=[];
+  const attempts=[],decodeErrors=[];
   const decode=async(img,label)=>{
    try{
     const result=await reader.decodeFromImageElement(img);
-    if(result){attempts.push({text:String(result.getText()||'').trim(),format:result.getBarcodeFormat?.()||'',label})}
-   }catch(e){}
+    if(result){attempts.push({text:String(result.getText()||'').trim(),format:String(result.getBarcodeFormat?.()||''),label})}
+   }catch(err){
+    const message=err&&typeof err.message==='string'?err.message:'Código não encontrado nesta imagem.';
+    decodeErrors.push(message);
+   }
   };
+  say('Analisando código na foto original…');
   await decode(image,'foto original');
   if(!attempts.length){
-   say('Código não localizado na foto inteira. Tentando melhorar a imagem…');
-   const rotations=[0,90,180,270];
-   for(const angle of rotations.slice(1)){
+   say('Código não localizado na foto inteira. Tentando rotações…');
+   for(const angle of [90,180,270]){
     const c=document.createElement('canvas'),swap=angle===90||angle===270;
     c.width=swap?image.naturalHeight:image.naturalWidth;
     c.height=swap?image.naturalWidth:image.naturalHeight;
-    const ctx=c.getContext('2d');ctx.translate(c.width/2,c.height/2);ctx.rotate(angle*Math.PI/180);
+    const ctx=c.getContext('2d');
+    if(!ctx)throw new Error('Não foi possível preparar a imagem para leitura.');
+    ctx.translate(c.width/2,c.height/2);ctx.rotate(angle*Math.PI/180);
     ctx.drawImage(image,-image.naturalWidth/2,-image.naturalHeight/2);
-    const rotated=new Image();rotated.src=c.toDataURL('image/png');
-    await new Promise((resolve,reject)=>{rotated.onload=resolve;rotated.onerror=reject});
+    const rotated=await loadImage(c.toDataURL('image/png'));
     await decode(rotated,'foto girada '+angle+'°');
     if(attempts.length)break;
    }
   }
-  URL.revokeObjectURL(imageUrl);
-  if(!attempts.length){progress.style.width='100%';say('Nenhum código de barras/QR foi decodificado. Aproxime a etiqueta, evite reflexos e fotografe o código inteiro, focado e sem cortes.');return}
+  if(!attempts.length){
+   progress.style.width='100%';
+   say('Nenhum código de barras ou QR foi encontrado. Fotografe o código inteiro, de perto, focado e sem reflexo. Se a etiqueta só tiver números impressos, use o leitor OCR.');
+   return;
+  }
   const decoded=[...new Set(attempts.map(x=>x.text).filter(Boolean))];
-  let filled=[];
+  const filled=[];
   for(const value of decoded){
-   const normalized=value.replace(/\s+/g,'').trim(),numeric=normalized.replace(/\D/g,'');
+   const normalized=value.replace(/\\s+/g,'').trim(),numeric=normalized.replace(/\\D/g,'');
    if(numeric.length===15){
     if(!$('imei').value){$('imei').value=numeric;filled.push('IMEI 1')}
-    else if(!$('imei2').value&&numeric!==$('imei').value.replace(/\D/g,'')){$('imei2').value=numeric;filled.push('IMEI 2')}
-    else if(!$('imei').value&&$('imei2').value){$('imei').value=numeric;filled.push('IMEI 1')}
+    else if(!$('imei2').value&&numeric!==$('imei').value.replace(/\\D/g,'')){$('imei2').value=numeric;filled.push('IMEI 2')}
    }else if(normalized.length>=5&&normalized.length<=40&&!$('sn').value){
     $('sn').value=normalized;filled.push('SN');
    }
   }
   await persistDraft();progress.style.width='100%';
   if(filled.length)say('Código de barras lido. Preenchido: '+[...new Set(filled)].join(', ')+'. Confira os dados antes de adicionar ao lote.');
-  else say('Código decodificado ('+decoded.join(', ')+'), mas não correspondeu a um IMEI de 15 dígitos ou SN vazio. Confira e copie manualmente se necessário.');
-  console.log('[Coletor Barcode] Códigos lidos:',decoded);
+  else say('Código decodificado ('+decoded.join(', ')+'), mas o conteúdo não corresponde a um IMEI de 15 dígitos ou não há campo SN vazio. Confira o valor reconhecido no console.');
+  console.log('[Coletor Barcode] Códigos lidos:',attempts);
  }catch(error){
   console.error('[Coletor Barcode] Falha:',error);
-  say('Falha no leitor de código de barras: '+(error.message||error));
- }finally{button.disabled=false}
+  const message=error&&typeof error.message==='string'?error.message:'Erro inesperado ao processar a foto.';
+  say('Falha no leitor de código de barras: '+message);
+ }finally{
+  if(imageUrl)URL.revokeObjectURL(imageUrl);
+  button.disabled=false;
+ }
 };
 
 $('readOcr').onclick=async()=>{
