@@ -43,38 +43,41 @@ $('prepareOffline').onclick=prepareOfflineOcr;
 function say(t){status.textContent=t}function digits(v){return (v||'').replace(/\D/g,'')}
 function clean(v){return (v||'').trim().replace(/[^a-zA-Z0-9_-]+/g,'_').slice(0,45)||'SEM_ID'}
 function stop(){if(stream){stream.getTracks().forEach(t=>t.stop());stream=null}video.srcObject=null;$('takePhoto').disabled=true}
-$('startCam').onclick=async()=>{
+// Ação principal no Android: aciona o seletor nativo de captura diretamente
+// durante o clique do usuário. Isso evita bloqueios de getUserMedia em WebViews.
+$('startCam').onclick=()=>{
+ stop();
+ say('Abrindo a câmera do Android…');
+ $('labelPhoto').click();
+};
+// Câmera ao vivo opcional para navegadores que oferecem getUserMedia.
+$('liveCam').onclick=async()=>{
  try{
   stop();
-  if(!window.isSecureContext){say('A câmera exige uma conexão segura (HTTPS). Abra o coletor pelo endereço https://inventariodecelulares.vercel.app.');return;}
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-   say('A câmera ao vivo não está disponível neste navegador. Abrindo a câmera nativa do Android…');
-   $('labelPhoto').click();
-   return;
-  }
+  if(!window.isSecureContext)throw new Error('A câmera ao vivo exige HTTPS. Abra o coletor pelo endereço seguro.');
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia)throw new Error('Este navegador não oferece câmera ao vivo. Use Abrir câmera para abrir a câmera nativa.');
   say('Solicitando permissão para acessar a câmera…');
   try{
    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
   }catch(firstError){
-   if(firstError.name==='OverconstrainedError'||firstError.name==='ConstraintNotSatisfiedError'){
-    stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
-   }else throw firstError;
+   if(firstError.name==='OverconstrainedError'||firstError.name==='ConstraintNotSatisfiedError')stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});
+   else throw firstError;
   }
-  video.muted=true;video.playsInline=true;video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;
+  video.muted=true;video.playsInline=true;video.setAttribute('playsinline','');video.setAttribute('autoplay','');
+  video.srcObject=stream;video.style.display='block';$('previewText').hidden=true;photoPreview.hidden=true;
   await video.play();
-  $('takePhoto').disabled=false;say('Câmera ativa. Enquadre a etiqueta ou o aparelho.');
+  $('takePhoto').disabled=false;say('Câmera ao vivo ativa. Enquadre a etiqueta e toque em Fotografar aparelho.');
  }catch(e){
   stop();video.style.display='none';
   const messages={
-   NotAllowedError:'Permissão da câmera negada. Toque no cadeado ao lado do endereço do site > Permissões > Câmera > Permitir. Depois recarregue a página.',
-   PermissionDeniedError:'Permissão da câmera negada pelo navegador ou pelo Android. Libere a câmera nas permissões do site e tente novamente.',
+   NotAllowedError:'Permissão da câmera negada. Libere a câmera nas permissões do site e tente novamente.',
+   PermissionDeniedError:'Permissão da câmera negada pelo navegador ou Android. Libere a câmera nas configurações do site.',
    NotFoundError:'Nenhuma câmera foi encontrada neste aparelho.',
-   NotReadableError:'A câmera está sendo usada por outro aplicativo ou não pôde ser iniciada. Feche outros apps que usam a câmera e tente novamente.',
+   NotReadableError:'A câmera está ocupada por outro aplicativo. Feche-o e tente novamente.',
    AbortError:'O Android interrompeu a abertura da câmera. Tente novamente.',
-   SecurityError:'O navegador bloqueou a câmera por segurança. Abra o coletor em HTTPS no Chrome.',
-   OverconstrainedError:'A câmera não aceitou as configurações solicitadas. Tente novamente.'
+   SecurityError:'O navegador bloqueou a câmera. Abra o coletor em HTTPS no Chrome.'
   };
-  say((messages[e.name]||('Falha ao abrir a câmera ('+(e.name||'erro desconhecido')+'): '+(e.message||'sem detalhes')+'.'))+' Toque em “Selecionar foto da etiqueta” para abrir a câmera nativa do Android ou escolher uma imagem.');
+  say((messages[e.name]||e.message||'Não foi possível iniciar a câmera ao vivo.')+' Você ainda pode usar Abrir câmera para chamar a câmera nativa do Android.');
  }
 };
 $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
