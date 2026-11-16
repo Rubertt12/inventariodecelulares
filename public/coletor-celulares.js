@@ -47,7 +47,11 @@ $('startCam').onclick=async()=>{
  try{
   stop();
   if(!window.isSecureContext){say('A câmera exige uma conexão segura (HTTPS). Abra o coletor pelo endereço https://inventariodecelulares.vercel.app.');return;}
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){say('Este navegador não disponibiliza acesso à câmera. Abra a página no Google Chrome atualizado ou use “Selecionar foto”.');return;}
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+   say('A câmera ao vivo não está disponível neste navegador. Abrindo a câmera nativa do Android…');
+   $('labelPhoto').click();
+   return;
+  }
   say('Solicitando permissão para acessar a câmera…');
   try{
    stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
@@ -70,7 +74,7 @@ $('startCam').onclick=async()=>{
    SecurityError:'O navegador bloqueou a câmera por segurança. Abra o coletor em HTTPS no Chrome.',
    OverconstrainedError:'A câmera não aceitou as configurações solicitadas. Tente novamente.'
   };
-  say((messages[e.name]||('Falha ao abrir a câmera ('+(e.name||'erro desconhecido')+'): '+(e.message||'sem detalhes')+'.'))+' Você também pode usar “Selecionar foto”.');
+  say((messages[e.name]||('Falha ao abrir a câmera ('+(e.name||'erro desconhecido')+'): '+(e.message||'sem detalhes')+'.'))+' Toque em “Selecionar foto da etiqueta” para abrir a câmera nativa do Android ou escolher uma imagem.');
  }
 };
 $('stopCam').onclick=()=>{stop();video.style.display='none';say('Câmera fechada.')};
