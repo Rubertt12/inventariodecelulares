@@ -51,7 +51,7 @@ switchView('cadastro')
 switchView('termos')
 },
 "handler17": function(event) {
-switchView('estoque'); setTimeout(() => document.getElementById('inputSearchStock').focus(), 100);
+openSpotlight();
 },
 "handler18": function(event) {
 switchView('configuracoes')
