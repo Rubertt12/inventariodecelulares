@@ -3887,7 +3887,7 @@ async function importCollectorZip(file){
    }catch(error){photosFailed++;console.error('Falha ao salvar foto do aparelho',error);}
   }
   if(!additions.length)return showCustomAlert('Nenhum aparelho importado. Duplicados: '+duplicates+'; inválidos/sem foto: '+invalid+'; falhas nas fotos: '+photosFailed+'.','warning');
-  stockData.unshift(...additions);await saveStockData();if(!dirHandle)updateConnectionStatusUI(true,'Dados neste celular');currentStockPage=1;renderAllUI();
+  stockData.unshift(...additions);await saveStockData();if(!dirHandle)updateConnectionStatusUI(true,'Dados neste celular');currentLocationFilter='Todos';currentBrandFilter='Todos';currentStockPage=1;renderAllUI();switchView('estoque');
   showCustomAlert(additions.length+' aparelho(s) importado(s). Duplicados ignorados: '+duplicates+'; inválidos/sem foto: '+invalid+'; falhas nas fotos: '+photosFailed+'.'+(legacy?' Pacote do coletor reconhecido.':' CSV e fotos identificados automaticamente.'),'success');
  }catch(e){console.error(e);showCustomAlert('Falha ao importar ZIP: '+(e.message||'erro inesperado'),'error');}
 }
