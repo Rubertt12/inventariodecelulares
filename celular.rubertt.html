@@ -14,7 +14,17 @@
     <link rel="stylesheet" href="style.css">
     
      
-<script>if(new URLSearchParams(location.search).get("previewOnly")==="1")document.body.classList.add("preview-only");</script></head>
+<script>if(new URLSearchParams(location.search).get("previewOnly")==="1")document.body.classList.add("preview-only");</script>
+<script>
+(function(){
+  try {
+    const ok = sessionStorage.getItem('inventario_auth') === 'admin';
+    const preview = new URLSearchParams(location.search).get('previewOnly') === '1';
+    if (!ok && !preview) location.replace('/?redirect=' + encodeURIComponent(location.pathname + location.search));
+  } catch(e) { location.replace('/'); }
+})();
+</script>
+</head>
 <body>
 
 <!-- SVG Filter for Gooey/Liquid Effect -->
