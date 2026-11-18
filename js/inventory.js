@@ -563,7 +563,7 @@ function findStockDuplicates() {
         return { key, type: key.split(':')[0], value: key.slice(key.indexOf(':') + 1), keeper: ordered[0], duplicates: ordered.slice(1) };
     });
 }
-function escapeDuplicateHtml(value) { return String(value ?? '').replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char])); }
+function escapeDuplicateHtml(value) { return String(value ?? '').replace(/[&<>]/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[char])); }
 const btnFindDuplicates = document.getElementById('btnFindDuplicates');
 if (btnFindDuplicates) btnFindDuplicates.addEventListener('click', () => {
     const groups = findStockDuplicates();
@@ -580,7 +580,7 @@ if (btnFindDuplicates) btnFindDuplicates.addEventListener('click', () => {
         if (!selected.length) { showCustomAlert('Nenhum registro foi selecionado para exclusão.', 'warning'); return; }
         const ids = new Set(selected); const removed = stockData.filter(item => ids.has(Number(item.id)));
         stockData = stockData.filter(item => !ids.has(Number(item.id)));
-        for (const item of removed) if (item.photoName) await deleteImageFromFolder(item.photoName);
+        for (const item of removed) if (item.photoName && !stockData.some(remaining => remaining.photoName === item.photoName)) await deleteImageFromFolder(item.photoName);
         selected.forEach(id => selectedItemIds.delete(id)); await saveStockData(); clearBatchSelection(); currentStockPage = 1; renderAllUI();
         showCustomAlert(removed.length + ' registro(s) duplicado(s) removido(s). Os registros principais foram preservados.', 'success');
     });
