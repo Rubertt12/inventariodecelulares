@@ -2779,3 +2779,55 @@ kbd {
     .modal-nav-btn.prev { left: 9px; }
     .modal-nav-btn.next { right: 9px; }
 }
+
+
+/* Status compacto nos cards: impede que a ação de reverter empurre os controles */
+.stock-card-footer {
+    flex-wrap: wrap;
+    column-gap: 8px;
+    row-gap: 10px;
+}
+
+.stock-card-footer .grid-status-revert {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 5px 8px;
+    min-height: 28px;
+    border-radius: 999px;
+    cursor: pointer;
+    line-height: 1;
+    font-size: 0.72rem;
+    transition: background 160ms ease, border-color 160ms ease, transform 160ms ease;
+}
+
+.stock-card-footer .grid-status-revert:hover {
+    background: #fef08a;
+    border-color: #facc15;
+    transform: translateY(-1px);
+}
+
+.stock-card-footer .grid-status-revert:focus-visible {
+    outline: 2px solid var(--accent-color);
+    outline-offset: 2px;
+}
+
+.grid-status-revert .revert-status-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    border-radius: 50%;
+    background: rgba(161, 98, 7, 0.12);
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.stock-card-footer .action-btn-group {
+    flex: 0 0 auto;
+    margin-left: auto;
+}
