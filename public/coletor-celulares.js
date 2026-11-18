@@ -150,13 +150,73 @@ say('Preparando ZIP com um pacote individual por aparelho…');
 const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE'},m=>progress.style.width=Math.round(m.percent)+'%');
 const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download='Inventario_Celulares_'+new Date().toISOString().slice(0,10)+'.zip';a.click();setTimeout(()=>URL.revokeObjectURL(url),3000);say('ZIP gerado: CSV, fotos e pastas individuais com registro + foto.');};
 
-$('importZip').onchange=async e=>{const file=e.target.files&&e.target.files[0];if(!file)return;if(!window.JSZip){say('Biblioteca ZIP indisponível.');return;}
-try{say('Lendo pacote ZIP…');const zip=await JSZip.loadAsync(file),manifestFile=zip.file('manifest.json');if(!manifestFile)throw new Error('Este ZIP não possui manifest.json. Gere novamente o pacote pelo coletor atualizado.');
-const manifest=JSON.parse(await manifestFile.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
-let loaded=0,skipped=0;for(const record of manifest.items){const photoFile=record.photo&&zip.file(record.photo);if(!photoFile){skipped++;continue;}const photoBlob=await photoFile.async('blob');const imei=digits(record.imei),imei2=digits(record.imei2),sn=(record.sn||'').trim();if(imei.length!==15||imei2.length!==15||!sn){skipped++;continue;}if(items.some(x=>(imei&&x.imei===imei)||(imei2&&x.imei2===imei2)||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
-items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model||'',photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:record.createdAt||new Date().toISOString()});loaded++;}
-render();persistItems();if(manifest.items[0]&&manifest.items[0].locality)$('locality').value=manifest.items[0].locality;
-say('ZIP carregado: '+loaded+' aparelho(s) pronto(s) para importar no estoque; '+skipped+' item(ns) ignorado(s). Agora clique em Importar no estoque.');}catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}finally{e.target.value='';}};
+$('importZip').onchange=async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ if(!window.JSZip){say('Biblioteca ZIP indisponível.');e.target.value='';return;}
+ try{
+  say('Lendo ZIP e identificando CSV/fotos…');
+  const zip=await JSZip.loadAsync(file),manifestFile=zip.file('manifest.json');
+  const normalize=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const imageFiles=Object.values(zip.files).filter(f=>!f.dir&&/\.(jpe?g|png|webp|heic|gif|bmp)$/i.test(f.name));
+  let rowsToImport=[],locality='';
+  if(manifestFile){
+   const manifest=JSON.parse(await manifestFile.async('string'));
+   if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
+   rowsToImport=manifest.items.map(r=>({imei:r.imei,imei2:r.imei2,sn:r.sn,model:r.model,locality:r.locality,createdAt:r.createdAt,photo:r.photo}));
+  }else{
+   const csvFiles=Object.values(zip.files).filter(f=>!f.dir&&/\.csv$/i.test(f.name));
+   if(!csvFiles.length)throw new Error('Não encontrei CSV no ZIP. Inclua a planilha com IMEI 1, IMEI 2 e SN, além das fotos.');
+   const csvFile=csvFiles.sort((a,b)=>Number(/inventario|estoque|celular|aparelho|coleta/i.test(b.name))-Number(/inventario|estoque|celular|aparelho|coleta/i.test(a.name)))[0];
+   const textCsv=(await csvFile.async('string')).replace(/^\uFEFF/,'');
+   const first=textCsv.split(/\r?\n/).find(x=>x.trim())||'';
+   const delimiter=[',',';','\t'].sort((a,b)=>first.split(b).length-first.split(a).length)[0];
+   const parse=text=>{
+    const out=[];let row=[],field='',quoted=false;
+    for(let i=0;i<text.length;i++){const ch=text[i];
+     if(ch==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}
+     else if(ch===delimiter&&!quoted){row.push(field);field='';}
+     else if((ch==='\r'||ch==='\n')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(v=>String(v).trim()))out.push(row);row=[];field='';}
+     else field+=ch;
+    }
+    row.push(field);if(row.some(v=>String(v).trim()))out.push(row);return out;
+   };
+   const table=parse(textCsv);if(table.length<2)throw new Error('CSV sem linhas de aparelhos.');
+   const headers=table[0].map(normalize),col=aliases=>headers.findIndex(h=>aliases.includes(h));
+   const i1=col(['imei1','imei01','imei']),i2=col(['imei2','imei02']),snCol=col(['sn','serialnumber','serialno','serial','numerodeserie','numeroserie']);
+   const photoCol=col(['foto','fotografia','imagem','image','photo','arquivo','arquivofoto','nomefoto','arquivoimagem']);
+   const modelCol=col(['modelo','model','aparelho','device']),localCol=col(['localidade','local','location','filial']),dateCol=col(['data','datacaptura','createdat','dataentrada']);
+   if(i1<0||i2<0||snCol<0)throw new Error('O CSV precisa conter as colunas IMEI 1, IMEI 2 e SN/Serial Number/Número de Série.');
+   const baseName=p=>p.split('/').pop().replace(/\.[^.]+$/,'');
+   const data=table.slice(1).filter(r=>r.some(v=>String(v??'').trim()));
+   rowsToImport=data.map((r,index)=>{
+    const imei=String(r[i1]??'').trim(),imei2=String(r[i2]??'').trim(),sn=String(r[snCol]??'').trim();
+    let photo=null;
+    if(photoCol>=0&&String(r[photoCol]??'').trim()){
+     const requested=String(r[photoCol]).trim().replace(/\\/g,'/');
+     photo=zip.file(requested)||imageFiles.find(f=>normalize(baseName(f.name))===normalize(baseName(requested)))||null;
+    }
+    if(!photo){const keys=[imei,imei2,sn].map(normalize).filter(Boolean);photo=imageFiles.find(f=>keys.some(k=>{const n=normalize(baseName(f.name));return n===k||n.startsWith(k)||(k.startsWith(n)&&n.length>=6)}))||null;}
+    if(!photo&&imageFiles.length===data.length)photo=imageFiles[index];
+    return {imei,imei2,sn,model:modelCol>=0?r[modelCol]:'',locality:localCol>=0?r[localCol]:'',createdAt:dateCol>=0?r[dateCol]:'',photo};
+   });
+  }
+  let loaded=0,skipped=0,firstLocality='';
+  for(const record of rowsToImport){
+   const photoFile=typeof record.photo==='string'?zip.file(record.photo):record.photo;
+   const imei=digits(record.imei),imei2=digits(record.imei2),sn=String(record.sn||'').trim();
+   if(imei.length!==15||imei2.length!==15||!sn||!photoFile){skipped++;continue;}
+   if(items.some(x=>(imei&&(x.imei===imei||x.imei2===imei))||(imei2&&(x.imei===imei2||x.imei2===imei2))||(sn&&x.sn.toLowerCase()===sn.toLowerCase()))){skipped++;continue;}
+   const photoBlob=await photoFile.async('blob');
+   items.push({imei:imei.slice(0,15),imei2:imei2.slice(0,15),sn,model:record.model||'',photoBlob,photoUrl:URL.createObjectURL(photoBlob),createdAt:record.createdAt&& !Number.isNaN(Date.parse(record.createdAt))?new Date(record.createdAt).toISOString():new Date().toISOString()});
+   if(!firstLocality&&record.locality)firstLocality=record.locality;
+   loaded++;
+  }
+  if(firstLocality)$('locality').value=firstLocality;
+  render();persistItems();
+  say('ZIP analisado: '+loaded+' aparelho(s) carregado(s) no lote; '+skipped+' registro(s) ignorado(s) por duplicidade, dados incompletos ou foto ausente. Agora clique em Importar no estoque.');
+ }catch(err){console.error(err);say('Não foi possível importar o ZIP: '+err.message);}
+ finally{e.target.value='';}
+};
 $('importStock').onclick=async()=>{if(!items.length)return;
 if(!window.showDirectoryPicker){say('No celular: volte ao Inventário de Celulares e toque em “Importar lote ZIP” no menu. Selecione o arquivo ZIP que você acabou de baixar.');return;}
 let dir;try{dir=await window.showDirectoryPicker({id:'inventario-celulares-data',mode:'readwrite'});}catch(e){if(e.name==='AbortError')say('Seleção da pasta cancelada.');else say('Não foi possível acessar a pasta. Verifique a permissão.');return;}
