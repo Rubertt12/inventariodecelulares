@@ -3455,3 +3455,19 @@ button,.menu-item,.stat-card{-webkit-tap-highlight-color:transparent}
  .dynamic-notch-message{max-width:calc(100vw - 92px);font-size:12px}
 }
 @media(prefers-reduced-motion:reduce){.dynamic-notch{transition:none}}
+
+
+/* Dynamic Notch: confirmações positivas discretas */
+.dynamic-notch[data-type="success"][data-state="expanded"]{
+  min-height:34px;padding:6px 12px;gap:8px;
+  background:rgba(27,31,30,.94);border-color:rgba(134,188,151,.14);
+  box-shadow:0 7px 22px rgba(0,0,0,.16);
+  font-size:12px;font-weight:500;
+}
+.dynamic-notch[data-type="success"][data-state="expanded"] .dynamic-notch-indicator{
+  width:18px;height:18px;flex-basis:18px;font-size:11px;
+  background:rgba(72,142,91,.28);color:#a9d6b3;
+}
+.dynamic-notch[data-type="success"][data-state="expanded"] .dynamic-notch-close{
+  width:20px;height:20px;flex-basis:20px;background:rgba(255,255,255,.06);color:#b8c4bc;font-size:16px;
+}
