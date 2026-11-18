@@ -511,106 +511,68 @@ modalImg.addEventListener('click', () => {
 window.startEdit = function(id, currentModelo, currentLocalidade) {
     const item = stockData.find(i => i.id === id);
     if (!item) return;
-
-    const isGrid = (currentViewMode === 'grid');
-    
-    const modeloContainer = document.getElementById(isGrid ? `grid-modelo-txt-${id}` : `modelo-txt-${id}`);
-    const localContainer = document.getElementById(isGrid ? `grid-local-txt-${id}` : `local-txt-${id}`);
+    const isGrid = currentViewMode === 'grid';
+    const get = name => document.getElementById(isGrid ? `grid-${name}-txt-${id}` : `${name}-txt-${id}`);
+    const modeloContainer = get('modelo');
+    const localContainer = get('local');
+    const imei1Container = get('imei1');
+    const imei2Container = get('imei2');
+    const snContainer = get('sn');
     const actionsContainer = document.getElementById(isGrid ? `grid-actions-${id}` : `actions-${id}`);
-    
-    // --- NOVO: Adiciona o campo de edição para a data ---
     const dataContainer = document.getElementById(isGrid ? `grid-data-txt-${id}` : `data-txt-${id}`);
-    const currentData = item.dataEntrada ? new Date(new Date(item.dataEntrada).getTime() - (new Date().getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : '';
-
-
-    if (!modeloContainer || !localContainer || !actionsContainer) return;
-
-    modeloContainer.innerHTML = `
-        <select id="edit-select-${id}" class="edit-select">${generateModelOptions(currentModelo)}</select>
-    `;
-
-    localContainer.innerHTML = `
-        <select id="edit-local-select-${id}" class="edit-select">${generateLocalityOptions(currentLocalidade)}</select>
-    `;
-
-    if (dataContainer) {
-        dataContainer.innerHTML = `
-            <div class="edit-device-identifiers" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px;width:100%">
-                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">IMEI 1
-                    <input type="text" inputmode="numeric" maxlength="15" id="edit-imei1-input-${id}" class="edit-input" value="${String(item.imei1 || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-                </label>
-                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">IMEI 2
-                    <input type="text" inputmode="numeric" maxlength="15" id="edit-imei2-input-${id}" class="edit-input" value="${String(item.imei2 || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-                </label>
-                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">Número de Série (SN)
-                    <input type="text" maxlength="40" id="edit-sn-input-${id}" class="edit-input" value="${String(item.sn || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
-                </label>
-                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">Data de entrada
-                    <input type="datetime-local" id="edit-data-input-${id}" class="edit-input extracted-app-style-29" value="${currentData}">
-                </label>
-            </div>`;
+    if (!modeloContainer || !localContainer || !imei1Container || !imei2Container || !snContainer || !actionsContainer) {
+        showCustomAlert('Não foi possível abrir a edição deste aparelho. Atualize a página e tente novamente.', 'error');
+        return;
     }
-
-
-    if (isGrid) {
-        actionsContainer.innerHTML = `
-            <span class="user-badge stock extracted-app-style-30">Editando...</span>
-            <div class="action-btn-group">
-                <button class="btn btn-success btn-sm" onclick="saveEdit(${id})">✔</button>
-                <button class="btn btn-secondary btn-sm" onclick="renderStockTable()">❌</button>
-            </div>
-        `;
-    } else {
-        actionsContainer.innerHTML = `<div class="action-btn-group">
-            <button class="btn btn-success btn-sm" onclick="saveEdit(${id})">Salvar</button>
-            <button class="btn btn-secondary btn-sm" onclick="renderStockTable()">Cancelar</button>
-        </div>`;
-    }
-
-    // Foca automaticamente no seletor de localidade para agilizar a edição
-    document.getElementById(`edit-local-select-${id}`).focus();
+    const esc = value => String(value ?? '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const input = (field, value, numeric = false) => `<input id="edit-${field}-input-${id}" class="edit-input" type="text" value="${esc(value)}" ${numeric ? 'inputmode="numeric" maxlength="15"' : ''} style="width:100%;min-width:0;box-sizing:border-box">`;
+    modeloContainer.innerHTML = `<select id="edit-select-${id}" class="edit-select">${generateModelOptions(item.modelo)}</select>`;
+    localContainer.innerHTML = `<select id="edit-local-select-${id}" class="edit-select">${generateLocalityOptions(item.localidade || appSettings.primaryLocation)}</select>`;
+    imei1Container.innerHTML = input('imei1', item.imei1, true);
+    imei2Container.innerHTML = input('imei2', item.imei2, true);
+    snContainer.innerHTML = input('sn', item.sn);
+    const currentData = item.dataEntrada ? new Date(new Date(item.dataEntrada).getTime() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0,16) : '';
+    if (dataContainer) dataContainer.innerHTML = `<input type="datetime-local" id="edit-data-input-${id}" class="edit-input" value="${currentData}">`;
+    actionsContainer.innerHTML = `<div class="action-btn-group"><button class="btn btn-success btn-sm" onclick="saveEdit(${id})">Salvar</button><button class="btn btn-secondary btn-sm" onclick="renderStockTable()">Cancelar</button></div>`;
+    document.getElementById(`edit-select-${id}`).focus();
 };
 
 window.saveEdit = async function(id) {
+    const value = field => document.getElementById(`edit-${field}-input-${id}`)?.value ?? null;
     const selectEl = document.getElementById(`edit-select-${id}`);
     const localEl = document.getElementById(`edit-local-select-${id}`);
     const dataEl = document.getElementById(`edit-data-input-${id}`);
-    const imei1El = document.getElementById(`edit-imei1-input-${id}`);
-    const imei2El = document.getElementById(`edit-imei2-input-${id}`);
-    const snEl = document.getElementById(`edit-sn-input-${id}`);
-    if (!selectEl || !localEl || !dataEl || !imei1El || !imei2El || !snEl) return;
-
-    const newModelo = selectEl.value;
-    const newLocalidade = localEl.value;
-    const newDataEntrada = dataEl.value;
-    const newImei1 = imei1El.value.trim().replace(/\\s+/g, '');
-    const newImei2 = imei2El.value.trim().replace(/\\s+/g, '');
-    const newSn = snEl.value.trim();
+    const imei1Raw = value('imei1'), imei2Raw = value('imei2'), snRaw = value('sn');
+    if (!selectEl || !localEl || !dataEl || imei1Raw === null || imei2Raw === null || snRaw === null) {
+        showCustomAlert('Não foi possível ler todos os campos da edição. Cancele e tente novamente.', 'error');
+        return;
+    }
+    const newImei1 = imei1Raw.trim().replace(/\s+/g, '');
+    const newImei2 = imei2Raw.trim().replace(/\s+/g, '');
+    const newSn = snRaw.trim();
     const itemIndex = stockData.findIndex(item => item.id === id);
     if (itemIndex === -1) return;
-
-    if ((newImei1 && newImei2 && newImei1 === newImei2) ||
-        (newImei1 && !/^\\d{15}$/.test(newImei1)) ||
-        (newImei2 && !/^\\d{15}$/.test(newImei2))) {
-        showCustomAlert('Confira os IMEIs: cada um deve ter 15 dígitos e não podem ser iguais.', 'warning');
+    if ((newImei1 && !/^\d{15}$/.test(newImei1)) || (newImei2 && !/^\d{15}$/.test(newImei2)) || (newImei1 && newImei2 && newImei1 === newImei2)) {
+        showCustomAlert('Cada IMEI deve ter 15 dígitos e IMEI 1 e IMEI 2 não podem ser iguais.', 'warning');
         return;
     }
-
+    const normalize = v => String(v || '').trim().toUpperCase().replace(/\s+/g, '');
     const duplicate = stockData.find((other, index) => index !== itemIndex &&
-        ((newImei1 && [other.imei1, other.imei2].includes(newImei1)) ||
-         (newImei2 && [other.imei1, other.imei2].includes(newImei2)) ||
-         (newSn && String(other.sn || '').trim().toUpperCase() === newSn.toUpperCase())));
+        ((newImei1 && [other.imei1, other.imei2].some(v => normalize(v) === normalize(newImei1))) ||
+         (newImei2 && [other.imei1, other.imei2].some(v => normalize(v) === normalize(newImei2))) ||
+         (newSn && normalize(other.sn) === normalize(newSn))));
     if (duplicate) {
-        showCustomAlert('Este IMEI ou número de série já está cadastrado em outro aparelho. Confira os dados antes de salvar.', 'error');
+        showCustomAlert('Este IMEI ou número de série já está cadastrado em outro aparelho.', 'error');
         return;
     }
-
-    stockData[itemIndex].modelo = newModelo;
-    stockData[itemIndex].localidade = newLocalidade;
-    stockData[itemIndex].dataEntrada = newDataEntrada;
-    stockData[itemIndex].imei1 = newImei1;
-    stockData[itemIndex].imei2 = newImei2;
-    stockData[itemIndex].sn = newSn;
+    Object.assign(stockData[itemIndex], {
+        modelo: selectEl.value,
+        localidade: localEl.value,
+        dataEntrada: dataEl.value,
+        imei1: newImei1,
+        imei2: newImei2,
+        sn: newSn
+    });
     await saveStockData();
     renderSelectStockOptions();
     renderAllLocalitySelectors();
