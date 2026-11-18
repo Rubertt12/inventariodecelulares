@@ -5,6 +5,7 @@
     <title>VOKE | Gestor ZPL Completo + Excel</title>
     <script src="https://cdn.jsdelivr.net/npm/qz-tray@2.2.4/qz-tray.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     
     <link rel="stylesheet" href="./zebra.css">
 </head>
@@ -28,6 +29,15 @@
             <button id="btnClearExcel" class="btn-reset extracted-inline-style-5" data-inline-click="handler51">Limpar Lote</button>
         </div>
         <button data-inline-click="handler52" class="extracted-inline-style-6">Baixar Modelo Planilha</button>
+    </div>
+
+    <div class="excel-box zip-box">
+        <label class="zip-title">📦 Importar ZIP com CSV de IMEIs</label>
+        <p class="zip-help">Selecione um ZIP contendo um ou mais CSVs com IMEI1, IMEI2 e SN. Os dados serão organizados em etiquetas para conferência.</p>
+        <input type="file" id="zipFile" accept=".zip" class="zip-file-input">
+        <button type="button" id="btnZipImport" class="btn-excel">Importar ZIP (.zip)</button>
+        <button type="button" id="btnClearZip" class="btn-reset zip-clear">Limpar ZIP</button>
+        <div id="zipStatus" class="zip-status" aria-live="polite"></div>
     </div>
 
     <h3>Modelo & Posições</h3>
@@ -185,7 +195,7 @@
 </div>
 
 
-    <script src="zebra/zebra.js"></script>
+    <script src="./zebra.js"></script>
     <script src="../js/inline-events.js"></script>
 </body>
 </html>
