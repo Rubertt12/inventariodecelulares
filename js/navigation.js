@@ -132,8 +132,9 @@ function applyAppSettings() {
     }
     currentLocationFilter = appSettings.primaryLocation; // Define o filtro padrão
 
-    // Aplica o tema
+    // Aplica o tema e restaura a paleta selecionada
     applyTheme(appSettings.theme);
+    initializeThemePicker();
 
     // Aplica o layout (vertical ou dock)
     applyLayout(appSettings.layout);
@@ -156,15 +157,96 @@ function loadAppSettings() {
     applyAppSettings();
 }
 
+const THEME_PALETTES = {
+    ocean: { name: 'Ocean Blue', accent: '#087e8b' },
+    emerald: { name: 'Emerald', accent: '#15966b' },
+    purple: { name: 'Purple', accent: '#8254c7' },
+    graphite: { name: 'Graphite', accent: '#64748b' },
+    sunset: { name: 'Sunset', accent: '#e07836' },
+    rose: { name: 'Rose', accent: '#d45c83' }
+};
+let pendingPalette = appSettings.palette || 'ocean';
+let pendingCustomColor = appSettings.customThemeColor || '';
+
+function setThemeAccent(color) {
+    const hex = /^#[0-9a-f]{6}$/i.test(color || '') ? color : '#087e8b';
+    const rgb = hex.match(/[\da-f]{2}/gi).map(v => parseInt(v, 16));
+    const darker = rgb.map(v => Math.round(v * 0.82));
+    const hover = rgb.map(v => Math.round(v * 0.9));
+    const toHex = values => '#' + values.map(v => v.toString(16).padStart(2, '0')).join('');
+    document.documentElement.style.setProperty('--accent-color', hex);
+    document.documentElement.style.setProperty('--accent-hover', toHex(hover));
+    document.documentElement.style.setProperty('--accent-active', toHex(darker));
+    document.documentElement.style.setProperty('--accent-color-subtle', 'rgba(' + rgb.join(',') + ',0.12)');
+    document.documentElement.style.setProperty('--menu-item-active-bg', 'rgba(' + rgb.join(',') + ',0.13)');
+    document.documentElement.style.setProperty('--input-border-focus', hex);
+}
 function applyTheme(theme) {
     if (theme === 'dark') {
         document.body.classList.add('dark-mode');
-        if(darkModeToggle) darkModeToggle.checked = true;
+        if (darkModeToggle) darkModeToggle.checked = true;
     } else {
         document.body.classList.remove('dark-mode');
-        if(darkModeToggle) darkModeToggle.checked = false;
+        if (darkModeToggle) darkModeToggle.checked = false;
     }
     appSettings.theme = theme;
+    const palette = appSettings.customThemeColor || (THEME_PALETTES[appSettings.palette || 'ocean'] || THEME_PALETTES.ocean).accent;
+    setThemeAccent(palette);
+}
+function renderThemePreview(palette, customColor = '') {
+    const data = THEME_PALETTES[palette] || THEME_PALETTES.ocean;
+    const color = customColor || data.accent;
+    const grid = document.getElementById('themePaletteGrid');
+    if (grid) grid.querySelectorAll('[data-palette]').forEach(btn => {
+        btn.classList.toggle('selected', btn.dataset.palette === palette && !customColor);
+        btn.setAttribute('aria-pressed', String(btn.dataset.palette === palette && !customColor));
+    });
+    const preview = document.getElementById('themePreview');
+    const label = document.getElementById('themePreviewLabel');
+    if (preview) preview.style.setProperty('--preview-accent', color);
+    if (label) label.textContent = customColor ? 'Personalizado' : data.name;
+}
+function initializeThemePicker() {
+    const grid = document.getElementById('themePaletteGrid');
+    const colorInput = document.getElementById('customThemeColor');
+    const applyButton = document.getElementById('applyThemeButton');
+    const resetButton = document.getElementById('resetThemeButton');
+    if (!grid || grid.dataset.initialized) return;
+    grid.dataset.initialized = 'true';
+    pendingPalette = appSettings.palette || 'ocean';
+    pendingCustomColor = appSettings.customThemeColor || '';
+    if (colorInput) colorInput.value = pendingCustomColor || (THEME_PALETTES[pendingPalette] || THEME_PALETTES.ocean).accent;
+    renderThemePreview(pendingPalette, pendingCustomColor);
+    grid.addEventListener('click', e => {
+        const button = e.target.closest('[data-palette]');
+        if (!button) return;
+        pendingPalette = button.dataset.palette;
+        pendingCustomColor = '';
+        if (colorInput) colorInput.value = THEME_PALETTES[pendingPalette].accent;
+        renderThemePreview(pendingPalette);
+    });
+    colorInput?.addEventListener('input', () => {
+        pendingCustomColor = colorInput.value;
+        renderThemePreview(pendingPalette, pendingCustomColor);
+    });
+    applyButton?.addEventListener('click', () => {
+        appSettings.palette = pendingPalette;
+        appSettings.customThemeColor = pendingCustomColor;
+        applyTheme(appSettings.theme || 'light');
+        saveAppSettings();
+        showCustomAlert('Tema aplicado e salvo!', 'success');
+    });
+    resetButton?.addEventListener('click', () => {
+        pendingPalette = 'ocean';
+        pendingCustomColor = '';
+        appSettings.palette = 'ocean';
+        appSettings.customThemeColor = '';
+        if (colorInput) colorInput.value = THEME_PALETTES.ocean.accent;
+        renderThemePreview('ocean');
+        applyTheme(appSettings.theme || 'light');
+        saveAppSettings();
+        showCustomAlert('Tema original restaurado!', 'success');
+    });
 }
 
 function applyLayout(layout) {
