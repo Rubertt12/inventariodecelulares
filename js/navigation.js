@@ -174,12 +174,18 @@ function setThemeAccent(color) {
     const darker = rgb.map(v => Math.round(v * 0.82));
     const hover = rgb.map(v => Math.round(v * 0.9));
     const toHex = values => '#' + values.map(v => v.toString(16).padStart(2, '0')).join('');
-    document.documentElement.style.setProperty('--accent-color', hex);
-    document.documentElement.style.setProperty('--accent-hover', toHex(hover));
-    document.documentElement.style.setProperty('--accent-active', toHex(darker));
-    document.documentElement.style.setProperty('--accent-color-subtle', 'rgba(' + rgb.join(',') + ',0.12)');
-    document.documentElement.style.setProperty('--menu-item-active-bg', 'rgba(' + rgb.join(',') + ',0.13)');
-    document.documentElement.style.setProperty('--input-border-focus', hex);
+    // Define no :root e no body: body.dark-mode declara variáveis próprias
+    // e pode sobrescrever os valores herdados do :root.
+    const targets = [document.documentElement, document.body];
+    targets.forEach(target => {
+        target.style.setProperty('--accent-color', hex);
+        target.style.setProperty('--accent-hover', toHex(hover));
+        target.style.setProperty('--accent-active', toHex(darker));
+        target.style.setProperty('--accent-color-subtle', 'rgba(' + rgb.join(',') + ',0.12)');
+        target.style.setProperty('--menu-item-active-bg', 'rgba(' + rgb.join(',') + ',0.13)');
+        target.style.setProperty('--menu-item-active-text', hex);
+        target.style.setProperty('--input-border-focus', hex);
+    });
 }
 function applyTheme(theme) {
     if (theme === 'dark') {
