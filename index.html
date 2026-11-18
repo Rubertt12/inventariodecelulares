@@ -32,16 +32,21 @@ html{scroll-behavior:smooth}body{background:#fff;color:var(--ink)}
 @media(max-width:800px){.hero{padding:58px 28px 45px;margin:20px -5px 12px;border-radius:22px}}
 @media(max-width:520px){.hero{padding:44px 20px 34px}.section{padding:44px 0}}
 
+
+/* Navegação expandida, planos, segurança e cadastro */
+.navlinks{gap:15px}.navlinks .btn{white-space:nowrap;padding:11px 15px}.plans-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:17px}.plan-card{display:flex;flex-direction:column;align-items:flex-start;padding:25px;border:1px solid #dce8f7;border-radius:19px;background:#fff;box-shadow:0 8px 28px #173d6b08}.featured-plan{border:2px solid #398cff;box-shadow:0 16px 36px #1769e81c;position:relative}.plan-label{font-size:10px;font-weight:850;letter-spacing:1px;color:#1769e8;background:#eaf3ff;border-radius:99px;padding:7px 10px}.plan-card h3{font-size:23px;margin:17px 0 8px;color:#173456}.plan-desc{font-size:13px;line-height:1.65;color:#718198;min-height:64px}.plan-price{font-size:22px;font-weight:850;color:#1769e8;margin:13px 0}.plan-card ul{list-style:none;padding:0;margin:0 0 22px;display:grid;gap:11px;flex:1}.plan-card li{font-size:13px;color:#536780}.plan-card li:before{content:"✓";color:#159b70;font-weight:900;margin-right:9px}.plan-card .btn{width:100%;margin-top:auto}.plans-note,.security-note{font-size:12px;line-height:1.65;color:#8795a8;margin-top:18px}.security-section{background:#f5f9ff;border:1px solid #e4eefb;border-radius:24px;padding:40px;margin:25px -8px}.security-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.security-item{display:flex;gap:14px;padding:19px;background:#fff;border:1px solid #e2ebf6;border-radius:15px}.security-item>span{flex:0 0 38px;width:38px;height:38px;display:grid;place-items:center;border-radius:12px;background:#eaf3ff;color:#1769e8;font-size:20px}.security-item h3{margin:0 0 7px;font-size:15px;color:#183456}.security-item p{margin:0;color:#718198;font-size:13px;line-height:1.65}.cta-buttons{display:flex;gap:12px;flex-wrap:wrap}.final-cta .cta-register{background:transparent;border:1px solid #ffffff80;color:#fff;box-shadow:none}.register-info{display:grid;gap:6px;padding:15px;background:#f1f7ff;border:1px solid #dce9f8;border-radius:12px;color:#526984;font-size:13px;line-height:1.55;margin:0 0 18px}.register-info b{color:#183456}.register-panel .btn{width:100%}
+@media(max-width:900px){.navlinks{gap:9px;flex-wrap:wrap;justify-content:flex-end}.navlinks a{display:none}.plans-grid{grid-template-columns:1fr 1fr}.security-section{margin:20px 0;padding:28px}}
+@media(max-width:600px){.plans-grid,.security-grid{grid-template-columns:1fr}.navlinks{gap:7px}.navlinks .btn{padding:10px 12px;font-size:12px}.plan-desc{min-height:0}.security-section{padding:23px 17px}.cta-buttons{width:100%}.cta-buttons .btn{width:100%}}
 </style>
 </head>
 <body>
 <div class="wrap">
 <header class="nav">
  <a class="brand" href="/"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 18h4"/></svg></span><span>Inventário <span style="color:#70b6ff">de Celulares</span></span></a>
- <nav class="navlinks"><a href="#recursos">Recursos</a><a href="#sobre">Plataforma</a><a href="#fluxo">Como funciona</a><a href="#operacao">Para empresas</a><button class="btn" data-open-login>Entrar no sistema</button></nav>
+ <nav class="navlinks"><a href="#visao-geral">Visão geral</a><a href="#recursos">Funcionalidades</a><a href="#planos">Planos</a><a href="#fluxo">Como funciona</a><a href="#seguranca">Segurança</a><a href="#duvidas">Dúvidas</a><button class="btn" data-open-login>Entrar</button><button class="btn ghost" type="button" data-open-register>Cadastrar</button></nav>
 </header>
 <main>
-<section class="hero">
+<section class="hero" id="visao-geral">
  <div><div class="eyebrow"><i class="pulse"></i> Gestão de ativos, sem complicação</div>
  <h1>Controle total dos seus <span>dispositivos.</span></h1>
  <p class="lead">Uma plataforma prática para cadastrar, acompanhar e organizar celulares corporativos. Do recebimento à entrega, tudo em um só lugar.</p>
@@ -90,6 +95,29 @@ html{scroll-behavior:smooth}body{background:#fff;color:var(--ink)}
   <article class="feature"><div class="feature-icon">↗</div><h3>Painel de visão geral</h3><p>Acompanhe indicadores do inventário e acesse rapidamente as principais áreas do sistema.</p></article>
  </div>
 </section>
+
+<section class="section" id="planos">
+ <div class="section-kicker">PLANOS PARA CADA OPERAÇÃO</div>
+ <h2>Comece do tamanho da sua equipe.</h2>
+ <p class="section-intro">Escolha o formato que combina com sua rotina. Os valores e limites são definidos conforme a necessidade da operação.</p>
+ <div class="plans-grid">
+  <article class="plan-card"><span class="plan-label">PARA COMEÇAR</span><h3>Essencial</h3><p class="plan-desc">Para organizar um estoque de celulares com uma operação enxuta.</p><div class="plan-price">Sob consulta</div><ul><li>Cadastro e consulta de aparelhos</li><li>Controle de disponibilidade</li><li>Identificação por IMEI e serial</li><li>Recursos básicos de inventário</li></ul><button class="btn ghost" data-open-register>Tenho interesse</button></article>
+  <article class="plan-card featured-plan"><span class="plan-label">PARA EQUIPES</span><h3>Equipe</h3><p class="plan-desc">Para times de TI e Field Service que movimentam aparelhos com frequência.</p><div class="plan-price">Sob consulta</div><ul><li>Recursos do plano Essencial</li><li>Importação em lote e pré-visualização</li><li>Etiquetas Zebra e termos</li><li>Organização de entregas e devoluções</li></ul><button class="btn" data-open-register>Solicitar apresentação</button></article>
+  <article class="plan-card"><span class="plan-label">OPERAÇÃO AMPLA</span><h3>Corporativo</h3><p class="plan-desc">Para empresas com maior volume, processos e necessidades específicas.</p><div class="plan-price">Sob consulta</div><ul><li>Recursos conforme escopo contratado</li><li>Avaliação de múltiplas equipes</li><li>Fluxos e implantação alinhados</li><li>Atendimento comercial</li></ul><button class="btn ghost" data-open-register>Conversar sobre o plano</button></article>
+ </div>
+ <p class="plans-note">Os planos acima são uma proposta comercial inicial. Disponibilidade, limites e condições precisam ser confirmados antes da contratação.</p>
+</section>
+<section class="section security-section" id="seguranca">
+ <div class="section-kicker">SEGURANÇA E CONTROLE</div><h2>Seus dados precisam de cuidado.</h2>
+ <p class="section-intro">Uma área dedicada à transparência sobre acesso, uso e proteção das informações do inventário.</p>
+ <div class="security-grid">
+  <article class="security-item"><span>⌑</span><div><h3>Acesso controlado</h3><p>O acesso ao painel deve ser restrito a pessoas autorizadas pela organização.</p></div></article>
+  <article class="security-item"><span>◈</span><div><h3>Identificação dos ativos</h3><p>IMEIs e números de série ajudam a manter a rastreabilidade dos dispositivos cadastrados.</p></div></article>
+  <article class="security-item"><span>▤</span><div><h3>Organização das informações</h3><p>Dados centralizados facilitam conferências e reduzem controles paralelos.</p></div></article>
+  <article class="security-item"><span>✓</span><div><h3>Boas práticas operacionais</h3><p>Utilize credenciais individuais, evite compartilhar senhas e conceda somente os acessos necessários.</p></div></article>
+ </div>
+ <p class="security-note">Nota: os recursos de autenticação, permissões, armazenamento e proteção efetivamente disponíveis dependem da configuração técnica da instalação. Não trate esta apresentação como certificação ou garantia de conformidade.</p>
+</section>
 <section class="section" id="operacao">
  <div class="section-kicker">FEITO PARA OPERAÇÕES</div><h2>Útil para equipes que cuidam de dispositivos móveis.</h2><p class="section-intro">Uma base de organização para diferentes cenários de gestão de parque de celulares.</p>
  <div class="audiences">
@@ -106,7 +134,7 @@ html{scroll-behavior:smooth}body{background:#fff;color:var(--ink)}
  <details><summary>O sistema funciona no celular?</summary><p>A interface possui adaptação para telas menores, com navegação responsiva e acesso às principais áreas.</p></details>
  <details><summary>Como entro na plataforma?</summary><p>Use o botão “Entrar no sistema” e informe as credenciais fornecidas pelo administrador da instalação.</p></details>
 </section>
-<section class="final-cta"><div><div class="section-kicker">INVENTÁRIO DE CELULARES</div><h2>Tenha seus dispositivos sob controle.</h2><p>Entre na plataforma e organize a rotina de gestão do seu estoque móvel.</p></div><button class="btn" data-open-login>Acessar o sistema →</button></section>
+<section class="final-cta"><div class="final-cta-actions"><div><div class="section-kicker">INVENTÁRIO DE CELULARES</div><h2>Tenha seus dispositivos sob controle.</h2><p>Entre na plataforma e organize a rotina de gestão do seu estoque móvel.</p></div><div class="cta-buttons"><button class="btn" data-open-login>Entrar no sistema →</button><button class="btn cta-register" data-open-register>Cadastrar minha empresa</button></div></div></section>
 </main>
 <footer class="bottom"><span>© 2026 Inventário de Celulares</span><span>Plataforma de gestão de ativos móveis</span></footer>
 </div>
@@ -120,9 +148,27 @@ html{scroll-behavior:smooth}body{background:#fff;color:var(--ink)}
  <p class="hint">Acesso provisório de administrador</p>
  </form>
 </div>
+
+<div class="overlay" id="registerOverlay" role="dialog" aria-modal="true" aria-labelledby="registerTitle">
+ <div class="login register-panel"><button type="button" class="close" id="closeRegister" aria-label="Fechar">×</button>
+  <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
+  <h2 id="registerTitle">Cadastro de acesso</h2>
+  <p>O cadastro de novas contas ainda é liberado pelo administrador da plataforma. Entre em contato com a equipe responsável para solicitar seu acesso.</p>
+  <div class="register-info"><b>O que preparar?</b><span>Nome da empresa, responsável pela operação e quantidade aproximada de aparelhos.</span></div>
+  <button class="btn" id="registerLogin" type="button">Já tenho acesso — entrar</button>
+ </div>
+</div>
 <script>
 (function(){
  const overlay=document.getElementById('loginOverlay'),form=document.getElementById('loginForm'),error=document.getElementById('loginError');
+ const registerOverlay=document.getElementById('registerOverlay');
+ function openRegister(){registerOverlay.classList.add('show')}
+ function closeRegister(){registerOverlay.classList.remove('show')}
+ document.querySelectorAll('[data-open-register]').forEach(b=>b.addEventListener('click',openRegister));
+ document.getElementById('closeRegister').addEventListener('click',closeRegister);
+ document.getElementById('registerLogin').addEventListener('click',()=>{closeRegister();open()});
+ registerOverlay.addEventListener('click',e=>{if(e.target===registerOverlay)closeRegister()});
+
  const params=new URLSearchParams(location.search);
  function open(){overlay.classList.add('show');document.getElementById('username').focus()}
  function close(){overlay.classList.remove('show');error.classList.remove('show')}
