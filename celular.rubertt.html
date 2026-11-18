@@ -97,7 +97,7 @@
             <span class="menu-item-text">Configurações</span>
         </li>
     </ul>
-
+    <div class="sidebar-profile-slot"><button type="button" class="sidebar-profile-trigger" id="sidebarProfileTrigger"><span class="profile-avatar" id="sidebarProfileAvatar">U</span><span class="profile-trigger-copy"><strong id="sidebarProfileName">Usuário</strong><small>Meu perfil</small></span></button></div>
     <div class="sidebar-toggle-wrapper">
         <button id="sidebarToggle" class="sidebar-toggle-btn menu-item extracted-inline-style-2">
             <svg class="icon-collapse" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
@@ -106,6 +106,7 @@
 </nav>
 <div id="sidebarBackdrop" class="sidebar-backdrop" aria-hidden="true"></div>
 
+<button type="button" class="mobile-profile-trigger" id="mobileProfileTrigger" aria-label="Abrir perfil"><span class="profile-avatar" id="mobileProfileAvatar">U</span></button><div class="profile-popover" id="profilePopover" hidden><div class="profile-popover-heading"><span class="profile-avatar profile-avatar-large" id="popoverProfileAvatar">U</span><div><strong id="popoverProfileName">Usuário</strong><small>Perfil local</small></div></div><label for="profileNameInput">Nome de exibição</label><input id="profileNameInput" class="input-field" maxlength="40" placeholder="Seu nome"><button type="button" class="btn btn-primary btn-sm" id="saveProfileName">Salvar nome</button></div>
 <main class="main-content">
 
     <!-- SEÇÃO 0: DASHBOARD -->
@@ -758,6 +759,7 @@
     </div>
 </main>
 
+<div class="spotlight-backdrop" id="spotlightBackdrop" hidden><section class="spotlight-modal" role="dialog" aria-modal="true"><header class="spotlight-search-header"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><input id="spotlightInput" type="search" placeholder="Buscar modelo, IMEI ou número de série..."><kbd>ESC</kbd><button id="spotlightClose" type="button">×</button></header><div class="spotlight-filter-row" id="spotlightFilters"><button class="active" data-field="all">Tudo</button><button data-field="modelo">Modelo</button><button data-field="imei1">IMEI 1</button><button data-field="imei2">IMEI 2</button><button data-field="sn">Número de série</button><span></span><button data-status="Disponível">Disponível</button><button data-status="Entregue">Entregue</button></div><div class="spotlight-results-heading"><span id="spotlightTitle">Sugestões do inventário</span><span id="spotlightResultCount">0 aparelhos</span></div><div class="spotlight-results" id="spotlightResults"></div><footer class="spotlight-footer"><span>↑ ↓ navegar · Enter abrir</span><button type="button" id="spotlightGoStock">▣ Ir para o Estoque</button></footer></section></div>
 <!-- MODAL LIGHTBOX -->
 <div id="photoModal" class="custom-modal">
     <div class="modal-content">
@@ -982,5 +984,6 @@
 <script src="js/navigation.js"></script>
 <script src="js/import.js"></script>
     <script src="js/inline-events.js"></script>
+<script src="js/spotlight-profile.js"></script>
 </body>
 </html>
