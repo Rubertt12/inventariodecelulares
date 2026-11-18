@@ -549,6 +549,42 @@ window.removeStock = async function(id) {
     openConfirmModal(title, message, deleteAction);
 };
 
+// Auditoria de duplicidades no estoque. Mantém um registro principal por identificador.
+function normalizeInventoryIdentifier(value) { return String(value || '').trim().toUpperCase().replace(/\s+/g, ''); }
+function findStockDuplicates() {
+    const identifiers = new Map();
+    stockData.forEach(item => [['IMEI', item.imei1], ['IMEI', item.imei2], ['SN', item.sn]].forEach(([type, raw]) => {
+        const value = normalizeInventoryIdentifier(raw); if (!value) return;
+        const key = type + ':' + value; if (!identifiers.has(key)) identifiers.set(key, []);
+        const group = identifiers.get(key); if (!group.some(entry => entry.id === item.id)) group.push(item);
+    }));
+    return [...identifiers.entries()].filter(([, items]) => items.length > 1).map(([key, items]) => {
+        const ordered = [...items].sort((a,b) => (Date.parse(a.dataEntrada || '') || 0) - (Date.parse(b.dataEntrada || '') || 0) || stockData.indexOf(a) - stockData.indexOf(b));
+        return { key, type: key.split(':')[0], value: key.slice(key.indexOf(':') + 1), keeper: ordered[0], duplicates: ordered.slice(1) };
+    });
+}
+function escapeDuplicateHtml(value) { return String(value ?? '').replace(/[&<>\"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[char])); }
+const btnFindDuplicates = document.getElementById('btnFindDuplicates');
+if (btnFindDuplicates) btnFindDuplicates.addEventListener('click', () => {
+    const groups = findStockDuplicates();
+    if (!groups.length) { showCustomAlert('Nenhum aparelho duplicado foi encontrado por IMEI 1, IMEI 2 ou número de série.', 'success'); return; }
+    const duplicateIds = [...new Set(groups.flatMap(group => group.duplicates.map(item => item.id)))];
+    const sections = groups.map(group => {
+        const keep = group.keeper;
+        const rows = group.duplicates.map(item => '<label class=\"duplicate-review-row\"><input type=\"checkbox\" class=\"duplicate-delete-choice\" value=\"' + escapeDuplicateHtml(item.id) + '\" checked><span><strong>' + escapeDuplicateHtml(item.modelo || 'Aparelho sem modelo') + '</strong><small>SN: ' + escapeDuplicateHtml(item.sn || '—') + ' · IMEI 1: ' + escapeDuplicateHtml(item.imei1 || '—') + ' · IMEI 2: ' + escapeDuplicateHtml(item.imei2 || '—') + ' · Status: ' + escapeDuplicateHtml(item.status || '—') + '</small></span><em>Remover cópia</em></label>').join('');
+        return '<section class=\"duplicate-review-group\"><div class=\"duplicate-review-heading\"><strong>' + escapeDuplicateHtml(group.type) + ' repetido: ' + escapeDuplicateHtml(group.value) + '</strong><span>' + group.duplicates.length + ' cópia(s)</span></div><p class=\"duplicate-review-keeper\">Registro preservado: <strong>' + escapeDuplicateHtml(keep.modelo || 'Aparelho sem modelo') + '</strong> · ' + escapeDuplicateHtml(keep.status || 'Sem status') + ' · ' + escapeDuplicateHtml(keep.dataEntrada ? new Date(keep.dataEntrada).toLocaleDateString('pt-BR') : 'Data não informada') + '</p>' + rows + '</section>';
+    }).join('');
+    const style = '<style>.duplicate-review-summary{margin:0 0 12px;color:var(--text-muted)}.duplicate-review-group{border:1px solid var(--border-color);border-radius:12px;padding:12px;margin:10px 0;background:var(--card-bg)}.duplicate-review-heading{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:var(--text-main)}.duplicate-review-heading span{font-size:.8rem;color:var(--text-muted)}.duplicate-review-keeper{font-size:.82rem;color:var(--text-muted);margin:8px 0}.duplicate-review-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-top:1px solid var(--border-color);cursor:pointer}.duplicate-review-row input{flex:0 0 auto}.duplicate-review-row span{display:flex;flex:1;min-width:0;flex-direction:column;gap:3px}.duplicate-review-row small{font-size:.76rem;color:var(--text-muted);overflow-wrap:anywhere}.duplicate-review-row em{font-size:.72rem;color:#dc2626;font-style:normal;white-space:nowrap}.duplicate-review-content{max-height:55vh;overflow:auto;padding-right:4px}</style>';
+    openConfirmModal('Revisar aparelhos duplicados', style + '<div class=\"duplicate-review-content\"><p class=\"duplicate-review-summary\">Encontramos ' + groups.length + ' identificador(es) repetido(s). ' + duplicateIds.length + ' registro(s) foram sugeridos para remoção. Desmarque qualquer aparelho que deseja manter.</p>' + sections + '</div><p class=\"duplicate-review-summary\"><strong>O registro principal de cada grupo será preservado.</strong> A exclusão só acontece após clicar em Confirmar.</p>', async () => {
+        const selected = [...document.querySelectorAll('.duplicate-delete-choice:checked')].map(input => Number(input.value)).filter(Number.isFinite);
+        if (!selected.length) { showCustomAlert('Nenhum registro foi selecionado para exclusão.', 'warning'); return; }
+        const ids = new Set(selected); const removed = stockData.filter(item => ids.has(Number(item.id)));
+        stockData = stockData.filter(item => !ids.has(Number(item.id)));
+        for (const item of removed) if (item.photoName) await deleteImageFromFolder(item.photoName);
+        selected.forEach(id => selectedItemIds.delete(id)); await saveStockData(); clearBatchSelection(); currentStockPage = 1; renderAllUI();
+        showCustomAlert(removed.length + ' registro(s) duplicado(s) removido(s). Os registros principais foram preservados.', 'success');
+    });
+});
 function clearForm() {
     inputImei1.value = ''; inputImei2.value = ''; inputSN.value = '';
     // Define a data e hora atuais no formato para o input datetime-local
