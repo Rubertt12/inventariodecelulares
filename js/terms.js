@@ -534,7 +534,21 @@ window.startEdit = function(id, currentModelo, currentLocalidade) {
     `;
 
     if (dataContainer) {
-        dataContainer.innerHTML = `<input type="datetime-local" id="edit-data-input-${id}" class="edit-input extracted-app-style-29" value="${currentData}">`;
+        dataContainer.innerHTML = `
+            <div class="edit-device-identifiers" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-top:8px;width:100%">
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">IMEI 1
+                    <input type="text" inputmode="numeric" maxlength="15" id="edit-imei1-input-${id}" class="edit-input" value="${String(item.imei1 || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">IMEI 2
+                    <input type="text" inputmode="numeric" maxlength="15" id="edit-imei2-input-${id}" class="edit-input" value="${String(item.imei2 || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">Número de Série (SN)
+                    <input type="text" maxlength="40" id="edit-sn-input-${id}" class="edit-input" value="${String(item.sn || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;')}">
+                </label>
+                <label style="display:flex;flex-direction:column;gap:4px;font-size:.78rem">Data de entrada
+                    <input type="datetime-local" id="edit-data-input-${id}" class="edit-input extracted-app-style-29" value="${currentData}">
+                </label>
+            </div>`;
     }
 
 
@@ -560,25 +574,49 @@ window.startEdit = function(id, currentModelo, currentLocalidade) {
 window.saveEdit = async function(id) {
     const selectEl = document.getElementById(`edit-select-${id}`);
     const localEl = document.getElementById(`edit-local-select-${id}`);
-    const dataEl = document.getElementById(`edit-data-input-${id}`); // --- NOVO: Pega o input da data
-    if (!selectEl || !localEl || !dataEl) return;
+    const dataEl = document.getElementById(`edit-data-input-${id}`);
+    const imei1El = document.getElementById(`edit-imei1-input-${id}`);
+    const imei2El = document.getElementById(`edit-imei2-input-${id}`);
+    const snEl = document.getElementById(`edit-sn-input-${id}`);
+    if (!selectEl || !localEl || !dataEl || !imei1El || !imei2El || !snEl) return;
 
     const newModelo = selectEl.value;
     const newLocalidade = localEl.value;
-    const newDataEntrada = dataEl.value; // --- NOVO: Pega o valor da data
-    
+    const newDataEntrada = dataEl.value;
+    const newImei1 = imei1El.value.trim().replace(/\\s+/g, '');
+    const newImei2 = imei2El.value.trim().replace(/\\s+/g, '');
+    const newSn = snEl.value.trim();
     const itemIndex = stockData.findIndex(item => item.id === id);
-    
-    if (itemIndex !== -1) {
-        stockData[itemIndex].modelo = newModelo;
-        stockData[itemIndex].localidade = newLocalidade;
-        stockData[itemIndex].dataEntrada = newDataEntrada; 
-        await saveStockData();
-        renderSelectStockOptions();
-        renderAllLocalitySelectors();
-        renderAllModelSelectors();
-        renderStockTable(); // Adicionado para redesenhar a tabela após salvar
+    if (itemIndex === -1) return;
+
+    if ((newImei1 && newImei2 && newImei1 === newImei2) ||
+        (newImei1 && !/^\\d{15}$/.test(newImei1)) ||
+        (newImei2 && !/^\\d{15}$/.test(newImei2))) {
+        showCustomAlert('Confira os IMEIs: cada um deve ter 15 dígitos e não podem ser iguais.', 'warning');
+        return;
     }
+
+    const duplicate = stockData.find((other, index) => index !== itemIndex &&
+        ((newImei1 && [other.imei1, other.imei2].includes(newImei1)) ||
+         (newImei2 && [other.imei1, other.imei2].includes(newImei2)) ||
+         (newSn && String(other.sn || '').trim().toUpperCase() === newSn.toUpperCase())));
+    if (duplicate) {
+        showCustomAlert('Este IMEI ou número de série já está cadastrado em outro aparelho. Confira os dados antes de salvar.', 'error');
+        return;
+    }
+
+    stockData[itemIndex].modelo = newModelo;
+    stockData[itemIndex].localidade = newLocalidade;
+    stockData[itemIndex].dataEntrada = newDataEntrada;
+    stockData[itemIndex].imei1 = newImei1;
+    stockData[itemIndex].imei2 = newImei2;
+    stockData[itemIndex].sn = newSn;
+    await saveStockData();
+    renderSelectStockOptions();
+    renderAllLocalitySelectors();
+    renderAllModelSelectors();
+    renderStockTable();
+    showCustomAlert('Dados do aparelho atualizados com sucesso!', 'success');
 };
 
 // --- NOVO MODAL DE DETALHES DE ENTREGA ---
