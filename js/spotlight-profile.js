@@ -1,5 +1,7 @@
 (function(){'use strict';
 const $=id=>document.getElementById(id),backdrop=$('spotlightBackdrop'),input=$('spotlightInput'),results=$('spotlightResults'),filters=$('spotlightFilters');
+// Retira o visualizador do container do Spotlight para que position:fixed use a viewport inteira.
+const termViewer=document.getElementById('spotlightTermModal');if(termViewer&&termViewer.parentElement!==document.body)document.body.appendChild(termViewer);
 let status='',selected=0,visible=[];
 const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
 function getLinkedTerm(item){const docs=Array.isArray(termosData)?termosData:[],keys=[item.sn,item.imei1,item.imei2].filter(Boolean).map(norm);return docs.find(doc=>{const ds=[doc.sn,doc.imei1,doc.imei2].filter(Boolean).map(norm);return keys.some(k=>ds.includes(k));})||null;}
