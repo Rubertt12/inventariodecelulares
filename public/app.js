@@ -3799,22 +3799,98 @@ function initializeDockPreview() {
 async function importCollectorZip(file){
  if(!file||typeof JSZip==='undefined')return showCustomAlert('Leitor ZIP indisponível. Verifique a internet.','error');
  try{
-  const zip=await JSZip.loadAsync(file),mf=zip.file('manifest.json');if(!mf)throw new Error('ZIP sem manifest.json. Exporte novamente pelo Coletor.');
-  const manifest=JSON.parse(await mf.async('string'));if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de pacote não reconhecido.');
-  const digits=v=>String(v||'').replace(/\D/g,''),norm=v=>String(v||'').trim().toLowerCase(),additions=[],seen=[];let duplicates=0,invalid=0;
-  const duplicate=r=>stockData.some(old=>{const ids=[digits(old.imei1),digits(old.imei2)].filter(Boolean);return [digits(r.imei),digits(r.imei2)].filter(Boolean).some(id=>ids.includes(id))||(!!norm(r.sn)&&norm(r.sn)===norm(old.sn));});
-  for(const r of manifest.items){const photo=r.photo&&zip.file(r.photo),imei1=digits(r.imei).slice(0,15),imei2=digits(r.imei2).slice(0,15),sn=String(r.sn||'').trim();
-   if(!photo||(!imei1&&!sn)||(imei1&&imei1.length!==15)||(imei2&&imei2.length!==15)){invalid++;continue;}
-   if(duplicate({imei:imei1,imei2,sn})||seen.some(x=>{const ids=[x.imei1,x.imei2].filter(Boolean);return [imei1,imei2].filter(Boolean).some(id=>ids.includes(id))||(!!norm(sn)&&norm(sn)===norm(x.sn));})){duplicates++;continue;}
-   const blob=await photo.async('blob'),photoName='coleta_'+(imei1||sn).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,28)+'_'+Math.random().toString(36).slice(2,7)+'.jpg';await saveImageToFolder(photoName,blob);
-   const item={id:Date.now()+Math.random(),imei1,imei2,sn,modelo:String(r.model||'Não informado'),localidade:String(r.locality||appSettings.primaryLocation||'Canoas'),dataEntrada:r.createdAt||new Date().toISOString(),photoName,status:'Disponível',entrega:{nome:'',cc:'',matricula:'',localidade:'',ticket:''},history:[]};additions.push(item);seen.push(item);
+  const zip=await JSZip.loadAsync(file);
+  const digits=v=>String(v??'').replace(/\D/g,'');
+  const norm=v=>String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const imageFiles=Object.values(zip.files).filter(f=>!f.dir&&/\.(jpe?g|png|webp|heic|gif|bmp)$/i.test(f.name));
+  const manifestFile=zip.file('manifest.json');
+  let records=[],legacy=true;
+  if(manifestFile){
+   const manifest=JSON.parse(await manifestFile.async('string'));
+   if(manifest.format!=='inventario-celulares-v1'||!Array.isArray(manifest.items))throw new Error('Formato de manifest.json não reconhecido.');
+   records=manifest.items.map(r=>({imei1:r.imei,imei2:r.imei2,sn:r.sn,model:r.model,locality:r.locality,createdAt:r.createdAt,photo:r.photo}));
+  }else{
+   legacy=false;
+   const csvFiles=Object.values(zip.files).filter(f=>!f.dir&&/\.csv$/i.test(f.name));
+   if(!csvFiles.length)throw new Error('Não encontrei nenhum CSV no ZIP. Inclua uma planilha CSV e as fotos dos aparelhos.');
+   const csvFile=csvFiles.sort((a,b)=>{const score=f=>/inventario|estoque|celular|aparelho|coleta/i.test(f.name)?1:0;return score(b)-score(a)})[0];
+   let csvText=(await csvFile.async('string')).replace(/^\uFEFF/,'');
+   const firstLine=csvText.split(/\r?\n/).find(line=>line.trim())||'';
+   const delimiter=[',',';','\t'].sort((a,b)=>firstLine.split(b).length-firstLine.split(a).length)[0];
+   const parseCSV=text=>{
+    const rows=[];let row=[],field='',quoted=false;
+    for(let i=0;i<text.length;i++){const ch=text[i];
+     if(ch==='"'){if(quoted&&text[i+1]==='"'){field+='"';i++;}else quoted=!quoted;}
+     else if(ch===delimiter&&!quoted){row.push(field);field='';}
+     else if((ch==='\n'||ch==='\r')&&!quoted){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(field);if(row.some(v=>String(v).trim()))rows.push(row);row=[];field='';}
+     else field+=ch;
+    }
+    row.push(field);if(row.some(v=>String(v).trim()))rows.push(row);return rows;
+   };
+   const rows=parseCSV(csvText);
+   if(rows.length<2)throw new Error('O CSV está vazio ou não possui linhas de aparelhos.');
+   const headers=rows[0].map(norm);
+   const findColumn=aliases=>headers.findIndex(h=>aliases.includes(h));
+   const cImei1=findColumn(['imei1','imei01','imei']);
+   const cImei2=findColumn(['imei2','imei02']);
+   const cSn=findColumn(['sn','serialnumber','serialno','serial','numerodeserie','numeroserie']);
+   const cPhoto=findColumn(['foto','fotografia','imagem','image','photo','arquivo','arquivofoto','nomefoto','arquivoimagem']);
+   const cModel=findColumn(['modelo','model','aparelho','device']);
+   const cLocality=findColumn(['localidade','local','location','filial']);
+   const cDate=findColumn(['data','datacaptura','createdat','dataentrada']);
+   if(cImei1<0||cImei2<0||cSn<0)throw new Error('Colunas obrigatórias não encontradas. O CSV precisa conter IMEI 1, IMEI 2 e SN/Serial Number/Número de Série.');
+   const basename=p=>p.split('/').pop().replace(/\.[^.]+$/,'');
+   const imageByName=new Map(imageFiles.map(f=>[norm(basename(f.name)),f]));
+   const imageByDigits=new Map();
+   for(const f of imageFiles){const d=digits(basename(f.name));if(d.length>=15)imageByDigits.set(d,f);}
+   const dataRows=rows.slice(1).filter(r=>r.some(v=>String(v??'').trim()));
+   records=dataRows.map((r,index)=>{
+    const imei1=String(r[cImei1]??'').trim(),imei2=String(r[cImei2]??'').trim(),sn=String(r[cSn]??'').trim();
+    let photo=null;
+    if(cPhoto>=0&&String(r[cPhoto]??'').trim()){
+     const requested=String(r[cPhoto]).trim().replace(/\\/g,'/');
+     photo=zip.file(requested)||imageFiles.find(f=>norm(basename(f.name))===norm(basename(requested)))||null;
+    }
+    if(!photo){
+     const keys=[imei1,imei2,sn].map(v=>norm(v)).filter(Boolean);
+     photo=imageFiles.find(f=>keys.some(k=>{const n=norm(basename(f.name));return n===k||n.startsWith(k)||k.startsWith(n)&&n.length>=6;}))||null;
+    }
+    if(!photo&&imageFiles.length===dataRows.length)photo=imageFiles[index];
+    return {imei1,imei2,sn,model:cModel>=0?r[cModel]:'',locality:cLocality>=0?r[cLocality]:'',createdAt:cDate>=0?r[cDate]:'',photo};
+   });
+   if(!records.length)throw new Error('Não encontrei registros válidos no CSV.');
   }
-  if(!additions.length)return showCustomAlert('Nenhum aparelho novo. Duplicados: '+duplicates+'; inválidos: '+invalid+'.','warning');
+  const additions=[],seen=[];let duplicates=0,invalid=0,photosFailed=0;
+  const isDuplicate=r=>stockData.some(old=>{
+   const oldIds=[digits(old.imei1),digits(old.imei2)].filter(Boolean),newIds=[digits(r.imei1),digits(r.imei2)].filter(Boolean);
+   return newIds.some(id=>oldIds.includes(id))||(!!norm(r.sn)&&norm(r.sn)===norm(old.sn));
+  });
+  for(const r of records){
+   const imei1=digits(r.imei1??r.imei).slice(0,15),imei2=digits(r.imei2).slice(0,15),sn=String(r.sn||'').trim();
+   if(imei1.length!==15||imei2.length!==15||!sn){invalid++;continue;}
+   const normalized={imei1,imei2,sn};
+   if(isDuplicate(normalized)||seen.some(x=>{
+    const ids=[x.imei1,x.imei2].filter(Boolean);return [imei1,imei2].some(id=>ids.includes(id))||norm(sn)===norm(x.sn);
+   })){duplicates++;continue;}
+   let photo=r.photo;
+   if(typeof photo==='string')photo=zip.file(photo);
+   if(!photo){invalid++;continue;}
+   try{
+    const blob=await photo.async('blob');
+    const ext=(photo.name.match(/\.(jpe?g|png|webp|heic|gif|bmp)$/i)||[])[1]||'jpg';
+    const photoName='coleta_'+(imei1||sn).replace(/[^a-zA-Z0-9_-]/g,'').slice(0,28)+'_'+Math.random().toString(36).slice(2,7)+'.'+ext;
+    await saveImageToFolder(photoName,blob);
+    const dateValue=String(r.createdAt||'').trim();
+    const parsedDate=dateValue&&!Number.isNaN(Date.parse(dateValue))?new Date(dateValue).toISOString():new Date().toISOString();
+    const item={id:Date.now()+Math.random(),imei1,imei2,sn,modelo:String(r.model||'Não informado').trim()||'Não informado',localidade:String(r.locality||appSettings.primaryLocation||'Canoas').trim(),dataEntrada:parsedDate,photoName,status:'Disponível',entrega:{nome:'',cc:'',matricula:'',localidade:'',ticket:''},history:[]};
+    additions.push(item);seen.push(item);
+   }catch(error){photosFailed++;console.error('Falha ao salvar foto do aparelho',error);}
+  }
+  if(!additions.length)return showCustomAlert('Nenhum aparelho importado. Duplicados: '+duplicates+'; inválidos/sem foto: '+invalid+'; falhas nas fotos: '+photosFailed+'.','warning');
   stockData.unshift(...additions);await saveStockData();if(!dirHandle)updateConnectionStatusUI(true,'Dados neste celular');currentStockPage=1;renderAllUI();
-  showCustomAlert(additions.length+' aparelho(s) importado(s). Duplicados ignorados: '+duplicates+'; inválidos: '+invalid+'.','success');
+  showCustomAlert(additions.length+' aparelho(s) importado(s). Duplicados ignorados: '+duplicates+'; inválidos/sem foto: '+invalid+'; falhas nas fotos: '+photosFailed+'.'+(legacy?' Pacote do coletor reconhecido.':' CSV e fotos identificados automaticamente.'),'success');
  }catch(e){console.error(e);showCustomAlert('Falha ao importar ZIP: '+(e.message||'erro inesperado'),'error');}
 }
-
 document.addEventListener('DOMContentLoaded', () => {
     const zipInput=document.getElementById('collectorZipImport');
     if(zipInput){zipInput.addEventListener('change',async e=>{const file=e.target.files&&e.target.files[0];if(file)await importCollectorZip(file);e.target.value='';});}
