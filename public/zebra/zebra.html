@@ -57,6 +57,19 @@
             padding: 8px 14px; font-size: 13px; margin-bottom: 15px; border-radius: 6px;
         }
     
+
+/* Prévia em grade das etiquetas importadas */
+.zip-preview-summary{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;text-align:left}
+.zip-preview-chip{background:#fff;border:1px solid #dbeafe;border-radius:9px;padding:7px 10px;font-size:12px;color:#1e3a8a}
+.zip-labels-preview{margin-top:12px;text-align:left;max-height:560px;overflow:auto;padding:2px}
+.zip-labels-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px}
+.zip-label-card{background:#fff;border:1px solid #cbd5e1;border-radius:10px;padding:12px;text-align:left;box-shadow:0 2px 6px rgba(15,23,42,.05);min-width:0}
+.zip-label-card-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:9px;color:#1e40af;font-weight:700;font-size:12px}
+.zip-label-card .zip-field{margin:7px 0;min-width:0}
+.zip-label-card .zip-field small{display:block;color:#64748b;font-size:10px;text-transform:uppercase;letter-spacing:.04em}
+.zip-label-card .zip-field strong{display:block;color:#0f172a;font:600 12px/1.4 ui-monospace,SFMono-Regular,monospace;overflow-wrap:anywhere}
+.zip-label-card .zip-label-mark{height:5px;background:repeating-linear-gradient(90deg,#0f172a 0 2px,transparent 2px 4px);margin-top:10px;border-radius:2px}
+
 /* Responsividade completa do editor Zebra */
 html,body{width:100%;min-width:320px;max-width:100%;overflow-x:clip}
 body{display:flex;align-items:flex-start;flex-wrap:wrap;padding:clamp(8px,2vw,20px);gap:16px}
@@ -118,6 +131,7 @@ input,select,textarea,button{max-width:100%;min-width:0}
             <button type="button" id="btnClearZip" class="btn-reset" style="display:none;margin-top:5px;" onclick="limparExcel()">Limpar lote ZIP</button>
         </div>
         <div id="zipImportStatus" style="font-size:12px;color:#334155;margin-top:8px;" aria-live="polite"></div>
+        <div id="zipLabelsPreview" class="zip-labels-preview" style="display:none"></div>
     </div>
 
     <h3>Modelo & Posições</h3>
@@ -319,21 +333,115 @@ input,select,textarea,button{max-width:100%;min-width:0}
         reader.readAsArrayBuffer(file);
     }
 
+    function escaparHtml(valor) {
+        return String(valor ?? '').replace(/[&<>"']/g, caractere => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        }[caractere]));
+    }
+
+    function renderizarGradeEtiquetas() {
+        const container = document.getElementById('zipLabelsPreview');
+        if (!container) return;
+        if (!dadosExcel.length) {
+            container.innerHTML = '';
+            container.style.display = 'none';
+            return;
+        }
+        const incompletas = dadosExcel.filter(row => !(row.IMEI1 || row.imei1) || !(row.IMEI2 || row.imei2) || !(row.SN || row.sn || row.Serial)).length;
+        const cards = dadosExcel.map((row, index) => {
+            const imei1 = row.IMEI1 || row.imei1 || '';
+            const imei2 = row.IMEI2 || row.imei2 || '';
+            const sn = row.SN || row.sn || row.Serial || row.serial || '';
+            return `
+                <article class="zip-label-card">
+                    <div class="zip-label-card-head"><span>ETIQUETA #${index + 1}</span><span>✓ Pronta</span></div>
+                    <div class="zip-field"><small>IMEI 1</small><strong>${escaparHtml(imei1)}</strong></div>
+                    <div class="zip-field"><small>IMEI 2</small><strong>${escaparHtml(imei2)}</strong></div>
+                    <div class="zip-field"><small>Número de série (SN)</small><strong>${escaparHtml(sn)}</strong></div>
+                    <div class="zip-label-mark"></div>
+                </article>`;
+        }).join('');
+        container.innerHTML = `
+            <div class="zip-preview-summary">
+                <span class="zip-preview-chip"><b>${dadosExcel.length}</b> etiquetas no lote</span>
+                <span class="zip-preview-chip">Prévia de todas as etiquetas</span>
+            </div>
+            <div class="zip-labels-grid">${cards}</div>`;
+        container.style.display = 'block';
+    }
+
     async function processarZipEtiquetas(event) {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
         const status = document.getElementById('zipImportStatus');
         status.textContent = 'Lendo ZIP e procurando planilha...';
         try {
+            if (typeof JSZip === 'undefined') throw new Error('Não foi possível carregar o leitor de ZIP. Atualize a página e tente novamente.');
             const zip = await JSZip.loadAsync(file);
-            const candidates = Object.values(zip.files).filter(entry => !entry.dir && /\.(xlsx|xls|csv)$/i.test(entry.name) && !entry.name.split('/').pop().startsWith('~
+            const candidates = Object.values(zip.files).filter(entry =>
+                !entry.dir && /\\.(xlsx|xls|csv)$/i.test(entry.name) &&
+                !entry.name.split('/').pop().startsWith('~$')
+            );
+            if (!candidates.length) throw new Error('Não encontrei CSV ou Excel dentro do ZIP.');
+            const preferred = candidates.find(entry => /\\.(xlsx|xls)$/i.test(entry.name)) || candidates[0];
+            const buffer = await preferred.async('arraybuffer');
+            const workbook = XLSX.read(buffer, { type: 'array', raw: true });
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
+            if (!rows.length) throw new Error('A planilha encontrada está vazia.');
+            const normalize = value => String(value ?? '').normalize('NFD')
+                .replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+            const mapped = rows.map(row => {
+                const values = {};
+                Object.entries(row).forEach(([key, value]) => values[normalize(key)] = String(value ?? '').trim());
+                const pick = aliases => {
+                    for (const alias of aliases) if (values[alias] !== undefined && values[alias] !== '') return values[alias];
+                    return '';
+                };
+                return {
+                    IMEI1: pick(['imei1','imei01','imei','imeiprincipal']),
+                    IMEI2: pick(['imei2','imei02','imeisecundario']),
+                    SN: pick(['sn','serial','serialnumber','numerodeserie','numeroserie'])
+                };
+            });
+            const valid = mapped.filter(row => row.IMEI1 && row.IMEI2 && row.SN);
+            const seen = new Set();
+            dadosExcel = valid.filter(row => {
+                const key = [row.IMEI1,row.IMEI2,row.SN].join('|');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+            if (!dadosExcel.length) throw new Error('Nenhuma linha válida. Confira as colunas IMEI 1, IMEI 2 e SN / Número de Série.');
+            document.getElementById('templateSelector').value = 'celular';
+            document.getElementById('btnClearExcel').style.display = 'inline-block';
+            document.getElementById('btnClearZip').style.display = 'inline-block';
+            document.getElementById('boxQtdManual').style.display = 'none';
+            document.getElementById('controlsPadrao').style.display = 'none';
+            document.getElementById('controlsCelular').style.display = 'block';
+            status.textContent = `${dadosExcel.length} etiqueta(s) prontas. ${mapped.length - valid.length} linha(s) incompleta(s) ignorada(s); ${valid.length - dadosExcel.length} duplicada(s) removida(s). Arquivo: ${preferred.name}`;
+            renderizarGradeEtiquetas();
+            gerar();
+        } catch (error) {
+            dadosExcel = [];
+            renderizarGradeEtiquetas();
+            status.textContent = error.message || 'Falha ao importar o ZIP.';
+            alert(status.textContent);
+        }
+    }
+
+    function limparExcel() {
         dadosExcel = [];
         document.getElementById('excelFile').value = '';
-        const zipInput = document.getElementById('zipLabelsFile'); if (zipInput) zipInput.value = '';
-        const zipStatus = document.getElementById('zipImportStatus'); if (zipStatus) zipStatus.textContent = '';
-        const zipButton = document.getElementById('btnClearZip'); if (zipButton) zipButton.style.display = 'none';
+        const zipInput = document.getElementById('zipLabelsFile');
+        if (zipInput) zipInput.value = '';
+        const zipStatus = document.getElementById('zipImportStatus');
+        if (zipStatus) zipStatus.textContent = '';
+        const zipButton = document.getElementById('btnClearZip');
+        if (zipButton) zipButton.style.display = 'none';
         document.getElementById('btnClearExcel').style.display = 'none';
         document.getElementById('boxQtdManual').style.display = 'block';
+        renderizarGradeEtiquetas();
         gerar();
     }
 
