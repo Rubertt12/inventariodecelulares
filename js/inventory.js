@@ -52,9 +52,9 @@ async function renderStockTable() {
             tdLocal.textContent = item.localidade || appSettings.primaryLocation;
             tr.appendChild(tdLocal);
 
-            tr.appendChild(createCell(item.imei1));
-            tr.appendChild(createCell(item.imei2));
-            tr.appendChild(createCell(item.sn, true));
+            const tdImei1 = document.createElement('td'); tdImei1.id = `imei1-txt-${item.id}`; tdImei1.textContent = item.imei1 || '-'; tr.appendChild(tdImei1);
+            const tdImei2 = document.createElement('td'); tdImei2.id = `imei2-txt-${item.id}`; tdImei2.textContent = item.imei2 || '-'; tr.appendChild(tdImei2);
+            const tdSn = document.createElement('td'); tdSn.id = `sn-txt-${item.id}`; tdSn.textContent = item.sn || '-'; tr.appendChild(tdSn);
             tr.appendChild(createStatusCell(item)); // Passa o objeto completo para verificar o status
 
             // Célula de Data e Hora
@@ -131,10 +131,10 @@ async function renderStockTable() {
             content.innerHTML = `
                 <div id="grid-modelo-txt-${item.id}" class="stock-card-sn extracted-app-style-7">${item.modelo}</div>
                 <div id="grid-local-txt-${item.id}" class="extracted-app-style-8"><svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="extracted-app-style-9"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>${item.localidade || appSettings.primaryLocation}</div>
-                <div class="stock-card-sn extracted-app-style-10">SN: ${item.sn || 'SEM S/N'}</div>
+                <div id="grid-sn-txt-${item.id}" class="stock-card-sn extracted-app-style-10">SN: ${item.sn || 'SEM S/N'}</div>
                 <div class="stock-card-info extracted-app-style-11">
-                    <span><strong>IMEI 1:</strong> ${item.imei1 || '-'}</span>
-                    <span><strong>IMEI 2:</strong> ${item.imei2 || '-'}</span>
+                    <span><strong>IMEI 1:</strong> <span id="grid-imei1-txt-${item.id}">${item.imei1 || '-'}</span></span>
+                    <span><strong>IMEI 2:</strong> <span id="grid-imei2-txt-${item.id}">${item.imei2 || '-'}</span></span>
                     <span id="grid-data-txt-${item.id}" class="extracted-app-style-12">
                         <svg viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="extracted-app-style-13"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                         ${item.dataEntrada ? new Date(item.dataEntrada).toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '-'}
