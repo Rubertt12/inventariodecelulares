@@ -136,6 +136,24 @@
         <h2>Personalizar modelo</h2>
         <p class="help">Edite os textos e logos usados no preview e nos PDFs. As alterações são salvas neste computador.</p>
 
+        <div class="profile-manager" aria-labelledby="profileManagerTitle">
+          <div class="profile-manager-heading">
+            <div><h3 id="profileManagerTitle">Perfis de termo</h3><p>Salve versões diferentes e escolha qual será carregada automaticamente.</p></div>
+            <span class="profile-count" id="templateProfileCount">0 perfis</span>
+          </div>
+          <div class="field"><label for="templateProfileSelect">Perfil selecionado</label><select id="templateProfileSelect"><option value="">Modelo atual (sem perfil)</option></select></div>
+          <div class="field"><label for="templateProfileName">Nome do perfil</label><input id="templateProfileName" type="text" maxlength="60" placeholder="Ex.: Termo padrão de celular"></div>
+          <div class="profile-actions">
+            <button type="button" id="btnSaveNewProfile">Salvar como novo</button>
+            <button type="button" class="secondary" id="btnUpdateProfile">Salvar alterações</button>
+            <button type="button" class="secondary" id="btnSetDefaultProfile">Definir como padrão</button>
+            <button type="button" class="secondary" id="btnDuplicateProfile">Duplicar</button>
+            <button type="button" class="secondary" id="btnRenameProfile">Renomear</button>
+            <button type="button" class="danger" id="btnDeleteProfile">Excluir perfil</button>
+          </div>
+          <p class="profile-default-note" id="templateProfileDefaultNote">O perfil padrão será aplicado automaticamente ao abrir o gerador.</p>
+        </div>
+
         <div class="template-editor">
           <details open>
             <summary>Cabeçalho e título</summary>
