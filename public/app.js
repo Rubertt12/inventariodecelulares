@@ -2565,6 +2565,119 @@ function renderAllUI() {
     renderDashboard();
 }
 
+// Auditoria de duplicados já cadastrados (IMEI 1/2 cruzados e número de série).
+function normalizeDeviceIdentifier(value) {
+    return String(value || '').replace(/[^a-z0-9]/gi, '').toUpperCase();
+}
+
+function findExistingStockDuplicates() {
+    const parent = stockData.map((_, index) => index);
+    const find = index => {
+        while (parent[index] !== index) {
+            parent[index] = parent[parent[index]];
+            index = parent[index];
+        }
+        return index;
+    };
+    const union = (a, b) => {
+        const rootA = find(a), rootB = find(b);
+        if (rootA !== rootB) parent[rootB] = rootA;
+    };
+    const seen = new Map();
+    stockData.forEach((item, index) => {
+        const identifiers = [
+            normalizeDeviceIdentifier(item.imei1),
+            normalizeDeviceIdentifier(item.imei2),
+            normalizeDeviceIdentifier(item.sn)
+        ].filter(value => value.length >= 5);
+        identifiers.forEach(value => {
+            if (seen.has(value)) union(index, seen.get(value));
+            else seen.set(value, index);
+        });
+    });
+    const groups = new Map();
+    stockData.forEach((item, index) => {
+        const root = find(index);
+        if (!groups.has(root)) groups.set(root, []);
+        groups.get(root).push(item);
+    });
+    return [...groups.values()].filter(group => group.length > 1).map(group => {
+        group.sort((a, b) => {
+            const dateA = Date.parse(a.dataEntrada || '') || 0;
+            const dateB = Date.parse(b.dataEntrada || '') || 0;
+            return dateA - dateB;
+        });
+        return { original: group[0], duplicates: group.slice(1) };
+    });
+}
+
+function escapeDuplicateHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, char => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    })[char]);
+}
+
+function openDuplicateAudit() {
+    const groups = findExistingStockDuplicates();
+    if (!groups.length) {
+        showCustomAlert('Nenhum aparelho duplicado foi encontrado.', 'success');
+        return;
+    }
+
+    let duplicateCount = 0;
+    const sections = groups.map((group, groupIndex) => {
+        const original = group.original;
+        const date = original.dataEntrada ? new Date(original.dataEntrada).toLocaleDateString('pt-BR') : 'Data não informada';
+        const originalLabel = '<strong>Registro preservado:</strong> ' +
+            escapeDuplicateHtml(original.modelo || 'Aparelho') + ' · ' +
+            escapeDuplicateHtml(original.imei1 || original.imei2 || original.sn || 'Sem identificador') +
+            ' <span style="color:var(--text-muted)">(' + date + ')</span>';
+        const rows = group.duplicates.map(item => {
+            duplicateCount++;
+            return '<label style="display:flex;gap:9px;align-items:flex-start;padding:9px 10px;margin-top:7px;border:1px solid var(--border-color);border-radius:10px;cursor:pointer;">' +
+                '<input type="checkbox" class="duplicate-audit-delete" data-duplicate-id="' + escapeDuplicateHtml(item.id) + '" checked style="margin-top:3px;">' +
+                '<span><strong>' + escapeDuplicateHtml(item.modelo || 'Aparelho') + '</strong><br>' +
+                '<small>IMEI 1: ' + escapeDuplicateHtml(item.imei1 || '—') + ' · IMEI 2: ' + escapeDuplicateHtml(item.imei2 || '—') +
+                '<br>SN: ' + escapeDuplicateHtml(item.sn || '—') + '</small></span></label>';
+        }).join('');
+        return '<section style="padding:12px 0;border-bottom:1px solid var(--border-color);">' +
+            '<div style="font-weight:700;margin-bottom:8px;">Grupo ' + (groupIndex + 1) + '</div>' +
+            '<div style="padding:9px 10px;background:var(--bg-secondary,rgba(127,127,127,.08));border-radius:10px;">' + originalLabel + '</div>' +
+            rows + '</section>';
+    }).join('');
+
+    const message = '<div style="max-height:55vh;overflow:auto;">' +
+        '<p>Encontrados <strong>' + groups.length + ' grupos</strong> com <strong>' + duplicateCount +
+        ' registros potencialmente repetidos</strong>. O registro mais antigo de cada grupo será preservado.</p>' +
+        '<p style="font-size:.88em;color:var(--text-muted)">Desmarque qualquer aparelho que queira manter. A exclusão só acontece após confirmar.</p>' +
+        sections + '</div>';
+
+    openConfirmModal('Revisar aparelhos duplicados', message, async () => {
+        const selected = [...confirmModalMessage.querySelectorAll('.duplicate-audit-delete:checked')]
+            .map(input => input.dataset.duplicateId);
+        if (!selected.length) {
+            showCustomAlert('Nenhum registro foi selecionado para exclusão.', 'info');
+            return;
+        }
+        const before = stockData.length;
+        stockData = stockData.filter(item => !selected.includes(String(item.id)));
+        const removed = before - stockData.length;
+        if (!removed) {
+            showCustomAlert('Os registros selecionados não foram encontrados.', 'warning');
+            return;
+        }
+        selectedItemIds.clear();
+        currentStockPage = 1;
+        await saveStockData();
+        renderAllUI();
+        showCustomAlert(removed + ' registro(s) duplicado(s) removido(s). Fotos compartilhadas foram preservadas.', 'success');
+    });
+}
+
+const btnFindDuplicates = document.getElementById('btnFindDuplicates');
+if (btnFindDuplicates) btnFindDuplicates.addEventListener('click', openDuplicateAudit);
+
+
 // --- NOVO: Função de Inicialização ---
 async function loadInitialState() {
     renderAllLocalitySelectors();
