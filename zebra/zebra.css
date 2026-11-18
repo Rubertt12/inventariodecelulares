@@ -65,3 +65,24 @@
 .extracted-inline-style-14 { font-weight: 600; color: #007aff; }
 .extracted-inline-style-15 { font-size: 11px; color: #666; margin-top:10px; }
 .extracted-inline-style-16 { border: 1px dashed #ccc; max-width: 100%; height: auto; }
+
+
+/* ZIP de CSVs e pré-visualização do lote */
+.zip-box { margin-top: 12px; background: #f1f5ff; border-color: #8aaeff; }
+.zip-title { color: #2457a7; font-weight: 700; }
+.zip-help { color:#596579; font-size:12px; line-height:1.45; margin:6px 0 10px; }
+.zip-file-input { display:block !important; font-size:12px; margin:8px 0; background:#fff; }
+.zip-clear { display:inline-block; margin-top:5px; }
+.zip-status { font-size:12px; color:#344054; margin-top:8px; min-height:16px; }
+.preview-panel { min-width:0; width:100%; }
+#labelPreviewWrap { background:#fff; border:1px solid #e5e7eb; border-radius:14px; padding:16px; min-height:180px; display:grid; place-items:center; }
+#labelPreview { max-width:100%; max-height:420px; object-fit:contain; }
+.batch-preview { margin-top:20px; text-align:left; }
+.batch-preview h4 { margin:0 0 12px; }
+.batch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(190px,1fr)); gap:12px; }
+.batch-label-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:10px; min-width:0; }
+.batch-label-head { display:flex; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:8px; }
+.batch-label-head span { overflow-wrap:anywhere; color:#667085; }
+.batch-label-card img { width:100%; height:150px; object-fit:contain; background:#f8fafc; border-radius:8px; }
+.batch-label-data { display:grid; gap:4px; font-size:11px; color:#475467; overflow-wrap:anywhere; margin-top:8px; }
+@media (max-width:760px) { body { display:block; padding:12px; } .editor-panel { width:auto; } .preview-panel { position:static; margin-top:18px; } }
