@@ -541,6 +541,31 @@
                         <span class="switch-slider"></span>
                     </label>
                 </div>
+                <section class="theme-picker-section" aria-labelledby="themePickerTitle">
+                    <div class="theme-picker-heading">
+                        <div><strong id="themePickerTitle">Temas de cores</strong><p class="setting-item-description">Personalize as cores de todas as telas. Escolha uma paleta, visualize e aplique.</p></div>
+                    </div>
+                    <div class="theme-palette-grid" id="themePaletteGrid">
+                        <button type="button" class="theme-palette-option" data-palette="ocean" aria-pressed="true"><span class="theme-swatch" style="--swatch:#087e8b"></span><span><b>Ocean Blue</b><small>Azul-petróleo</small></span></button>
+                        <button type="button" class="theme-palette-option" data-palette="emerald" aria-pressed="false"><span class="theme-swatch" style="--swatch:#15966b"></span><span><b>Emerald</b><small>Verde esmeralda</small></span></button>
+                        <button type="button" class="theme-palette-option" data-palette="purple" aria-pressed="false"><span class="theme-swatch" style="--swatch:#8254c7"></span><span><b>Purple</b><small>Roxo</small></span></button>
+                        <button type="button" class="theme-palette-option" data-palette="graphite" aria-pressed="false"><span class="theme-swatch" style="--swatch:#64748b"></span><span><b>Graphite</b><small>Grafite</small></span></button>
+                        <button type="button" class="theme-palette-option" data-palette="sunset" aria-pressed="false"><span class="theme-swatch" style="--swatch:#e07836"></span><span><b>Sunset</b><small>Laranja</small></span></button>
+                        <button type="button" class="theme-palette-option" data-palette="rose" aria-pressed="false"><span class="theme-swatch" style="--swatch:#d45c83"></span><span><b>Rose</b><small>Rosa</small></span></button>
+                    </div>
+                    <div class="theme-custom-row">
+                        <label for="customThemeColor"><strong>Cor personalizada</strong><small>Escolha sua própria cor de destaque.</small></label>
+                        <input type="color" id="customThemeColor" value="#087e8b" aria-label="Escolher cor personalizada">
+                    </div>
+                    <div class="theme-preview" id="themePreview" aria-live="polite">
+                        <div class="theme-preview-top"><span class="theme-preview-dot"></span><b>Prévia do tema</b><span class="theme-preview-label" id="themePreviewLabel">Ocean Blue</span></div>
+                        <div class="theme-preview-content"><span class="theme-preview-card"></span><span class="theme-preview-line"></span><span class="theme-preview-button">Destaque</span></div>
+                    </div>
+                    <div class="theme-picker-actions">
+                        <button type="button" class="btn btn-secondary" id="resetThemeButton">Restaurar tema original</button>
+                        <button type="button" class="btn btn-primary" id="applyThemeButton">Aplicar tema</button>
+                    </div>
+                </section>
                 <div class="setting-item">
                     <div>
                         <strong>Layout da Navegação</strong>
