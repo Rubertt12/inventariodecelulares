@@ -38,6 +38,10 @@ function hojePorExtenso() {
 document.getElementById("fData").value = hojePorExtenso();
 
 const TEMPLATE_STORAGE_KEY = "termTemplateSettingsV2";
+const TEMPLATE_PROFILES_KEY = "termTemplateProfilesV1";
+const TEMPLATE_DEFAULT_PROFILE_KEY = "termTemplateDefaultProfileV1";
+let templateProfiles = [];
+let activeTemplateProfileId = "";
 const TEMPLATE_TEXT_DEFAULTS = {
   headerText: "",
   title: "TERMO DE RESPONSABILIDADE DE CELULAR",
@@ -323,6 +327,12 @@ function bindTemplateLogo(inputId, settingKey, previewId, removeButtonId) {
 function setupTemplateEditor() {
   defaultTemplateSettings = createDefaultTemplateSettings();
   templateSettings = loadTemplateSettings();
+  loadTemplateProfiles();
+  const defaultProfile = templateProfiles.find(profile => profile.id === getDefaultTemplateProfileId());
+  if (defaultProfile) {
+    activeTemplateProfileId = defaultProfile.id;
+    templateSettings = cloneTemplateSettings(defaultProfile.settings);
+  }
 
   TEMPLATE_EDITOR_FIELDS.forEach(([elementId, settingKey]) => {
     const input = document.getElementById(elementId);
@@ -352,6 +362,124 @@ function setupTemplateEditor() {
     document.getElementById("templateSaveStatus").textContent = "Modelo original restaurado.";
   });
   applyTemplateSettings();
+}
+
+
+function cloneTemplateSettings(settings) {
+  return JSON.parse(JSON.stringify(settings || {}));
+}
+function loadTemplateProfiles() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(TEMPLATE_PROFILES_KEY) || "[]");
+    templateProfiles = Array.isArray(saved) ? saved.filter(p => p && p.id && p.name && p.settings) : [];
+  } catch (error) { console.error("Falha ao carregar perfis:", error); templateProfiles = []; }
+}
+function persistTemplateProfiles() {
+  try { localStorage.setItem(TEMPLATE_PROFILES_KEY, JSON.stringify(templateProfiles)); renderTemplateProfiles(); return true; }
+  catch (error) {
+    console.error("Falha ao salvar perfis:", error);
+    document.getElementById("templateSaveStatus").textContent = "Armazenamento cheio. Reduza o tamanho dos logos.";
+    return false;
+  }
+}
+function getDefaultTemplateProfileId() { return localStorage.getItem(TEMPLATE_DEFAULT_PROFILE_KEY) || ""; }
+function renderTemplateProfiles() {
+  const select = document.getElementById("templateProfileSelect");
+  if (!select) return;
+  select.replaceChildren(new Option("Modelo atual (sem perfil)", ""));
+  templateProfiles.forEach(profile => {
+    const option = new Option(profile.name + (profile.id === getDefaultTemplateProfileId() ? " ★" : ""), profile.id);
+    select.add(option);
+  });
+  select.value = templateProfiles.some(p => p.id === activeTemplateProfileId) ? activeTemplateProfileId : "";
+  document.getElementById("templateProfileCount").textContent = templateProfiles.length + (templateProfiles.length === 1 ? " perfil" : " perfis");
+  document.getElementById("templateProfileDefaultNote").textContent =
+    activeTemplateProfileId && activeTemplateProfileId === getDefaultTemplateProfileId()
+      ? "★ Este é o perfil padrão e será carregado automaticamente."
+      : "O perfil padrão será aplicado automaticamente ao abrir o gerador.";
+  const enabled = Boolean(templateProfiles.find(p => p.id === activeTemplateProfileId));
+  ["btnUpdateProfile","btnSetDefaultProfile","btnDuplicateProfile","btnRenameProfile","btnDeleteProfile"].forEach(id => {
+    document.getElementById(id).disabled = !enabled;
+  });
+}
+function setupTemplateProfilesUI() {
+  document.getElementById("templateProfileSelect").addEventListener("change", event => {
+    const profile = templateProfiles.find(p => p.id === event.target.value);
+    activeTemplateProfileId = profile ? profile.id : "";
+    if (profile) {
+      templateSettings = cloneTemplateSettings(profile.settings);
+      document.getElementById("templateProfileName").value = profile.name;
+      setupTemplateEditorFields();
+      applyTemplateSettings();
+      persistTemplateSettings();
+      document.getElementById("templateSaveStatus").textContent = 'Perfil "' + profile.name + '" carregado.';
+    } else { document.getElementById("templateProfileName").value = ""; }
+    renderTemplateProfiles();
+  });
+  document.getElementById("btnSaveNewProfile").addEventListener("click", () => {
+    const name = document.getElementById("templateProfileName").value.trim();
+    if (!name) { alert("Digite um nome para o perfil."); return; }
+    if (templateProfiles.some(p => p.name.toLocaleLowerCase() === name.toLocaleLowerCase())) { alert("Já existe um perfil com esse nome."); return; }
+    const profile = {id: (crypto.randomUUID ? crypto.randomUUID() : "profile-" + Date.now()), name, settings: cloneTemplateSettings(templateSettings), updatedAt: new Date().toISOString()};
+    templateProfiles.push(profile);
+    if (!persistTemplateProfiles()) { templateProfiles.pop(); return; }
+    activeTemplateProfileId = profile.id;
+    renderTemplateProfiles();
+    document.getElementById("templateSaveStatus").textContent = 'Perfil "' + name + '" salvo.';
+  });
+  document.getElementById("btnUpdateProfile").addEventListener("click", () => {
+    const profile = templateProfiles.find(p => p.id === activeTemplateProfileId);
+    if (!profile) return;
+    profile.settings = cloneTemplateSettings(templateSettings);
+    profile.updatedAt = new Date().toISOString();
+    if (persistTemplateProfiles()) document.getElementById("templateSaveStatus").textContent = 'Alterações de "' + profile.name + '" salvas.';
+  });
+  document.getElementById("btnSetDefaultProfile").addEventListener("click", () => {
+    if (!activeTemplateProfileId) return;
+    localStorage.setItem(TEMPLATE_DEFAULT_PROFILE_KEY, activeTemplateProfileId);
+    renderTemplateProfiles();
+    document.getElementById("templateSaveStatus").textContent = "Perfil definido como padrão.";
+  });
+  document.getElementById("btnDuplicateProfile").addEventListener("click", () => {
+    const source = templateProfiles.find(p => p.id === activeTemplateProfileId);
+    if (!source) return;
+    const name = prompt("Nome do novo perfil:", source.name + " - cópia");
+    if (!name || !name.trim()) return;
+    const cleanName = name.trim();
+    if (templateProfiles.some(p => p.name.toLocaleLowerCase() === cleanName.toLocaleLowerCase())) { alert("Já existe um perfil com esse nome."); return; }
+    const copy = {id: (crypto.randomUUID ? crypto.randomUUID() : "profile-" + Date.now()), name: cleanName, settings: cloneTemplateSettings(source.settings), updatedAt: new Date().toISOString()};
+    templateProfiles.push(copy);
+    if (!persistTemplateProfiles()) { templateProfiles.pop(); return; }
+    activeTemplateProfileId = copy.id;
+    templateSettings = cloneTemplateSettings(copy.settings);
+    setupTemplateEditorFields();
+    applyTemplateSettings();
+    document.getElementById("templateProfileName").value = copy.name;
+    renderTemplateProfiles();
+    document.getElementById("templateSaveStatus").textContent = 'Perfil "' + copy.name + '" duplicado.';
+  });
+  document.getElementById("btnRenameProfile").addEventListener("click", () => {
+    const profile = templateProfiles.find(p => p.id === activeTemplateProfileId);
+    if (!profile) return;
+    const name = document.getElementById("templateProfileName").value.trim();
+    if (!name) { alert("Digite o novo nome do perfil."); return; }
+    if (templateProfiles.some(p => p.id !== profile.id && p.name.toLocaleLowerCase() === name.toLocaleLowerCase())) { alert("Já existe um perfil com esse nome."); return; }
+    profile.name = name;
+    profile.updatedAt = new Date().toISOString();
+    if (persistTemplateProfiles()) document.getElementById("templateSaveStatus").textContent = "Perfil renomeado.";
+  });
+  document.getElementById("btnDeleteProfile").addEventListener("click", () => {
+    const profile = templateProfiles.find(p => p.id === activeTemplateProfileId);
+    if (!profile || !confirm('Excluir o perfil "' + profile.name + '"?')) return;
+    templateProfiles = templateProfiles.filter(p => p.id !== profile.id);
+    if (getDefaultTemplateProfileId() === profile.id) localStorage.removeItem(TEMPLATE_DEFAULT_PROFILE_KEY);
+    activeTemplateProfileId = "";
+    document.getElementById("templateProfileName").value = "";
+    persistTemplateProfiles();
+    document.getElementById("templateProfileSelect").value = "";
+    document.getElementById("templateSaveStatus").textContent = "Perfil excluído.";
+  });
+  renderTemplateProfiles();
 }
 
 function setupTemplateEditorFields() {
