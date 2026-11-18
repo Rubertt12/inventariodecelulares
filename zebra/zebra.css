@@ -86,3 +86,25 @@
 .batch-label-card img { width:100%; height:150px; object-fit:contain; background:#f8fafc; border-radius:8px; }
 .batch-label-data { display:grid; gap:4px; font-size:11px; color:#475467; overflow-wrap:anywhere; margin-top:8px; }
 @media (max-width:760px) { body { display:block; padding:12px; } .editor-panel { width:auto; } .preview-panel { position:static; margin-top:18px; } }
+
+
+/* Prévia antes da confirmação do lote */
+.batch-preview { margin-top:22px; text-align:left; }
+.batch-preview-top { display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; margin-bottom:14px; }
+.batch-preview-top h4 { margin:0 0 4px; font-size:16px; }
+.batch-preview-top p { margin:0; color:#667085; font-size:12px; }
+.batch-preview-actions { display:flex; gap:8px; }
+.batch-preview-actions button { width:auto; margin:0; padding:10px 13px; }
+.batch-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:12px; }
+.batch-label-card { background:#fff; border:1px solid #e5e7eb; border-radius:12px; padding:12px; min-width:0; }
+.batch-label-head { display:flex; justify-content:space-between; gap:8px; font-size:12px; margin-bottom:8px; }
+.batch-label-head span { overflow-wrap:anywhere; color:#667085; text-align:right; }
+.batch-label-card img { width:100%; height:145px; object-fit:contain; background:#f8fafc; border-radius:8px; }
+.batch-label-data { display:grid; gap:5px; font-size:11px; color:#475467; overflow-wrap:anywhere; margin-top:9px; }
+.preview-image-error { display:block; font-size:11px; color:#b42318; padding:12px; }
+@media(max-width:760px) {
+  .batch-preview-top { align-items:stretch; }
+  .batch-preview-actions { width:100%; }
+  .batch-preview-actions button { flex:1; font-size:12px; }
+  .batch-grid { grid-template-columns:repeat(auto-fill,minmax(155px,1fr)); gap:8px; }
+}
