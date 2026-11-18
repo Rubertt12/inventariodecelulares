@@ -520,3 +520,9 @@ html.dark-mode .badge { background: #253245; color: #0a84ff; }
 
 /* Estilos inline convertidos para classes durante a refatoração. */
 .extracted-inline-style-1 { margin-top: 10px; }
+
+/* Modo de visualização incorporada do termo no Spotlight */
+body.preview-only .layout{display:block;height:100vh;padding:0;overflow:auto;background:#e9ecef}
+body.preview-only .panel{display:none!important}
+body.preview-only .preview-area{height:auto;min-height:100vh;overflow:auto;border-radius:0;padding:18px}
+body.preview-only .page{margin:0 auto;box-shadow:0 3px 22px rgba(0,0,0,.16)}
