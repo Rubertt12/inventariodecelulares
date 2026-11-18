@@ -379,18 +379,18 @@ input,select,textarea,button{max-width:100%;min-width:0}
             if (typeof JSZip === 'undefined') throw new Error('Não foi possível carregar o leitor de ZIP. Atualize a página e tente novamente.');
             const zip = await JSZip.loadAsync(file);
             const candidates = Object.values(zip.files).filter(entry =>
-                !entry.dir && /\\.(xlsx|xls|csv)$/i.test(entry.name) &&
+                !entry.dir && /\.(xlsx|xls|csv)$/i.test(entry.name) &&
                 !entry.name.split('/').pop().startsWith('~$')
             );
             if (!candidates.length) throw new Error('Não encontrei CSV ou Excel dentro do ZIP.');
-            const preferred = candidates.find(entry => /\\.(xlsx|xls)$/i.test(entry.name)) || candidates[0];
+            const preferred = candidates.find(entry => /\.(xlsx|xls)$/i.test(entry.name)) || candidates[0];
             const buffer = await preferred.async('arraybuffer');
             const workbook = XLSX.read(buffer, { type: 'array', raw: true });
             const sheet = workbook.Sheets[workbook.SheetNames[0]];
             const rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
             if (!rows.length) throw new Error('A planilha encontrada está vazia.');
             const normalize = value => String(value ?? '').normalize('NFD')
-                .replace(/[\\u0300-\\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
+                .replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]/g, '');
             const mapped = rows.map(row => {
                 const values = {};
                 Object.entries(row).forEach(([key, value]) => values[normalize(key)] = String(value ?? '').trim());
