@@ -2946,3 +2946,6 @@ body.dock-layout .sidebar-profile-slot{align-self:flex-end;margin:0;padding:0;bo
 .profile-logout-button{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:13px;padding:10px 12px;border:1px solid #ef444455;border-radius:10px;background:#ef444410;color:#ef7777;font:inherit;font-size:.8rem;font-weight:750;cursor:pointer;transition:background .18s,border-color .18s}
 .profile-logout-button:hover{background:#ef444420;border-color:#ef4444}
 .profile-logout-button span{font-size:1.05rem}
+
+.profile-account-role{display:inline-flex;align-self:flex-start;margin-top:3px;padding:4px 8px;border-radius:7px;background:var(--accent-color-subtle);color:var(--accent-color);font-size:.68rem;font-weight:750}
+.profile-account-info{gap:7px}
