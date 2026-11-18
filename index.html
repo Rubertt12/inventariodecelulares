@@ -184,7 +184,8 @@ html{scroll-behavior:smooth}body{background:#fff;color:var(--ink)}
   const user=document.getElementById('username').value.trim();
   const pass=document.getElementById('password').value;
   if(user==='admin'&&pass==='admin'){
-   sessionStorage.setItem('inventario_auth','admin');\n   sessionStorage.setItem('inventario_user',user);
+   sessionStorage.setItem('inventario_auth','admin');
+   sessionStorage.setItem('inventario_user',user);
    const target=params.get('redirect');
    location.href=target&&target.startsWith('/')&&!target.startsWith('//')?target:'/celular.rubertt.html';
   }else{error.classList.add('show');document.getElementById('password').select()}
