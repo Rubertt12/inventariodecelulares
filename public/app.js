@@ -378,6 +378,11 @@ function applyTabVisibility() {
 
 // --- NOVA FUNÇÃO: Modal de Alerta Personalizado ---
 function showCustomAlert(message, type = 'warning') {
+    // Confirmações de sucesso usam o Dynamic Notch, sem abrir modal central.
+    if (type === 'success' && typeof window.showSystemNotice === 'function') {
+        window.showSystemNotice(message, 'success', { duration: 3000 });
+        return;
+    }
     // Limpa qualquer timeout anterior para evitar fechamentos inesperados
     if (window.alertTimeout) clearTimeout(window.alertTimeout);
     const icons = {
@@ -3284,23 +3289,22 @@ window.saveEditDevolvidoPor = async function(id) {
 
 // --- NOVA FUNÇÃO: Seleciona o dispositivo e muda para a aba de termos ---
 window.selectDeviceAndSwitchToTermo = function(id) {
-    const item = stockData.find(i => i.id === id);
+    const item = stockData.find(i => String(i.id) === String(id));
     if (!item) {
         showCustomAlert('Item não encontrado.', 'error');
         return;
     }
 
-    // 1. Muda para a view de termos
+    // Abre a tela e garante que a opção do aparelho esteja carregada.
     switchView('termos');
+    renderSelectStockOptions();
 
-    // 2. Constrói o texto exato que aparece na opção do datalist
-    const deviceText = `[${item.modelo.includes('Galaxy') ? `Galaxy ${item.modelo}` : item.modelo}] SN: ${item.sn || 'Sem S/N'} - Loc: ${item.localidade || 'Canoas'}`;
-    
-    // 3. Define o valor do input de busca
-    selectDeviceStock.value = deviceText;
+    // O select usa o ID como value (não o texto descritivo da opção).
+    selectDeviceStock.value = String(item.id);
+    selectDeviceStock.dispatchEvent(new Event('change', { bubbles: true }));
 
-    // 4. Dispara o evento 'change' para que a lógica de preenchimento seja executada
-    selectDeviceStock.dispatchEvent(new Event('change'));
+    // Preenche diretamente também, evitando depender apenas do evento em mobile.
+    updateTermoFormForDevice(item);
 };
 
 // --- Navegação responsiva da Sidebar ---
