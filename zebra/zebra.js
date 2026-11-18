@@ -239,84 +239,208 @@ const CONFIG_STORAGE_KEY = 'zplConfigV1';
     preencherComURLParams();
 
 
-// Importação de ZIP com CSVs de IMEI/SN
+// Importação unificada: ZIP com CSVs ou planilhas Excel
 let dadosZip = [];
-let zipPreviewUrls = [];
+let dadosPendentes = [];
+let origemPendentes = '';
+
 function normalizarChave(chave) {
-    return String(chave || '').normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+    return String(chave || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]/gi, '').toLowerCase();
 }
-function mapearLinhaCSV(row) {
-    const out = {};
-    Object.entries(row || {}).forEach(([k,v]) => out[normalizarChave(k)] = v == null ? '' : String(v).trim());
+
+function mapearLinhaImportada(row) {
+    const campos = {};
+    Object.entries(row || {}).forEach(([chave, valor]) => {
+        campos[normalizarChave(chave)] = valor == null ? '' : String(valor).trim();
+    });
+    const pegar = (...chaves) => {
+        for (const chave of chaves) {
+            const valor = campos[chave];
+            if (valor !== undefined && valor !== '') return valor;
+        }
+        return '';
+    };
     return {
-        IMEI1: out.imei1 || out.imei || out.imeiprincipal || '',
-        IMEI2: out.imei2 || '',
-        SN: out.sn || out.serialnumber || out.numerodeserie || out.serial || '',
-        Nome: out.nome || out.modelo || out.aparelho || ''
+        IMEI1: pegar('imei1', 'imei', 'imeiprincipal', 'imei01'),
+        IMEI2: pegar('imei2', 'imei02', 'imeisecundario'),
+        SN: pegar('sn', 'serialnumber', 'serialno', 'serial', 'numerodeserie', 'numeroserie', 'serienumber', 'serienumero'),
+        Nome: pegar('nome', 'modelo', 'aparelho', 'device', 'model')
     };
 }
-async function importarZIP() {
-    const file = document.getElementById('zipFile')?.files?.[0];
-    const status = document.getElementById('zipStatus');
-    if (!file) { status.textContent = 'Selecione um arquivo ZIP primeiro.'; return; }
-    if (typeof JSZip === 'undefined') { status.textContent = 'Não foi possível carregar o leitor de ZIP. Atualize a página.'; return; }
-    status.textContent = 'Lendo arquivos CSV...';
-    try {
+
+function extrairLinhasWorkbook(workbook) {
+    const linhas = [];
+    (workbook.SheetNames || []).forEach(nomeAba => {
+        const sheet = workbook.Sheets[nomeAba];
+        if (!sheet) return;
+        const rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
+        rows.forEach(row => {
+            const item = mapearLinhaImportada(row);
+            if (item.IMEI1 || item.IMEI2 || item.SN) linhas.push(item);
+        });
+    });
+    return linhas;
+}
+
+async function lerArquivoImportacao(file) {
+    const extensao = (file.name.split('.').pop() || '').toLowerCase();
+    if (extensao === 'zip') {
+        if (typeof JSZip === 'undefined') throw new Error('Leitor ZIP indisponível. Atualize a página e tente novamente.');
         const zip = await JSZip.loadAsync(file);
-        const csvFiles = Object.values(zip.files).filter(f => !f.dir && /\\.csv$/i.test(f.name));
-        if (!csvFiles.length) throw new Error('Não encontrei nenhum CSV dentro do ZIP.');
+        const arquivos = Object.values(zip.files).filter(item => !item.dir && /\.csv$/i.test(item.name));
+        if (!arquivos.length) throw new Error('O ZIP não contém arquivos CSV.');
         const linhas = [];
-        for (const entry of csvFiles) {
-            const buffer = await entry.async('arraybuffer');
-            let wb = XLSX.read(buffer, {type:'array', codepage:65001});
-            wb.SheetNames.forEach(name => {
-                const rows = XLSX.utils.sheet_to_json(wb.Sheets[name], {defval:''});
-                rows.forEach(row => {
-                    const mapped = mapearLinhaCSV(row);
-                    if (mapped.IMEI1 || mapped.IMEI2 || mapped.SN) linhas.push(mapped);
-                });
-            });
+        for (const arquivo of arquivos) {
+            const buffer = await arquivo.async('arraybuffer');
+            const workbook = XLSX.read(buffer, { type: 'array', codepage: 65001 });
+            linhas.push(...extrairLinhasWorkbook(workbook));
         }
-        if (!linhas.length) throw new Error('Os CSVs não possuem colunas reconhecidas (IMEI1, IMEI2 e/ou SN).');
-        dadosZip = linhas;
-        dadosExcel = linhas.map(row => ({IMEI1:row.IMEI1, IMEI2:row.IMEI2, SN:row.SN, Nome:row.Nome}));
-        document.getElementById('templateSelector').value = 'celular';
-        carregarModelo();
-        status.textContent = linhas.length + ' etiquetas carregadas de ' + csvFiles.length + ' CSV(s).';
+        return { linhas, origem: 'ZIP · ' + arquivos.length + ' CSV(s)' };
+    }
+    if (!['xlsx', 'xls', 'csv'].includes(extensao)) {
+        throw new Error('Formato não suportado. Envie ZIP, XLSX, XLS ou CSV.');
+    }
+    const buffer = await file.arrayBuffer();
+    const workbook = XLSX.read(buffer, { type: 'array', codepage: 65001 });
+    return { linhas: extrairLinhasWorkbook(workbook), origem: file.name };
+}
+
+async function prepararImportacao(file, origem) {
+    const status = document.getElementById('zipStatus');
+    if (!file) return;
+    status.textContent = 'Lendo arquivo e identificando IMEIs e números de série...';
+    try {
+        const resultado = await lerArquivoImportacao(file);
+        if (!resultado.linhas.length) {
+            throw new Error('Não encontrei registros com IMEI 1, IMEI 2, SN, Serial Number ou Número de Série.');
+        }
+        dadosPendentes = resultado.linhas;
+        origemPendentes = origem || resultado.origem;
         renderizarPreviewLote();
-    } catch (err) {
-        status.textContent = err.message || 'Erro ao importar o ZIP.';
+        status.textContent = resultado.linhas.length + ' registro(s) encontrados. Confira a prévia antes de confirmar.';
+    } catch (erro) {
+        dadosPendentes = [];
+        document.getElementById('batchPreview').innerHTML = '';
+        status.textContent = erro.message || 'Não foi possível ler o arquivo.';
     }
 }
-function limparZIP() {
-    dadosZip = [];
-    document.getElementById('zipFile').value = '';
-    document.getElementById('zipStatus').textContent = '';
-    limparExcel();
-    document.getElementById('batchPreview').innerHTML = '';
+
+function processarExcel(event) {
+    const file = event?.target?.files?.[0];
+    if (file) prepararImportacao(file, 'Excel');
 }
+
+function limparExcel() {
+    dadosExcel = [];
+    dadosZip = [];
+    dadosPendentes = [];
+    origemPendentes = '';
+    const excel = document.getElementById('excelFile');
+    const zip = document.getElementById('zipFile');
+    if (excel) excel.value = '';
+    if (zip) zip.value = '';
+    const clear = document.getElementById('btnClearExcel');
+    if (clear) clear.style.display = 'none';
+    const manual = document.getElementById('boxQtdManual');
+    if (manual) manual.style.display = 'block';
+    const preview = document.getElementById('batchPreview');
+    if (preview) preview.innerHTML = '';
+    const status = document.getElementById('zipStatus');
+    if (status) status.textContent = '';
+    gerar();
+}
+
 function gerarZPLDaLinha(row) {
     return aplicarSubstituicoes(modelos.celular, 'celular', row);
 }
+
 function renderizarPreviewLote() {
     const wrap = document.getElementById('batchPreview');
-    if (!wrap || !dadosZip.length) return;
-    wrap.innerHTML = '<h4>Etiquetas importadas (' + dadosZip.length + ')</h4><div class="batch-grid"></div>';
-    const grid = wrap.querySelector('.batch-grid');
-    dadosZip.forEach((row, index) => {
+    if (!wrap) return;
+    if (!dadosPendentes.length) {
+        wrap.innerHTML = '';
+        return;
+    }
+    wrap.innerHTML = '';
+    const topo = document.createElement('div');
+    topo.className = 'batch-preview-top';
+    topo.innerHTML = '<div><h4>Prévia do arquivo</h4><p>' +
+        escapeHtml(origemPendentes) + ' · ' + dadosPendentes.length + ' registro(s)</p></div>' +
+        '<div class="batch-preview-actions"><button type="button" id="cancelImportPreview" class="btn-reset">Cancelar</button>' +
+        '<button type="button" id="confirmImportPreview" class="btn-excel">Confirmar e gerar etiquetas</button></div>';
+    wrap.appendChild(topo);
+
+    const grid = document.createElement('div');
+    grid.className = 'batch-grid';
+    dadosPendentes.forEach((row, index) => {
         const card = document.createElement('article');
         card.className = 'batch-label-card';
-        card.innerHTML = '<div class="batch-label-head"><strong>Etiqueta ' + (index+1) + '</strong><span>' + escapeHtml(row.SN || row.IMEI1 || 'Sem identificador') + '</span></div><img alt="Preview da etiqueta ' + (index+1) + '" loading="lazy"><div class="batch-label-data"><span>IMEI 1: ' + escapeHtml(row.IMEI1 || '—') + '</span><span>IMEI 2: ' + escapeHtml(row.IMEI2 || '—') + '</span><span>SN: ' + escapeHtml(row.SN || '—') + '</span></div>';
+        const identificador = row.SN || row.IMEI1 || row.IMEI2 || 'Sem identificador';
+        card.innerHTML = '<div class="batch-label-head"><strong>Registro ' + (index + 1) +
+            '</strong><span>' + escapeHtml(identificador) + '</span></div>' +
+            '<img alt="Prévia da etiqueta ' + (index + 1) + '" loading="lazy">' +
+            '<div class="batch-label-data"><span><b>IMEI 1:</b> ' + escapeHtml(row.IMEI1 || '—') +
+            '</span><span><b>IMEI 2:</b> ' + escapeHtml(row.IMEI2 || '—') +
+            '</span><span><b>Número de série:</b> ' + escapeHtml(row.SN || '—') +
+            '</span><span><b>Modelo:</b> ' + escapeHtml(row.Nome || '—') + '</span></div>';
         grid.appendChild(card);
-        const zpl = gerarZPLDaLinha(row);
         const img = card.querySelector('img');
-        img.src = 'https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/' + encodeURIComponent(zpl);
+        img.src = 'https://api.labelary.com/v1/printers/8dpmm/labels/4x2/0/' +
+            encodeURIComponent(gerarZPLDaLinha(row));
+        img.onerror = () => {
+            img.removeAttribute('src');
+            img.alt = 'Não foi possível carregar a imagem da etiqueta';
+            img.classList.add('preview-image-error');
+        };
+    });
+    wrap.appendChild(grid);
+
+    document.getElementById('confirmImportPreview').addEventListener('click', confirmarImportacao);
+    document.getElementById('cancelImportPreview').addEventListener('click', () => {
+        dadosPendentes = [];
+        wrap.innerHTML = '';
+        document.getElementById('zipStatus').textContent = 'Importação cancelada. Nenhuma etiqueta foi gerada.';
     });
 }
-function escapeHtml(value) {
-    return String(value ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+function confirmarImportacao() {
+    if (!dadosPendentes.length) return;
+    dadosZip = dadosPendentes.slice();
+    dadosExcel = dadosPendentes.map(row => ({
+        IMEI1: row.IMEI1,
+        IMEI2: row.IMEI2,
+        SN: row.SN,
+        Nome: row.Nome
+    }));
+    document.getElementById('templateSelector').value = 'celular';
+    document.getElementById('btnClearExcel').style.display = 'inline-block';
+    const manual = document.getElementById('boxQtdManual');
+    if (manual) manual.style.display = 'none';
+    carregarModelo();
+    document.getElementById('zipStatus').textContent =
+        dadosExcel.length + ' etiqueta(s) confirmadas e prontas para impressão.';
+    dadosPendentes = [];
+    const actions = document.querySelector('.batch-preview-actions');
+    if (actions) actions.remove();
 }
+
+function importarZIP() {
+    const file = document.getElementById('zipFile')?.files?.[0];
+    prepararImportacao(file, 'ZIP');
+}
+
+function limparZIP() {
+    limparExcel();
+}
+
+function escapeHtml(value) {
+    return String(value ?? '').replace(/[&<>"']/g, ch => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+    }[ch]));
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btnZipImport')?.addEventListener('click', importarZIP);
     document.getElementById('btnClearZip')?.addEventListener('click', limparZIP);
+    document.getElementById('excelFile')?.addEventListener('change', processarExcel);
 });
