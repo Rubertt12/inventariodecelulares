@@ -128,21 +128,19 @@ function loadTemplateSettings() {
   const defaults = cloneDefaultTemplateSettings();
   try {
     const saved = JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || "{}");
-    const cleaned = {
+    // Preserva logos e textos personalizados para reaparecerem ao reabrir o gerador.
+    return {
       ...defaults,
       ...saved,
-      // O termo não deve reaplicar identidade visual ou endereço de uma empresa cliente.
-      headerText: "",
-      headerLogo: "",
-      footerText: "",
-      footerLogo: "",
+      headerText: typeof saved.headerText === "string" ? saved.headerText : defaults.headerText,
+      headerLogo: typeof saved.headerLogo === "string" ? saved.headerLogo : defaults.headerLogo,
+      footerText: typeof saved.footerText === "string" ? saved.footerText : defaults.footerText,
+      footerLogo: typeof saved.footerLogo === "string" ? saved.footerLogo : defaults.footerLogo,
       rules: Array.isArray(saved.rules) ? saved.rules : defaults.rules
     };
-    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(cleaned));
-    return cleaned;
   } catch (error) {
     console.error("Não foi possível carregar o modelo salvo:", error);
-    return { ...defaults, headerText: "", headerLogo: "", footerText: "", footerLogo: "" };
+    return defaults;
   }
 }
 
@@ -174,7 +172,12 @@ function applyTemplateSettings() {
   setText(".intro", templateSettings.intro);
 
   const header = document.querySelector(".header");
-  const headerImage = header.querySelector("img");
+  let headerImage = header.querySelector("img");
+  if (!headerImage) {
+    headerImage = document.createElement("img");
+    headerImage.alt = "Logo do cabeçalho";
+    header.appendChild(headerImage);
+  }
   let headerCopy = header.querySelector(".template-header-copy");
   if (!headerCopy) {
     headerCopy = document.createElement("div");
@@ -185,7 +188,12 @@ function applyTemplateSettings() {
   setLogoPreview(headerImage, templateSettings.headerLogo);
 
   const footer = document.querySelector(".footer");
-  const footerImage = footer.querySelector("img");
+  let footerImage = footer.querySelector("img");
+  if (!footerImage) {
+    footerImage = document.createElement("img");
+    footerImage.alt = "Logo do rodapé";
+    footer.appendChild(footerImage);
+  }
   let footerCopy = footer.querySelector(".template-footer-copy");
   if (!footerCopy) {
     footerCopy = document.createElement("div");
