@@ -17,6 +17,14 @@
 </head>
 <body>
 
+<!-- Dynamic Notch: notificações rápidas do sistema -->
+<div class="dynamic-notch" id="dynamicNotch" data-state="idle" aria-live="polite" aria-atomic="true">
+  <span class="dynamic-notch-indicator" id="dynamicNotchIndicator" aria-hidden="true">✓</span>
+  <span class="dynamic-notch-message" id="dynamicNotchMessage"></span>
+  <button class="dynamic-notch-close" id="dynamicNotchClose" type="button" aria-label="Dispensar notificação">×</button>
+</div>
+
+
 <!-- SVG Filter for Gooey/Liquid Effect -->
 <svg style="display:none; position: absolute;">
   <defs>
@@ -1025,5 +1033,69 @@
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="app.js"></script>
+
+<script>
+/* Central de feedback: Dynamic Notch */
+(function () {
+  const notch = document.getElementById('dynamicNotch');
+  if (!notch) return;
+  const message = document.getElementById('dynamicNotchMessage');
+  const indicator = document.getElementById('dynamicNotchIndicator');
+  const close = document.getElementById('dynamicNotchClose');
+  const queue = [];
+  let activeTimer = null;
+  let current = null;
+  const nativeAlert = window.alert ? window.alert.bind(window) : function () {};
+  const classify = (text, requested) => {
+    if (requested) return requested;
+    if (/erro|falha|inválid|não foi possível|nao foi possivel/i.test(text)) return 'error';
+    if (/atenção|incomplet|duplicad|aviso|cuidado/i.test(text)) return 'warning';
+    if (/carreg|importad|enviad|salv|sucesso|concluíd|concluid|pront/i.test(text)) return 'success';
+    return 'info';
+  };
+  const icons = {success:'✓',error:'!',warning:'⚠',info:'i'};
+  function hide() {
+    clearTimeout(activeTimer);
+    notch.dataset.state = 'idle';
+    current = null;
+    activeTimer = setTimeout(showNext, 260);
+  }
+  function showNext() {
+    if (current || !queue.length) return;
+    current = queue.shift();
+    const text = String(current.message ?? '').trim();
+    const type = classify(text, current.type);
+    indicator.textContent = icons[type] || icons.info;
+    notch.dataset.type = type;
+    message.textContent = text;
+    notch.dataset.state = 'expanded';
+    const duration = current.duration || (type === 'error' ? 8500 : 5600);
+    if (duration > 0) activeTimer = setTimeout(hide, duration);
+  }
+  window.showSystemNotice = function (text, type, options) {
+    const opts = options || {};
+    queue.push({message:text,type:type,duration:opts.duration || 0});
+    if (!current) showNext();
+    return queue.length;
+  };
+  window.notify = window.showSystemNotice;
+  close.addEventListener('click', hide);
+  notch.addEventListener('click', function (event) {
+    if (event.target === close) return;
+    if (current && current.onClick) current.onClick();
+  });
+  /* Converte alertas antigos do sistema em notificações não bloqueantes. */
+  window.alert = function (text) {
+    window.showSystemNotice(String(text ?? ''), classify(String(text ?? '')));
+  };
+  window.addEventListener('error', function (event) {
+    if (event && event.message) window.showSystemNotice('Ocorreu um erro inesperado. ' + event.message, 'error');
+  });
+  window.addEventListener('unhandledrejection', function () {
+    window.showSystemNotice('Uma operação não foi concluída. Tente novamente.', 'error');
+  });
+})();
+</script>
+
 </body>
 </html>
