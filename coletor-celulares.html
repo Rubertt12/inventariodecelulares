@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b5cab"><title>Coletor de celulares | Inventário</title>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.0.0/dist/tesseract.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@zxing/library@0.21.3/umd/index.min.js"></script>
+
+    <link rel="stylesheet" href="coletor-celulares.css">
+</head>
+<body>
+<header><div><h1>Coletor de celulares</h1><p>Leia IMEI e número de série, fotografe e exporte o lote.</p></div><a class="back" href="celular.rubertt.html">← Voltar ao inventário</a></header>
+<main class="wrap"><div class="layout">
+<section class="card">
+<h2>1. Capturar aparelho</h2><p class="hint">Fotografe a etiqueta. O OCR apenas preenche os campos abaixo: nada entra no lote ou no ZIP automaticamente. Confira a foto e corrija IMEI 1, IMEI 2, SN e modelo. Quando estiver tudo certo, toque em “Adicionar ao lote”. Só os aparelhos revisados e adicionados entram no ZIP.</p>
+<label for="model">Modelo / identificação (opcional)</label><input id="model" placeholder="Ex.: Samsung Galaxy A54"><label for="locality">Localidade de entrada no estoque</label><input id="locality" value="Canoas" placeholder="Ex.: Canoas">
+<div class="row"><div><label for="imei">IMEI 1 *</label><input id="imei" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div><div><label for="imei2">IMEI 2 *</label><input id="imei2" inputmode="numeric" maxlength="17" placeholder="15 dígitos" required></div></div>
+<label for="sn">Número de série (SN) *</label><input id="sn" placeholder="Digite ou leia o SN" required>
+<div class="actions"><button id="startCam">Abrir câmera</button><button class="secondary" id="takePhoto" disabled>Fotografar aparelho</button></div>
+<div class="preview" id="preview"><span id="previewText">A câmera/foto aparecerá aqui</span><video id="video" playsinline autoplay></video><img id="photoPreview" alt="Foto capturada" hidden></div>
+<label for="labelPhoto">Ou selecionar foto da etiqueta para leitura</label><input id="labelPhoto" type="file" accept="image/*" capture="environment">
+<div class="actions"><button class="secondary" id="readOcr">Ler texto da etiqueta (OCR)</button><button class="secondary" id="prepareOffline">Preparar OCR offline</button><button class="secondary" id="stopCam">Fechar câmera</button></div>
+<div class="status" id="status" aria-live="polite">Pronto para iniciar.</div><div class="progress"><span id="progress"></span></div>
+<div class="actions"><button id="add">Adicionar ao lote (após revisar)</button><button class="secondary" id="clear">Limpar campos</button></div>
+</section>
+<section class="card">
+<div class="list-head"><div><h2 style="margin:0">2. Lote coletado</h2><div class="counter" id="counter">0 aparelhos</div></div><div class="actions" style="margin:0"><button id="importStock" class="secondary" disabled>Importar no estoque</button><button id="export" disabled>Baixar ZIP do lote</button></div></div>
+<p class="hint">O ZIP contém CSV, fotos e uma pasta individual por aparelho. Você também pode importar um ZIP gerado anteriormente.</p><label for="importZip">Importar lote de um ZIP salvo</label><input id="importZip" type="file" accept=".zip,application/zip">
+<div id="records" class="empty">Nenhum aparelho adicionado ainda.</div>
+</section></div></main>
+<footer>Privacidade: fotos, rascunho e lote ficam no armazenamento local deste navegador (IndexedDB), sem envio ao servidor. Se fechar a página, o coletor tenta restaurar a captura e o lote ao voltar no mesmo aparelho e navegador. O OCR pode errar: confira IMEI e SN. Exporte o ZIP para manter uma cópia de segurança.</footer>
+<script src="coletor-celulares.js"></script></body></html>
