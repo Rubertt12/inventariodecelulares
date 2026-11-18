@@ -121,7 +121,7 @@ async function renderStockTable() {
             const statusBadge = item.status === 'Entregue' 
                 ? `<span class="user-badge entregue extracted-app-style-3" onclick="openEntregaModal(${item.id})">Entregue</span>`
                 : item.status === 'Enviado'
-                ? `<span class="user-badge enviado extracted-app-style-4" onclick="revertSentStatus(${item.id})">Enviado (Reverter)</span>`
+                ? `<span class="user-badge enviado grid-status-revert" role="button" tabindex="0" title="Reverter envio" aria-label="Enviado. Clique para reverter o envio" onclick="revertSentStatus(${item.id})">Enviado <span class="revert-status-icon" aria-hidden="true">↶</span></span>`
                 : item.status === 'Devolvido'
                 ? `<span class="user-badge devolvido extracted-app-style-5" onclick="selectDeviceAndSwitchToTermo(${item.id})">Devolvido</span>`
                 : `<span class="user-badge stock extracted-app-style-6" onclick="openStockActionModal(${item.id})">Disponível</span>`;
