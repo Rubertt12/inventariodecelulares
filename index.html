@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0b1220"><title>Inventário de Celulares | Gestão inteligente</title>
+<link rel="icon" href="icon.svg">
+<style>
+:root{color-scheme:dark;--bg:#080d18;--panel:#101a2b;--line:rgba(255,255,255,.1);--muted:#9aa9bf;--blue:#3987ff;--cyan:#48d5e8}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 15% 15%,#12305a 0,transparent 38%),radial-gradient(ellipse at 90% 80%,#123e48 0,transparent 34%),var(--bg);color:#f4f7fb;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+a{color:inherit;text-decoration:none}.wrap{max-width:1180px;margin:auto;padding:26px 28px 54px}.nav{display:flex;align-items:center;justify-content:space-between;gap:20px}.brand{display:flex;align-items:center;gap:12px;font-weight:750;letter-spacing:-.4px}.logo{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:linear-gradient(145deg,#3987ff,#28c4d9);box-shadow:0 8px 28px #1477df55}.logo svg{width:23px}.navlinks{display:flex;align-items:center;gap:25px;color:#b5c1d2;font-size:14px}.navlinks a:hover{color:white}.btn{border:0;border-radius:12px;padding:13px 19px;background:linear-gradient(120deg,#3987ff,#2869e8);color:white;font-weight:700;cursor:pointer;box-shadow:0 9px 24px #2869e844}.btn:hover{filter:brightness(1.1);transform:translateY(-1px)}.btn.ghost{background:#ffffff0c;border:1px solid var(--line);box-shadow:none}.hero{display:grid;grid-template-columns:1.15fr .85fr;gap:64px;align-items:center;padding:92px 0 76px}.eyebrow{display:inline-flex;align-items:center;gap:9px;padding:8px 12px;border:1px solid #3987ff55;border-radius:99px;background:#3987ff12;color:#9fc5ff;font-size:12px;font-weight:700;letter-spacing:.8px;text-transform:uppercase}.pulse{width:7px;height:7px;border-radius:50%;background:#54dfb0;box-shadow:0 0 12px #54dfb0}.hero h1{font-size:clamp(42px,6vw,68px);line-height:1.04;letter-spacing:-3px;margin:23px 0 20px;max-width:680px}.hero h1 span{background:linear-gradient(100deg,#65a5ff,#50d9e6);-webkit-background-clip:text;background-clip:text;color:transparent}.lead{color:#aebbd0;font-size:18px;line-height:1.7;max-width:590px}.hero-actions{display:flex;gap:13px;flex-wrap:wrap;margin-top:30px}.mini-proof{display:flex;gap:24px;margin-top:34px;color:#aebbd0;font-size:13px}.mini-proof b{color:white}.visual{position:relative;min-height:400px;display:grid;place-items:center}.glow{position:absolute;width:320px;height:320px;background:#2683ff35;filter:blur(65px);border-radius:50%}.device{position:relative;width:min(100%,420px);border:1px solid #ffffff24;border-radius:23px;background:linear-gradient(145deg,#18263b,#0c1423);padding:17px;box-shadow:0 30px 90px #0009;transform:rotate(2deg)}.device-top{display:flex;justify-content:space-between;color:#b8c6d9;font-size:12px;padding:4px 3px 16px}.dots{display:flex;gap:5px}.dots i{width:7px;height:7px;border-radius:50%;background:#5d718c}.dash{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.metric{padding:13px;border-radius:13px;background:#ffffff09;border:1px solid #ffffff0c}.metric small{display:block;color:#93a5bc;font-size:10px}.metric strong{display:block;font-size:23px;margin-top:6px}.chart{margin-top:10px;padding:15px;border-radius:14px;background:#ffffff08;border:1px solid #ffffff0c}.chart-head{display:flex;justify-content:space-between;font-size:12px;color:#a9b9cf}.bars{height:112px;display:flex;align-items:end;gap:8px;padding-top:13px}.bars i{display:block;flex:1;border-radius:5px 5px 2px 2px;background:linear-gradient(0deg,#2674e8,#4bd2df);opacity:.9}.rows{margin-top:10px;display:grid;gap:7px}.rowitem{display:flex;justify-content:space-between;padding:9px 10px;border-radius:9px;background:#ffffff08;color:#c7d3e3;font-size:11px}.status{color:#55dfad}.section{padding:45px 0}.section h2{font-size:32px;letter-spacing:-1px;margin:0 0 10px}.section-intro{color:var(--muted);margin:0 0 25px}.features{display:grid;grid-template-columns:repeat(3,1fr);gap:15px}.feature{padding:23px;border-radius:17px;border:1px solid var(--line);background:#ffffff08}.feature-icon{width:40px;height:40px;display:grid;place-items:center;border-radius:12px;background:#3987ff1b;color:#75adff;font-size:19px}.feature h3{margin:17px 0 8px;font-size:16px}.feature p{margin:0;color:#9eacc0;font-size:14px;line-height:1.6}.bottom{margin-top:52px;border-top:1px solid var(--line);padding-top:24px;display:flex;justify-content:space-between;gap:15px;color:#8494aa;font-size:12px}
+.overlay{position:fixed;inset:0;z-index:5;display:none;place-items:center;padding:20px;background:#030711d9;backdrop-filter:blur(12px)}.overlay.show{display:grid}.login{width:min(100%,420px);border:1px solid #ffffff1a;border-radius:23px;padding:30px;background:linear-gradient(145deg,#142239,#0c1422);box-shadow:0 30px 100px #000b;position:relative}.close{position:absolute;right:18px;top:15px;border:0;background:none;color:#8fa0b8;font-size:25px;cursor:pointer}.login .logo{margin-bottom:22px}.login h2{font-size:26px;margin:0 0 8px}.login p{color:#9eacc0;font-size:14px;line-height:1.55;margin:0 0 24px}.field{margin:15px 0}.field label{display:block;font-size:12px;color:#bdc9d8;margin-bottom:8px}.field input{width:100%;padding:14px 15px;border-radius:11px;border:1px solid #ffffff20;background:#080f1c;color:white;outline:none;font:inherit}.field input:focus{border-color:#3987ff;box-shadow:0 0 0 3px #3987ff22}.login .btn{width:100%;margin-top:8px}.error{display:none;color:#ff9d9d;font-size:12px;margin-top:12px}.error.show{display:block}.hint{margin-top:17px!important;text-align:center;font-size:11px!important;color:#73859e!important}.mobile-login{display:none}
+@media(max-width:800px){.hero{grid-template-columns:1fr;gap:15px;padding:65px 0 40px}.visual{min-height:330px}.features{grid-template-columns:1fr 1fr}.navlinks a:not(.btn){display:none}.hero h1{letter-spacing:-2px}.mini-proof{flex-wrap:wrap}.wrap{padding:20px 18px 35px}}
+@media(max-width:520px){.features{grid-template-columns:1fr}.navlinks{gap:0}.navlinks .btn{padding:11px 14px}.hero{padding-top:54px}.hero h1{font-size:43px}.lead{font-size:16px}.visual{min-height:300px}.device{transform:none}.bottom{flex-direction:column}.dash{gap:6px}.metric{padding:10px}.metric strong{font-size:19px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="nav">
+ <a class="brand" href="/"><span class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 18h4"/></svg></span><span>Inventário <span style="color:#70b6ff">de Celulares</span></span></a>
+ <nav class="navlinks"><a href="#recursos">Recursos</a><a href="#sobre">Plataforma</a><button class="btn" data-open-login>Entrar no sistema</button></nav>
+</header>
+<main>
+<section class="hero">
+ <div><div class="eyebrow"><i class="pulse"></i> Gestão de ativos, sem complicação</div>
+ <h1>Controle total dos seus <span>dispositivos.</span></h1>
+ <p class="lead">Uma plataforma prática para cadastrar, acompanhar e organizar celulares corporativos. Do recebimento à entrega, tudo em um só lugar.</p>
+ <div class="hero-actions"><button class="btn" data-open-login>Acessar inventário <span aria-hidden="true">→</span></button><a class="btn ghost" href="#recursos">Conhecer recursos</a></div>
+ <div class="mini-proof"><span><b>01</b> Estoque centralizado</span><span><b>02</b> Rastreabilidade</span><span><b>03</b> Etiquetas e termos</span></div></div>
+ <div class="visual" aria-label="Prévia ilustrativa do painel"><div class="glow"></div><div class="device"><div class="device-top"><span>Visão geral · Inventário</span><span class="dots"><i></i><i></i><i></i></span></div><div class="dash"><div class="metric"><small>Em estoque</small><strong>128</strong></div><div class="metric"><small>Entregues</small><strong>64</strong></div><div class="metric"><small>Em trânsito</small><strong>08</strong></div></div><div class="chart"><div class="chart-head"><b>Movimentações</b><span>Últimos meses</span></div><div class="bars"><i style="height:40%"></i><i style="height:66%"></i><i style="height:53%"></i><i style="height:82%"></i><i style="height:62%"></i><i style="height:96%"></i><i style="height:76%"></i><i style="height:100%"></i></div></div><div class="rows"><div class="rowitem"><span>Galaxy A55 · SN 3K8...</span><b class="status">Disponível</b></div><div class="rowitem"><span>iPhone 13 · SN F2P...</span><b class="status">Entregue</b></div><div class="rowitem"><span>Moto G84 · SN 9Q1...</span><b class="status">Disponível</b></div></div></div></div>
+</section>
+<section class="section" id="recursos"><h2>Seu inventário, organizado de ponta a ponta.</h2><p class="section-intro">Ferramentas para dar visibilidade e agilidade à rotina de gestão de dispositivos.</p><div class="features">
+ <article class="feature"><div class="feature-icon">▦</div><h3>Estoque e cadastro</h3><p>Centralize aparelhos, modelos, IMEIs, números de série, fotos e status de cada ativo.</p></article>
+ <article class="feature"><div class="feature-icon">⌕</div><h3>Busca rápida</h3><p>Encontre dispositivos por IMEI, serial, modelo ou informações do cadastro.</p></article>
+ <article class="feature"><div class="feature-icon">▤</div><h3>Etiquetas Zebra</h3><p>Prepare etiquetas em lote a partir de dados importados e confira a prévia antes de imprimir.</p></article>
+ <article class="feature"><div class="feature-icon">✓</div><h3>Termos e entregas</h3><p>Organize entregas, vínculos e histórico de movimentação dos aparelhos.</p></article>
+ <article class="feature"><div class="feature-icon">▧</div><h3>Fotos e identificação</h3><p>Associe imagens e informações para facilitar a conferência dos equipamentos.</p></article>
+ <article class="feature"><div class="feature-icon">⚙</div><h3>Personalização</h3><p>Adapte visualização, temas e preferências de uso conforme a operação.</p></article>
+</div></section>
+<section class="section" id="sobre"><h2>Mais clareza para sua operação.</h2><p class="section-intro">Menos planilhas dispersas. Mais controle sobre o ciclo de vida dos celulares corporativos.</p></section>
+</main>
+<footer class="bottom"><span>© 2026 Inventário de Celulares</span><span>Plataforma de gestão de ativos móveis</span></footer>
+</div>
+<div class="overlay" id="loginOverlay" role="dialog" aria-modal="true" aria-labelledby="loginTitle">
+ <form class="login" id="loginForm"><button type="button" class="close" id="closeLogin" aria-label="Fechar">×</button>
+ <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M10 18h4"/></svg></div>
+ <h2 id="loginTitle">Bem-vindo de volta</h2><p>Entre com suas credenciais para acessar o painel de inventário.</p>
+ <div class="field"><label for="username">USUÁRIO</label><input id="username" name="username" autocomplete="username" required placeholder="Digite seu usuário"></div>
+ <div class="field"><label for="password">SENHA</label><input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Digite sua senha"></div>
+ <button class="btn" type="submit">Entrar no inventário →</button><div class="error" id="loginError" role="alert">Usuário ou senha inválidos.</div>
+ <p class="hint">Acesso provisório de administrador</p>
+ </form>
+</div>
+<script>
+(function(){
+ const overlay=document.getElementById('loginOverlay'),form=document.getElementById('loginForm'),error=document.getElementById('loginError');
+ const params=new URLSearchParams(location.search);
+ function open(){overlay.classList.add('show');document.getElementById('username').focus()}
+ function close(){overlay.classList.remove('show');error.classList.remove('show')}
+ document.querySelectorAll('[data-open-login]').forEach(b=>b.addEventListener('click',open));
+ document.getElementById('closeLogin').addEventListener('click',close);
+ overlay.addEventListener('click',e=>{if(e.target===overlay)close()});
+ if(params.has('login'))open();
+ form.addEventListener('submit',e=>{
+  e.preventDefault();
+  const user=document.getElementById('username').value.trim();
+  const pass=document.getElementById('password').value;
+  if(user==='admin'&&pass==='admin'){
+   sessionStorage.setItem('inventario_auth','admin');
+   const target=params.get('redirect');
+   location.href=target&&target.startsWith('/')&&!target.startsWith('//')?target:'/celular.rubertt.html';
+  }else{error.classList.add('show');document.getElementById('password').select()}
+ });
+})();
+</script>
+</body></html>
