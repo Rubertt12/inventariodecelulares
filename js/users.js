@@ -41,7 +41,7 @@
     const start=(currentPage-1)*pageSize;
     const pageUsers=filtered.slice(start,start+pageSize);
     $('usersTotal').textContent=String(users.length);$('usersResultsCount').textContent=filtered.length?(`Exibindo ${start+1}–${Math.min(start+pageSize,filtered.length)} de ${filtered.length} colaboradores`):'0 colaboradores';
-    body.innerHTML=pageUsers.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td><button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
+    body.innerHTML=pageUsers.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td class="users-row-actions">'+(user.manual?'<button type="button" class="users-edit-button" data-edit-matricula="'+esc(user.matricula)+'" title="Editar colaborador" aria-label="Editar colaborador">✎</button>':'')+'<button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
     $('usersEmptyState').hidden=filtered.length>0;body.closest('.users-table-wrap').hidden=filtered.length===0;
     let pager=$('usersPagination');
     if(!pager){
@@ -74,6 +74,34 @@
   document.addEventListener('click',event=>{
     const pageButton=event.target.closest('[data-users-page]');if(!pageButton||pageButton.disabled)return;
     currentPage+=pageButton.dataset.usersPage==='next'?1:-1;renderUsersView();
+  });
+  function openEditUser(user){
+    if(!dirHandle){notify('Conecte a pasta de dados do inventário antes de editar usuários.','warning');return;}
+    let modal=$('editUserModal');
+    if(!modal){
+      modal=document.createElement('div');modal.id='editUserModal';modal.className='users-edit-backdrop';
+      modal.innerHTML='<section class="users-edit-dialog" role="dialog" aria-modal="true" aria-labelledby="editUserTitle"><header><div><small>CADASTRO DE COLABORADOR</small><h2 id="editUserTitle">Editar usuário</h2></div><button type="button" data-edit-close aria-label="Fechar">×</button></header><form id="editUserForm"><label>Nome completo *<input id="editUserName" name="nome" maxlength="140" required autocomplete="off"></label><label>Matrícula *<input id="editUserMatricula" name="matricula" maxlength="50" required autocomplete="off"></label><label>Centro de custo (CC)<input id="editUserCC" name="cc" maxlength="80" autocomplete="off"></label><footer><button type="button" class="users-edit-cancel" data-edit-close>Cancelar</button><button type="submit" class="users-edit-save">Salvar alterações</button></footer></form></section>';
+      document.body.appendChild(modal);
+      modal.addEventListener('click',event=>{if(event.target===modal||event.target.closest('[data-edit-close]'))modal.hidden=true;});
+      modal.querySelector('#editUserForm').addEventListener('submit',async event=>{
+        event.preventDefault();
+        const original=modal.dataset.originalMatricula||'',nome=$('editUserName').value.trim(),matricula=$('editUserMatricula').value.trim(),cc=$('editUserCC').value.trim();
+        if(!nome||!matricula){notify('Nome e matrícula são obrigatórios.','warning');return;}
+        const duplicate=manualUsers.some(item=>norm(item.matricula)!==norm(original)&&norm(item.matricula)===norm(matricula));
+        const termDuplicate=(Array.isArray(termosData)?termosData:[]).some(item=>norm(item.matricula)===norm(matricula)&&norm(matricula)!==norm(original));
+        if(duplicate||termDuplicate){notify('Já existe outro colaborador com essa matrícula.','warning');return;}
+        const target=manualUsers.find(item=>norm(item.matricula)===norm(original));
+        if(!target){notify('Cadastro manual não encontrado. Atualize a lista e tente novamente.','error');modal.hidden=true;return;}
+        const previous={...target};Object.assign(target,{nome,matricula,cc});
+        try{await window.saveManualUsersFile();modal.hidden=true;currentPage=1;renderUsersView();notify('Cadastro do colaborador atualizado!','success');}
+        catch(error){Object.assign(target,previous);console.error(error);notify(error.message||'Não foi possível salvar as alterações.','error');}
+      });
+    }
+    modal.dataset.originalMatricula=user.matricula||'';$('editUserName').value=user.nome||'';$('editUserMatricula').value=user.matricula||'';$('editUserCC').value=user.cc||'';modal.hidden=false;$('editUserName').focus();
+  }
+  document.addEventListener('click',event=>{
+    const button=event.target.closest('.users-edit-button');if(!button)return;
+    const user=manualUsers.find(item=>norm(item.matricula)===norm(button.dataset.editMatricula));if(user)openEditUser(user);
   });
   document.addEventListener('click',event=>{
     const button=event.target.closest('.users-use-button');if(!button)return;
