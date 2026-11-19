@@ -59,6 +59,7 @@ async function connectToDirectory(handle) {
     const fileTermos = await fileHandleTermos.getFile();
     const textTermos = await fileTermos.text();
     parseTermosTXT(textTermos);
+    if (typeof window.loadManualUsersFile === 'function') await window.loadManualUsersFile();
 
     const fileHandleModels = await dirHandle.getFileHandle('models.json', { create: true });
     const fileModels = await fileHandleModels.getFile();

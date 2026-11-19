@@ -783,6 +783,16 @@
                 <div><span class="users-eyebrow">CADASTRO AUTOMÁTICO POR TERMOS</span><h1 class="dashboard-title">Usuários</h1><p class="dashboard-subtitle">Consulte colaboradores que já tiveram vínculo registrado em um termo.</p></div>
                 <div class="users-total-card"><strong id="usersTotal">0</strong><span>colaboradores</span></div>
             </header>
+            <form id="userAddForm" class="users-add-card">
+                <div class="users-add-heading"><div><strong>Adicionar colaborador</strong><p>Cadastre alguém antes mesmo de gerar o primeiro termo.</p></div><span class="users-add-icon">＋</span></div>
+                <div class="users-add-fields">
+                    <label><span>Nome completo *</span><input id="newUserName" name="nome" type="text" maxlength="140" placeholder="Nome do colaborador" required></label>
+                    <label><span>Matrícula *</span><input id="newUserMatricula" name="matricula" type="text" maxlength="50" placeholder="Matrícula" required></label>
+                    <label><span>Centro de custo (CC)</span><input id="newUserCC" name="cc" type="text" maxlength="80" placeholder="Ex.: 12345"></label>
+                    <button type="submit" class="users-add-button">＋ Adicionar usuário</button>
+                </div>
+                <p class="users-save-hint" id="usersSaveHint">Os cadastros manuais serão salvos junto aos dados da pasta conectada do inventário.</p>
+            </form>
             <div class="users-toolbar">
                 <label class="users-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg><input id="usersSearch" type="search" placeholder="Pesquisar por nome, matrícula ou centro de custo..." autocomplete="off"></label>
                 <select id="usersCostCenterFilter" class="input-field" aria-label="Filtrar por centro de custo"><option value="">Todos os centros de custo</option></select>
@@ -1020,7 +1030,6 @@
 <script src="js/management.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/import.js"></script>
-    <script src="js/users.js"></script>
     <script src="js/users.js"></script>
     <script src="js/inline-events.js"></script>
 <script src="js/spotlight-profile.js"></script>
