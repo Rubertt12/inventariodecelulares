@@ -3043,3 +3043,17 @@ body.dock-layout .sidebar-profile-slot{align-self:flex-end;margin:0;padding:0;bo
 .users-save-hint{margin:11px 0 0;color:var(--text-muted);font-size:.68rem}
 @media(max-width:900px){.users-add-fields{grid-template-columns:1fr 1fr}.users-add-fields label:first-child{grid-column:1/-1}.users-add-button{min-height:42px}}
 @media(max-width:520px){.users-add-card{padding:15px}.users-add-fields{grid-template-columns:1fr}.users-add-fields label:first-child{grid-column:auto}.users-add-button{width:100%}}
+
+
+/* Diretório de usuários: ocupa toda a largura útil e pagina resultados */
+#view-usuarios .users-page{width:100%;max-width:none;margin:0;padding:8px 0 30px}
+#view-usuarios .users-table-card{width:100%;}
+#view-usuarios .users-table{min-width:760px}
+.users-pagination{display:flex;align-items:center;justify-content:flex-end;gap:22px;margin-left:auto;color:var(--text-muted);font-size:.76rem}
+.users-page-size{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.users-page-size select{padding:7px 28px 7px 9px;border:1px solid var(--border-color);border-radius:9px;background:var(--input-bg);color:var(--text-main);font:inherit}
+.users-page-controls{display:flex;align-items:center;gap:12px;white-space:nowrap}
+.users-page-controls button{width:32px;height:32px;border:1px solid var(--border-color);border-radius:9px;background:var(--btn-secondary-bg);color:var(--text-main);font-size:1.2rem;cursor:pointer}
+.users-page-controls button:hover:not(:disabled){border-color:var(--accent-color);color:var(--accent-color)}
+.users-page-controls button:disabled{opacity:.35;cursor:not-allowed}
+@media(max-width:700px){.users-pagination{width:100%;justify-content:space-between;margin:10px 0 0;gap:10px}.users-page-controls{gap:8px}#view-usuarios .users-page{padding-top:4px}}
