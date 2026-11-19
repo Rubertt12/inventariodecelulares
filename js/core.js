@@ -270,6 +270,7 @@ let appSettings = {
         estoque: true,
         'estoque-usados': true,
         termos: true,
+        usuarios: true,
         reservas: true,
         geradordetermo: true,
         zebra: true,
@@ -287,6 +288,7 @@ const manageableTabs = [
     { id: 'estoque', label: 'Estoque Disponível' },
     { id: 'estoque-usados', label: 'Estoque de Usados' },
     { id: 'termos', label: 'Vincular Termo / Saída' },
+    { id: 'usuarios', label: 'Usuários' },
     { id: 'reservas', label: 'Reservas' },
     { id: 'geradordetermo', label: 'Gerador de Termo' },
     { id: 'zebra', label: 'Etiquetas' },
@@ -553,6 +555,9 @@ window.switchView = function(viewName) {
     // --- NOVO: Renderiza o dashboard se for a view selecionada ---
     if (viewName === 'dashboard') {
         renderDashboard();
+    }
+    if (viewName === 'usuarios' && typeof renderUsersView === 'function') {
+        renderUsersView();
     }
 
     // --- NOVO: Inicializa o glider do filtro na primeira vez que a aba de estoque é aberta ---

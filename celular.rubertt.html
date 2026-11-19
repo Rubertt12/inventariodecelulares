@@ -82,6 +82,9 @@
         <li class="menu-item" id="menu-termos" data-inline-click="handler5">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span class="menu-item-text">Vincular Termo / Saída</span>
         </li>
+        <li class="menu-item" id="menu-usuarios" data-inline-click="handler108">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="4"/><path d="M20 8v6m3-3h-6"/></svg><span class="menu-item-text">Usuários</span>
+        </li>
         <li class="menu-divider">
             <span class="menu-item-text">FERRAMENTAS</span>
         </li>
@@ -774,6 +777,23 @@
             </div>
         </div>
     </div>
+    <div id="view-usuarios" class="view-section">
+        <section class="users-page">
+            <header class="users-page-header">
+                <div><span class="users-eyebrow">CADASTRO AUTOMÁTICO POR TERMOS</span><h1 class="dashboard-title">Usuários</h1><p class="dashboard-subtitle">Consulte colaboradores que já tiveram vínculo registrado em um termo.</p></div>
+                <div class="users-total-card"><strong id="usersTotal">0</strong><span>colaboradores</span></div>
+            </header>
+            <div class="users-toolbar">
+                <label class="users-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-4-4"></path></svg><input id="usersSearch" type="search" placeholder="Pesquisar por nome, matrícula ou centro de custo..." autocomplete="off"></label>
+                <select id="usersCostCenterFilter" class="input-field" aria-label="Filtrar por centro de custo"><option value="">Todos os centros de custo</option></select>
+            </div>
+            <div class="users-table-card">
+                <div class="users-table-wrap"><table class="users-table"><thead><tr><th>Nome</th><th>Matrícula</th><th>Centro de custo (CC)</th><th>Vínculos</th><th></th></tr></thead><tbody id="usersTableBody"></tbody></table></div>
+                <div id="usersEmptyState" class="users-empty" hidden><span>⌕</span><strong>Nenhum usuário encontrado</strong><p>Os colaboradores aparecerão aqui automaticamente quando tiverem um vínculo registrado em um termo.</p></div>
+                <footer class="users-table-footer"><span id="usersResultsCount">0 registros</span><span>Dados originados do histórico de termos</span></footer>
+            </div>
+        </section>
+    </div>
 </main>
 
 <div class="spotlight-backdrop" id="spotlightBackdrop" hidden><section class="spotlight-modal" role="dialog" aria-modal="true"><header class="spotlight-search-header"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><input id="spotlightInput" type="search" placeholder="Buscar modelo, IMEI ou número de série..."><kbd>ESC</kbd><button id="spotlightClose" type="button">×</button></header><div class="spotlight-filter-row" id="spotlightFilters"><button class="active" data-status="">Tudo</button><button data-status="Disponível">Disponível</button><button data-status="Entregue">Entregue</button></div><div class="spotlight-results-heading"><span id="spotlightTitle">Sugestões do inventário</span><span id="spotlightResultCount">0 aparelhos</span></div><div class="spotlight-results" id="spotlightResults"></div><footer class="spotlight-footer"><span>↑ ↓ navegar · Enter abrir</span><button type="button" id="spotlightGoStock">▣ Ir para o Estoque</button></footer><div class="spotlight-term-modal" id="spotlightTermModal" hidden><section class="spotlight-term-dialog spotlight-term-document-dialog" role="dialog" aria-modal="true" aria-labelledby="spotlightTermHeading"><header><button type="button" id="spotlightTermModalBack" class="spotlight-term-back-button">← <span>Voltar</span></button><div><small>DOCUMENTO DO HISTÓRICO</small><h2 id="spotlightTermHeading">Termo de entrega</h2></div><button type="button" id="spotlightTermModalClose" aria-label="Fechar">×</button></header><div id="spotlightTermModalBody"></div></section></div></section></div></section></div>
@@ -1000,6 +1020,8 @@
 <script src="js/management.js"></script>
 <script src="js/navigation.js"></script>
 <script src="js/import.js"></script>
+    <script src="js/users.js"></script>
+    <script src="js/users.js"></script>
     <script src="js/inline-events.js"></script>
 <script src="js/spotlight-profile.js"></script>
 </body>

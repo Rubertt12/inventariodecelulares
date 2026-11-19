@@ -125,6 +125,7 @@ btnSaveTermo.addEventListener('click', async (event) => {
         await saveToTermosTXTFile();
         await saveToTermosCSVFile();
         await saveStockData();
+        if (typeof renderUsersView === 'function') renderUsersView();
 
         clearTermoForm();
         renderAllUI();

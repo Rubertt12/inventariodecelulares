@@ -322,7 +322,9 @@ atualizarPreview(this.value)
 },
 "handler107": function(event) {
 enviarParaImpressora()
-}
+},
+"handler108": function(event) { switchView("usuarios"); }
+
 };
 const types = ["click","change","input"];
 types.forEach(type => {
