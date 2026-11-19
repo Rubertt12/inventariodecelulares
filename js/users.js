@@ -3,6 +3,8 @@
   'use strict';
   const $ = id => document.getElementById(id);
   let manualUsers = [];
+  let currentPage = 1;
+  let pageSize = 20;
   const norm = value => String(value ?? '').trim().toLocaleLowerCase('pt-BR').normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
   const notify = (message,type='success') => { if(typeof showCustomAlert==='function')showCustomAlert(message,type); else window.alert(message); };
@@ -34,9 +36,19 @@
     const filter=$('usersCostCenterFilter');
     if(filter){const current=filter.value;filter.innerHTML='<option value="">Todos os centros de custo</option>'+costCenters.map(cc=>'<option value="'+esc(cc)+'">'+esc(cc)+'</option>').join('');filter.value=costCenters.includes(current)?current:'';}
     const filtered=users.filter(user=>(!search||norm([user.nome,user.matricula,user.cc].join(' ')).includes(search))&&(!selectedCC||user.cc===selectedCC));
-    $('usersTotal').textContent=String(users.length);$('usersResultsCount').textContent=filtered.length+' de '+users.length+' colaboradores';
-    body.innerHTML=filtered.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td><button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
+    const totalPages=Math.max(1,Math.ceil(filtered.length/pageSize));
+    if(currentPage>totalPages)currentPage=totalPages;
+    const start=(currentPage-1)*pageSize;
+    const pageUsers=filtered.slice(start,start+pageSize);
+    $('usersTotal').textContent=String(users.length);$('usersResultsCount').textContent=filtered.length?(`Exibindo ${start+1}–${Math.min(start+pageSize,filtered.length)} de ${filtered.length} colaboradores`):'0 colaboradores';
+    body.innerHTML=pageUsers.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td><button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
     $('usersEmptyState').hidden=filtered.length>0;body.closest('.users-table-wrap').hidden=filtered.length===0;
+    let pager=$('usersPagination');
+    if(!pager){
+      pager=document.createElement('div');pager.id='usersPagination';pager.className='users-pagination';
+      const footer=document.querySelector('.users-table-footer');if(footer)footer.appendChild(pager);
+    }
+    pager.innerHTML=filtered.length>0?`<label class="users-page-size">Por página <select id="usersPageSize" aria-label="Registros por página"><option value="10" ${pageSize===10?'selected':''}>10</option><option value="20" ${pageSize===20?'selected':''}>20</option><option value="50" ${pageSize===50?'selected':''}>50</option><option value="100" ${pageSize===100?'selected':''}>100</option></select></label><div class="users-page-controls"><button type="button" data-users-page="prev" ${currentPage<=1?'disabled':''} aria-label="Página anterior">‹</button><span>Página <strong>${currentPage}</strong> de <strong>${totalPages}</strong></span><button type="button" data-users-page="next" ${currentPage>=totalPages?'disabled':''} aria-label="Próxima página">›</button></div>`:'';
     const hint=$('usersSaveHint');if(hint)hint.textContent=dirHandle?'Cadastros manuais salvos na pasta conectada do inventário (usuarios.json).':'Conecte a pasta de dados do inventário para salvar novos cadastros.';
   }
   async function addUser(event){
@@ -54,8 +66,15 @@
     catch(error){console.error(error);notify(error.message||'Não foi possível salvar o usuário.','error');}
   }
   document.addEventListener('submit',event=>{if(event.target?.id==='userAddForm')addUser(event);});
-  document.addEventListener('input',event=>{if(event.target?.id==='usersSearch')renderUsersView();});
-  document.addEventListener('change',event=>{if(event.target?.id==='usersCostCenterFilter')renderUsersView();});
+  document.addEventListener('input',event=>{if(event.target?.id==='usersSearch'){currentPage=1;renderUsersView();}});
+  document.addEventListener('change',event=>{
+    if(event.target?.id==='usersCostCenterFilter'){currentPage=1;renderUsersView();}
+    if(event.target?.id==='usersPageSize'){pageSize=Number(event.target.value)||20;currentPage=1;renderUsersView();}
+  });
+  document.addEventListener('click',event=>{
+    const pageButton=event.target.closest('[data-users-page]');if(!pageButton||pageButton.disabled)return;
+    currentPage+=pageButton.dataset.usersPage==='next'?1:-1;renderUsersView();
+  });
   document.addEventListener('click',event=>{
     const button=event.target.closest('.users-use-button');if(!button)return;
     switchView('termos');
