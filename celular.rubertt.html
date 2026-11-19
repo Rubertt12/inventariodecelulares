@@ -237,22 +237,22 @@
 
                 <div class="form-group">
                     <label>Data e Hora de Entrada</label>
-                    <input type="datetime-local" id="inputDataEntrada" class="input-field">
+                    <input type="datetime-local" id="inputDataEntrada" class="input-field" autocomplete="off">
                 </div>
                 
                 <div class="imei-row">
                     <div class="form-group">
                         <label>IMEI 1</label>
-                        <input type="text" id="inputImei1" class="input-field" placeholder="Pendente...">
+                        <input type="text" id="inputImei1" class="input-field" placeholder="Pendente..." autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>IMEI 2</label>
-                        <input type="text" id="inputImei2" class="input-field" placeholder="Pendente...">
+                        <input type="text" id="inputImei2" class="input-field" placeholder="Pendente..." autocomplete="off">
                     </div>
                 </div>
                 <div class="form-group">
                     <label>Número de Série (SN)</label>
-                    <input type="text" id="inputSN" class="input-field" placeholder="Pendente...">
+                    <input type="text" id="inputSN" class="input-field" placeholder="Pendente..." autocomplete="off">
                 </div>
                 <button class="btn extracted-inline-style-14" id="btnAddToStock" disabled>Salvar Entrada no Estoque</button>
             </div>
@@ -276,7 +276,7 @@
                 </div>
                 
                 <div class="search-container">
-                    <input type="text" id="inputSearchStock" class="input-field" placeholder="Buscar por Modelo, Localidade, IMEI ou SN...">
+                    <input type="text" id="inputSearchStock" class="input-field" placeholder="Buscar por Modelo, Localidade, IMEI ou SN..." autocomplete="off">
 
                     <!-- Filtro de Localidade -->
                     <div id="locationFilterGroup" class="location-filter-group">
@@ -394,34 +394,34 @@
                 
                 <div class="form-group">
                     <label>Ticket / Chamado</label>
-                    <input type="text" id="inputTermoTicket" class="input-field" placeholder="Ex: C-123456">
+                    <input type="text" id="inputTermoTicket" class="input-field" placeholder="Ex: C-123456" autocomplete="off">
                 </div>
                 
                 <div class="imei-row">
                     <div class="form-group">
                         <label>Nome do Colaborador</label>
-                        <input type="text" id="inputTermoNome" class="input-field" placeholder="Nome completo">
+                        <input type="text" id="inputTermoNome" class="input-field" placeholder="Nome completo" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Matrícula</label>
-                        <input type="text" id="inputTermoMatricula" class="input-field" placeholder="Ex: 100234">
+                        <input type="text" id="inputTermoMatricula" class="input-field" placeholder="Ex: 100234" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="imei-row">
                     <div class="form-group">
                         <label>Local / Filial (Preenchido do estoque)</label>
-                        <input type="text" id="inputTermoLocal" class="input-field" placeholder="Ex: Canoas">
+                        <input type="text" id="inputTermoLocal" class="input-field" placeholder="Ex: Canoas" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Centro de Custo (CC)</label>
-                        <input type="text" id="inputTermoCC" class="input-field" placeholder="Ex: 40102">
+                        <input type="text" id="inputTermoCC" class="input-field" placeholder="Ex: 40102" autocomplete="off">
                     </div>
                 </div>
 
                 <div class="form-group">
                     <label>Nome do Técnico Responsável</label>
-                    <input type="text" id="inputTermoTecnico" class="input-field" placeholder="Nome do técnico responsável">
+                    <input type="text" id="inputTermoTecnico" class="input-field" placeholder="Nome do técnico responsável" autocomplete="off">
                 </div>
                <!-- Substitua o <div class="form-group"> do inputTermoModelo por isto: -->
 <div class="form-group">
@@ -446,7 +446,7 @@
                 
                 <div class="form-group">
                     <label>Aparelho Disponível (digite para buscar)</label>
-                    <input id="selectDeviceStock" list="devicesDataList" class="input-field extracted-inline-style-45" placeholder="-- Escolha ou digite para buscar --">
+                    <input id="selectDeviceStock" list="devicesDataList" class="input-field extracted-inline-style-45" placeholder="-- Escolha ou digite para buscar --" autocomplete="off">
                     <datalist id="devicesDataList">
                         <!-- Opções preenchidas via JS -->
                     </datalist>
@@ -454,28 +454,28 @@
 
                 <div class="form-group">
                     <label>Marca e Modelo</label>
-                    <input type="text" id="displayTermoMarcaModelo" class="input-field input-readonly" placeholder="Automático..." readonly>
+                    <input type="text" id="displayTermoMarcaModelo" class="input-field input-readonly" placeholder="Automático..." readonly autocomplete="off">
                 </div>
 
                 <div class="imei-row">
                     <div class="form-group">
                         <label>IMEI 1</label>
-                        <input type="text" id="displayTermoImei1" class="input-field input-readonly" placeholder="Automático..." readonly>
+                        <input type="text" id="displayTermoImei1" class="input-field input-readonly" placeholder="Automático..." readonly autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>IMEI 2</label>
-                        <input type="text" id="displayTermoImei2" class="input-field input-readonly" placeholder="Automático..." readonly>
+                        <input type="text" id="displayTermoImei2" class="input-field input-readonly" placeholder="Automático..." readonly autocomplete="off">
                     </div>
                 </div>
                 
                 <div class="imei-row">
                     <div class="form-group">
                         <label>Número de Série (SN)</label>
-                        <input type="text" id="displayTermoSN" class="input-field input-readonly text-monospace" placeholder="Automático..." readonly>
+                        <input type="text" id="displayTermoSN" class="input-field input-readonly text-monospace" placeholder="Automático..." readonly autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label>Número do Chip (Linha)</label>
-                        <input type="text" id="inputTermoChip" class="input-field" placeholder="ICCID (número de série do chip)">
+                        <input type="text" id="inputTermoChip" class="input-field" placeholder="ICCID (número de série do chip)" autocomplete="off">
                     </div>
                 </div>
 
@@ -501,7 +501,7 @@
             </div>
             <!-- NOVO: Campo de Busca para o Histórico -->
             <div class="search-container extracted-inline-style-50">
-                <input type="text" id="inputSearchTermos" class="input-field" placeholder="Buscar no histórico por Ticket, Colaborador, Modelo, SN, etc...">
+                <input type="text" id="inputSearchTermos" class="input-field" placeholder="Buscar no histórico por Ticket, Colaborador, Modelo, SN, etc..." autocomplete="off">
             </div>
 
             <div class="table-wrapper">
@@ -605,7 +605,7 @@
                         <strong>Itens por página</strong>
                         <p class="setting-item-description">Ajuste quantos itens são exibidos por vez na tela de estoque.</p>
                     </div>
-                    <input type="number" id="itemsPerPageSetting" class="setting-input" min="1" max="100">
+                    <input type="number" id="itemsPerPageSetting" class="setting-input" min="1" max="100" autocomplete="off">
                 </div>
                 <div class="setting-item">
                     <div>
@@ -651,7 +651,7 @@
                         <p class="extracted-inline-style-55">Adicione ou remova modelos de telefone. Eles aparecerão dinamicamente nos formulários de cadastro e edição.</p>
                         <div class="form-group">
                             <label>Nome do Novo Modelo</label>
-                            <input type="text" id="inputNewModelName" class="input-field" placeholder="Ex: Galaxy S23">
+                            <input type="text" id="inputNewModelName" class="input-field" placeholder="Ex: Galaxy S23" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label>Base do Termo de Responsabilidade</label>
@@ -675,7 +675,7 @@
                         <p class="extracted-inline-style-58">Adicione ou remova localidades. Elas aparecerão dinamicamente nos formulários de cadastro e edição.</p>
                         <div class="form-group">
                             <label>Nome da Nova Localidade</label>
-                            <input type="text" id="inputNewLocalityName" class="input-field" placeholder="Ex: Filial Belo Horizonte">
+                            <input type="text" id="inputNewLocalityName" class="input-field" placeholder="Ex: Filial Belo Horizonte" autocomplete="off">
                         </div>
                         <button class="btn extracted-inline-style-59" id="btnAddNewLocality">Adicionar Localidade</button>
                     </div>
@@ -692,11 +692,11 @@
                         <p class="extracted-inline-style-61">Crie filtros personalizados para a tela de estoque. Cada filtro busca por um termo específico em qualquer campo do aparelho (Modelo, SN, IMEI, etc.).</p>
                         <div class="form-group">
                             <label>Nome do Filtro (Ex: "Com Defeito")</label>
-                            <input type="text" id="inputNewFilterName" class="input-field" placeholder="Nome que aparecerá no botão">
+                            <input type="text" id="inputNewFilterName" class="input-field" placeholder="Nome que aparecerá no botão" autocomplete="off">
                         </div>
                         <div class="form-group">
                             <label>Termo de Busca (Ex: "tela quebrada")</label>
-                            <input type="text" id="inputNewFilterTerm" class="input-field" placeholder="Texto que será buscado">
+                            <input type="text" id="inputNewFilterTerm" class="input-field" placeholder="Texto que será buscado" autocomplete="off">
                         </div>
                         <button class="btn extracted-inline-style-62" id="btnAddNewFilter">Adicionar Filtro</button>
                     </div>
@@ -783,12 +783,12 @@
                 <div><span class="users-eyebrow">CADASTRO AUTOMÁTICO POR TERMOS</span><h1 class="dashboard-title">Usuários</h1><p class="dashboard-subtitle">Consulte colaboradores que já tiveram vínculo registrado em um termo.</p></div>
                 <div class="users-total-card"><strong id="usersTotal">0</strong><span>colaboradores</span></div>
             </header>
-            <form id="userAddForm" class="users-add-card">
+            <form id="userAddForm" class="users-add-card" autocomplete="off">
                 <div class="users-add-heading"><div><strong>Adicionar colaborador</strong><p>Cadastre alguém antes mesmo de gerar o primeiro termo.</p></div><span class="users-add-icon">＋</span></div>
                 <div class="users-add-fields">
-                    <label><span>Nome completo *</span><input id="newUserName" name="nome" type="text" maxlength="140" placeholder="Nome do colaborador" required></label>
-                    <label><span>Matrícula *</span><input id="newUserMatricula" name="matricula" type="text" maxlength="50" placeholder="Matrícula" required></label>
-                    <label><span>Centro de custo (CC)</span><input id="newUserCC" name="cc" type="text" maxlength="80" placeholder="Ex.: 12345"></label>
+                    <label><span>Nome completo *</span><input id="newUserName" name="nome" type="text" maxlength="140" placeholder="Nome do colaborador" required autocomplete="off"></label>
+                    <label><span>Matrícula *</span><input id="newUserMatricula" name="matricula" type="text" maxlength="50" placeholder="Matrícula" required autocomplete="off"></label>
+                    <label><span>Centro de custo (CC)</span><input id="newUserCC" name="cc" type="text" maxlength="80" placeholder="Ex.: 12345" autocomplete="off"></label>
                     <button type="submit" class="users-add-button">＋ Adicionar usuário</button>
                 </div>
                 <p class="users-save-hint" id="usersSaveHint">Os cadastros manuais serão salvos junto aos dados da pasta conectada do inventário.</p>
@@ -806,7 +806,7 @@
     </div>
 </main>
 
-<div class="spotlight-backdrop" id="spotlightBackdrop" hidden><section class="spotlight-modal" role="dialog" aria-modal="true"><header class="spotlight-search-header"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><input id="spotlightInput" type="search" placeholder="Buscar modelo, IMEI ou número de série..."><kbd>ESC</kbd><button id="spotlightClose" type="button">×</button></header><div class="spotlight-filter-row" id="spotlightFilters"><button class="active" data-status="">Tudo</button><button data-status="Disponível">Disponível</button><button data-status="Entregue">Entregue</button></div><div class="spotlight-results-heading"><span id="spotlightTitle">Sugestões do inventário</span><span id="spotlightResultCount">0 aparelhos</span></div><div class="spotlight-results" id="spotlightResults"></div><footer class="spotlight-footer"><span>↑ ↓ navegar · Enter abrir</span><button type="button" id="spotlightGoStock">▣ Ir para o Estoque</button></footer><div class="spotlight-term-modal" id="spotlightTermModal" hidden><section class="spotlight-term-dialog spotlight-term-document-dialog" role="dialog" aria-modal="true" aria-labelledby="spotlightTermHeading"><header><button type="button" id="spotlightTermModalBack" class="spotlight-term-back-button">← <span>Voltar</span></button><div><small>DOCUMENTO DO HISTÓRICO</small><h2 id="spotlightTermHeading">Termo de entrega</h2></div><button type="button" id="spotlightTermModalClose" aria-label="Fechar">×</button></header><div id="spotlightTermModalBody"></div></section></div></section></div></section></div>
+<div class="spotlight-backdrop" id="spotlightBackdrop" hidden><section class="spotlight-modal" role="dialog" aria-modal="true"><header class="spotlight-search-header"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.35-4.35"></path></svg><input id="spotlightInput" type="search" placeholder="Buscar modelo, IMEI ou número de série..." autocomplete="off"><kbd>ESC</kbd><button id="spotlightClose" type="button">×</button></header><div class="spotlight-filter-row" id="spotlightFilters"><button class="active" data-status="">Tudo</button><button data-status="Disponível">Disponível</button><button data-status="Entregue">Entregue</button></div><div class="spotlight-results-heading"><span id="spotlightTitle">Sugestões do inventário</span><span id="spotlightResultCount">0 aparelhos</span></div><div class="spotlight-results" id="spotlightResults"></div><footer class="spotlight-footer"><span>↑ ↓ navegar · Enter abrir</span><button type="button" id="spotlightGoStock">▣ Ir para o Estoque</button></footer><div class="spotlight-term-modal" id="spotlightTermModal" hidden><section class="spotlight-term-dialog spotlight-term-document-dialog" role="dialog" aria-modal="true" aria-labelledby="spotlightTermHeading"><header><button type="button" id="spotlightTermModalBack" class="spotlight-term-back-button">← <span>Voltar</span></button><div><small>DOCUMENTO DO HISTÓRICO</small><h2 id="spotlightTermHeading">Termo de entrega</h2></div><button type="button" id="spotlightTermModalClose" aria-label="Fechar">×</button></header><div id="spotlightTermModalBody"></div></section></div></section></div></section></div>
 <!-- MODAL LIGHTBOX -->
 <div id="photoModal" class="custom-modal">
     <div class="modal-content">
@@ -940,7 +940,7 @@
             <p id="passwordModalMessage" class="extracted-inline-style-92">Para continuar, por favor, insira a senha de administrador.</p>
             <div class="form-group">
                 <label for="adminPasswordInput">Senha</label>
-                <input type="password" id="adminPasswordInput" class="input-field" placeholder="Digite a senha...">
+                <input type="password" id="adminPasswordInput" class="input-field" placeholder="Digite a senha..." autocomplete="new-password">
             </div>
             <div class="extracted-inline-style-93">
                 <button class="btn btn-secondary extracted-inline-style-94" id="passwordModalCancel">Cancelar</button>
@@ -975,23 +975,23 @@
             
             <div class="form-group">
                 <label for="quickLinkNome">Nome do Colaborador *</label>
-                <input type="text" id="quickLinkNome" class="input-field" placeholder="Nome completo do usuário">
+                <input type="text" id="quickLinkNome" class="input-field" placeholder="Nome completo do usuário" autocomplete="off">
             </div>
 
             <div class="imei-row">
                 <div class="form-group">
                     <label for="quickLinkMatricula">Matrícula</label>
-                    <input type="text" id="quickLinkMatricula" class="input-field" placeholder="Opcional">
+                    <input type="text" id="quickLinkMatricula" class="input-field" placeholder="Opcional" autocomplete="off">
                 </div>
                 <div class="form-group">
                     <label for="quickLinkTicket">Ticket / Chamado</label>
-                    <input type="text" id="quickLinkTicket" class="input-field" placeholder="Opcional">
+                    <input type="text" id="quickLinkTicket" class="input-field" placeholder="Opcional" autocomplete="off">
                 </div>
             </div>
 
             <div class="form-group">
                 <label for="quickLinkCC">Centro de Custo (CC)</label>
-                <input type="text" id="quickLinkCC" class="input-field" placeholder="Opcional">
+                <input type="text" id="quickLinkCC" class="input-field" placeholder="Opcional" autocomplete="off">
             </div>
 
             <button class="btn extracted-inline-style-105" id="btnQuickLinkConfirm">Salvar Vínculo e Copiar Dados</button>
@@ -1009,7 +1009,7 @@
             
             <div class="form-group">
                 <label for="simpleCopyNome">Nome do Colaborador *</label>
-                <input type="text" id="simpleCopyNome" class="input-field" placeholder="Nome completo do usuário">
+                <input type="text" id="simpleCopyNome" class="input-field" placeholder="Nome completo do usuário" autocomplete="off">
             </div>
 
             <button class="btn extracted-inline-style-109" id="btnSimpleCopyConfirm">Confirmar e Copiar</button>
