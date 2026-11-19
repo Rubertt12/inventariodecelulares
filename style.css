@@ -3057,3 +3057,25 @@ body.dock-layout .sidebar-profile-slot{align-self:flex-end;margin:0;padding:0;bo
 .users-page-controls button:hover:not(:disabled){border-color:var(--accent-color);color:var(--accent-color)}
 .users-page-controls button:disabled{opacity:.35;cursor:not-allowed}
 @media(max-width:700px){.users-pagination{width:100%;justify-content:space-between;margin:10px 0 0;gap:10px}.users-page-controls{gap:8px}#view-usuarios .users-page{padding-top:4px}}
+
+
+/* Edição de colaboradores cadastrados manualmente */
+.users-row-actions{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.users-edit-button{width:34px;height:34px;border:1px solid var(--border-color);border-radius:8px;background:var(--btn-secondary-bg);color:var(--text-main);font-size:19px;cursor:pointer}
+.users-edit-button:hover{background:var(--accent-color-subtle);border-color:var(--accent-color);color:var(--accent-color)}
+.users-edit-backdrop{position:fixed;inset:0;z-index:12000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,0,0,.48);backdrop-filter:blur(5px)}
+.users-edit-backdrop[hidden]{display:none}
+.users-edit-dialog{width:min(100%,480px);padding:24px;border:1px solid var(--border-color);border-radius:16px;background:var(--modal-bg);color:var(--text-main);box-shadow:0 24px 80px rgba(0,0,0,.25)}
+.users-edit-dialog>header{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:22px}
+.users-edit-dialog>header small{font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--accent-color)}
+.users-edit-dialog>header h2{margin:5px 0 0;font-size:22px}
+.users-edit-dialog>header button{width:34px;height:34px;border:0;border-radius:8px;background:var(--btn-group-bg);color:var(--text-main);font-size:24px;cursor:pointer}
+.users-edit-dialog form{display:grid;gap:15px}
+.users-edit-dialog form label{display:grid;gap:7px;font-size:13px;font-weight:600;color:var(--text-muted)}
+.users-edit-dialog form input{width:100%;min-height:42px;padding:10px 12px;border:1px solid var(--input-border);border-radius:8px;background:var(--input-bg);color:var(--text-main);font:inherit}
+.users-edit-dialog form input:focus{outline:2px solid var(--accent-color);outline-offset:1px}
+.users-edit-dialog form footer{display:flex;justify-content:flex-end;gap:10px;margin-top:8px}
+.users-edit-cancel,.users-edit-save{min-height:40px;padding:0 16px;border-radius:8px;font-weight:600;cursor:pointer}
+.users-edit-cancel{border:1px solid var(--border-color);background:var(--btn-secondary-bg);color:var(--text-main)}
+.users-edit-save{border:1px solid var(--accent-color);background:var(--accent-color);color:#fff}
+@media(max-width:600px){.users-edit-dialog{padding:19px}.users-row-actions{gap:5px}.users-edit-button{width:32px;height:32px}}
