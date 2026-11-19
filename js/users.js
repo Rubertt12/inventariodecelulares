@@ -21,11 +21,11 @@
   };
   function getUsers(){
     const byMatricula=new Map();
-    manualUsers.forEach(user=>{const nome=String(user.nome||'').trim(),matricula=String(user.matricula||'').trim(),cc=String(user.cc||'').trim();if(!nome&&!matricula)return;byMatricula.set(matricula?'mat:'+norm(matricula):'nome:'+norm(nome),{nome,matricula,cc,vinculos:0,manual:true});});
+    manualUsers.forEach(user=>{const nome=String(user.nome||'').trim(),matricula=String(user.matricula||'').trim(),sourceMatricula=String(user.sourceMatricula||user.matricula||'').trim(),cc=String(user.cc||'').trim();if(!nome&&!matricula)return;byMatricula.set(sourceMatricula?'mat:'+norm(sourceMatricula):'nome:'+norm(nome),{nome,matricula,cc,vinculos:0,manual:true,sourceMatricula});});
     (Array.isArray(termosData)?termosData:[]).forEach(term=>{
       const nome=String(term.nome||term.nome_colaborador||'').trim(),matricula=String(term.matricula||'').trim(),cc=String(term.cc||term.centro_custo||'').trim();if(!nome&&!matricula)return;
       const key=matricula?'mat:'+norm(matricula):'nome:'+norm(nome),existing=byMatricula.get(key)||{nome,matricula,cc,vinculos:0,manual:false};
-      existing.nome=nome||existing.nome;existing.matricula=matricula||existing.matricula;existing.cc=cc||existing.cc;existing.vinculos+=1;byMatricula.set(key,existing);
+      if(!existing.manual){existing.nome=nome||existing.nome;existing.matricula=matricula||existing.matricula;existing.cc=cc||existing.cc;}existing.vinculos+=1;byMatricula.set(key,existing);
     });
     return [...byMatricula.values()].sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR',{sensitivity:'base'}));
   }
@@ -41,7 +41,7 @@
     const start=(currentPage-1)*pageSize;
     const pageUsers=filtered.slice(start,start+pageSize);
     $('usersTotal').textContent=String(users.length);$('usersResultsCount').textContent=filtered.length?(`Exibindo ${start+1}–${Math.min(start+pageSize,filtered.length)} de ${filtered.length} colaboradores`):'0 colaboradores';
-    body.innerHTML=pageUsers.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td class="users-row-actions">'+(user.manual?'<button type="button" class="users-edit-button" data-edit-matricula="'+esc(user.matricula)+'" title="Editar colaborador" aria-label="Editar colaborador">✎</button>':'')+'<button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
+    body.innerHTML=pageUsers.map(user=>'<tr><td><span class="users-name">'+esc(user.nome||'Nome não informado')+'</span></td><td><span class="users-matricula">'+esc(user.matricula||'—')+'</span></td><td><span class="users-cc">'+esc(user.cc||'Não informado')+'</span></td><td><span class="users-count">'+user.vinculos+' '+(user.vinculos===1?'vínculo':'vínculos')+'</span></td><td class="users-row-actions">'+'<button type="button" class="users-edit-button" data-edit-source="'+esc(user.sourceMatricula||user.matricula)+'" title="Editar colaborador" aria-label="Editar colaborador">✎</button>'+'<button type="button" class="users-use-button" data-user-matricula="'+esc(user.matricula)+'" data-user-name="'+esc(user.nome)+'" data-user-cc="'+esc(user.cc)+'">Usar no termo</button></td></tr>').join('');
     $('usersEmptyState').hidden=filtered.length>0;body.closest('.users-table-wrap').hidden=filtered.length===0;
     let pager=$('usersPagination');
     if(!pager){
@@ -60,8 +60,8 @@
     if(existing){
       if(!window.confirm('Essa matrícula já existe. Deseja atualizar o nome e o centro de custo do cadastro?'))return;
       const manual=manualUsers.find(user=>norm(user.matricula)===norm(matricula));
-      if(manual){manual.nome=nome;manual.cc=cc;}else manualUsers.push({nome,matricula,cc,createdAt:new Date().toISOString()});
-    }else manualUsers.push({nome,matricula,cc,createdAt:new Date().toISOString()});
+      if(manual){manual.nome=nome;manual.cc=cc;}else manualUsers.push({nome,matricula,cc,sourceMatricula:matricula,createdAt:new Date().toISOString()});
+    }else manualUsers.push({nome,matricula,cc,sourceMatricula:matricula,createdAt:new Date().toISOString()});
     try{await window.saveManualUsersFile();$('userAddForm').reset();renderUsersView();notify('Usuário cadastrado com sucesso!','success');}
     catch(error){console.error(error);notify(error.message||'Não foi possível salvar o usuário.','error');}
   }
@@ -87,21 +87,23 @@
         event.preventDefault();
         const original=modal.dataset.originalMatricula||'',nome=$('editUserName').value.trim(),matricula=$('editUserMatricula').value.trim(),cc=$('editUserCC').value.trim();
         if(!nome||!matricula){notify('Nome e matrícula são obrigatórios.','warning');return;}
-        const duplicate=manualUsers.some(item=>norm(item.matricula)!==norm(original)&&norm(item.matricula)===norm(matricula));
-        const termDuplicate=(Array.isArray(termosData)?termosData:[]).some(item=>norm(item.matricula)===norm(matricula)&&norm(matricula)!==norm(original));
+        const source=modal.dataset.originalSource||original;
+        const duplicate=manualUsers.some(item=>norm(item.sourceMatricula||item.matricula)!==norm(source)&&norm(item.matricula)===norm(matricula));
+        const termDuplicate=(Array.isArray(termosData)?termosData:[]).some(item=>norm(item.matricula)===norm(matricula)&&norm(item.matricula)!==norm(source));
         if(duplicate||termDuplicate){notify('Já existe outro colaborador com essa matrícula.','warning');return;}
-        const target=manualUsers.find(item=>norm(item.matricula)===norm(original));
-        if(!target){notify('Cadastro manual não encontrado. Atualize a lista e tente novamente.','error');modal.hidden=true;return;}
-        const previous={...target};Object.assign(target,{nome,matricula,cc});
+        let target=manualUsers.find(item=>norm(item.sourceMatricula||item.matricula)===norm(source));
+        const created=!target;
+        if(!target){target={sourceMatricula:source,createdAt:new Date().toISOString()};manualUsers.push(target);}
+        const previous={...target};Object.assign(target,{nome,matricula,cc,sourceMatricula:source});
         try{await window.saveManualUsersFile();modal.hidden=true;currentPage=1;renderUsersView();notify('Cadastro do colaborador atualizado!','success');}
-        catch(error){Object.assign(target,previous);console.error(error);notify(error.message||'Não foi possível salvar as alterações.','error');}
+        catch(error){if(created)manualUsers=manualUsers.filter(item=>item!==target);else Object.assign(target,previous);console.error(error);notify(error.message||'Não foi possível salvar as alterações.','error');}
       });
     }
-    modal.dataset.originalMatricula=user.matricula||'';$('editUserName').value=user.nome||'';$('editUserMatricula').value=user.matricula||'';$('editUserCC').value=user.cc||'';modal.hidden=false;$('editUserName').focus();
+    modal.dataset.originalMatricula=user.matricula||'';modal.dataset.originalSource=user.sourceMatricula||user.matricula||'';$('editUserName').value=user.nome||'';$('editUserMatricula').value=user.matricula||'';$('editUserCC').value=user.cc||'';modal.hidden=false;$('editUserName').focus();
   }
   document.addEventListener('click',event=>{
     const button=event.target.closest('.users-edit-button');if(!button)return;
-    const user=manualUsers.find(item=>norm(item.matricula)===norm(button.dataset.editMatricula));if(user)openEditUser(user);
+    const source=button.dataset.editSource||'';const user=getUsers().find(item=>norm(item.sourceMatricula||item.matricula)===norm(source));if(user)openEditUser(user);
   });
   document.addEventListener('click',event=>{
     const button=event.target.closest('.users-use-button');if(!button)return;
